@@ -30,7 +30,7 @@ export function Navbar() {
         </ul>
 
         <div className="hidden items-center gap-2 md:flex">
-          <CtaLink href="#" variant="ghost" size="sm">
+          <CtaLink href="/dashboard" variant="ghost" size="sm">
             Login
           </CtaLink>
           <CtaLink href="#get-started" variant="dark" size="sm">
@@ -70,7 +70,7 @@ export function Navbar() {
               </Link>
             ))}
             <div className="mt-3 grid grid-cols-2 gap-2">
-              <CtaLink href="#" variant="outline" size="md" onClick={() => setOpen(false)}>
+              <CtaLink href="/dashboard" variant="outline" size="md" onClick={() => setOpen(false)}>
                 Login
               </CtaLink>
               <CtaLink href="#get-started" variant="dark" size="md" onClick={() => setOpen(false)}>
