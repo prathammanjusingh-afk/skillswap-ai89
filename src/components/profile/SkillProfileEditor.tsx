@@ -391,7 +391,7 @@ export function SkillProfileEditor({
               </div>
               {profile.skillsSeeking.length === 0 ? (
                 <p className="text-xs text-slate-500 italic py-4 text-center">
-                  No sought skills yet. Add skills you're looking for in teammates.
+                  No sought skills yet. Add skills you&apos;re looking for in teammates.
                 </p>
               ) : (
                 <div className="space-y-2">
