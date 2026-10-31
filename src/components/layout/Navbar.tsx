@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { StudentProfile } from "@/types";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { AvatarImage } from "@/components/ui/avatar-image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,6 +16,7 @@ import {
   Database,
   Menu,
   X,
+  LayoutGrid,
 } from "lucide-react";
 
 interface NavbarProps {
@@ -38,16 +40,17 @@ export function Navbar({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
+    { id: "dashboard", label: "Dashboard", icon: LayoutGrid },
     { id: "students", label: "Discover Teammates", icon: Users },
     { id: "projects", label: "Explore Projects", icon: Rocket },
-    { id: "ai-studio", label: "AI Dream Team Studio", icon: Sparkles, badge: "AI" },
+    { id: "ai-studio", label: "AI Dream Team", icon: Sparkles, badge: "AI" },
     {
       id: "collab",
-      label: "Collaboration Hub",
+      label: "Collab Hub",
       icon: MessageSquare,
       count: pendingRequestsCount,
     },
-    { id: "profile", label: "My Skill Matrix", icon: Sliders },
+    { id: "profile", label: "My Profile", icon: Sliders },
   ];
 
   return (
@@ -137,10 +140,11 @@ export function Navbar({
               onClick={() => setIsPersonaOpen(!isPersonaOpen)}
               className="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-navy-900/90 border border-slate-800 hover:border-slate-700 transition-all text-xs"
             >
-              <img
+              <AvatarImage
                 src={currentUser.avatarUrl}
                 alt={currentUser.fullName}
-                className="w-7 h-7 rounded-full object-cover border border-cyan-400/50"
+                size={28}
+                className="border border-cyan-400/50"
               />
               <div className="hidden sm:block text-left">
                 <span className="font-bold text-white block text-[11px] leading-tight">
@@ -181,10 +185,11 @@ export function Navbar({
                             : "hover:bg-navy-800/80 text-slate-300"
                         }`}
                       >
-                        <img
+                        <AvatarImage
                           src={persona.avatarUrl}
                           alt={persona.fullName}
-                          className="w-8 h-8 rounded-full object-cover border border-slate-700"
+                          size={32}
+                          className="border border-slate-700"
                         />
                         <div className="flex-1 truncate">
                           <span className="font-bold text-white block text-xs truncate">

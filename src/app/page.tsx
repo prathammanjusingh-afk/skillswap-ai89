@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StudentProfile,
   Project,
   CollaborationRequest,
   SynergyBreakdown,
-  SkillCategory,
 } from "@/types";
 import {
   MOCK_CURRENT_USER,
@@ -14,6 +13,16 @@ import {
   MOCK_PROJECTS,
   MOCK_REQUESTS,
 } from "@/lib/mock-data";
+import {
+  loadStoredCurrentUser,
+  saveStoredCurrentUser,
+  loadStoredStudents,
+  saveStoredStudents,
+  loadStoredProjects,
+  saveStoredProjects,
+  loadStoredRequests,
+  saveStoredRequests,
+} from "@/lib/storage";
 import { calculateStudentSynergy } from "@/lib/ai-matchmaker";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -26,31 +35,65 @@ import { TeamGapAnalyzerModal } from "@/components/ai/TeamGapAnalyzerModal";
 import { TeamBuilderStudio } from "@/components/ai/TeamBuilderStudio";
 import { CollabHub } from "@/components/workspace/CollabHub";
 import { SkillProfileEditor } from "@/components/profile/SkillProfileEditor";
+import { Dashboard } from "@/components/dashboard/Dashboard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Sparkles,
   Search,
-  Filter,
   Rocket,
   Users,
-  Layers,
-  ArrowRight,
-  SlidersHorizontal,
-  Flame,
-  CheckCircle2,
+  LayoutDashboard,
 } from "lucide-react";
 
 export default function HomePage() {
-  // Active Persona State
-  const [currentUser, setCurrentUser] = useState<StudentProfile>(MOCK_CURRENT_USER);
-  const [activeTab, setActiveTab] = useState<string>("students");
+  // Hydration guard: use null until client-side storage is loaded
+  const [hydrated, setHydrated] = useState(false);
 
-  // Data Collections
+  // Active Persona State — loaded from localStorage on mount
+  const [currentUser, setCurrentUser] = useState<StudentProfile>(MOCK_CURRENT_USER);
+  const [activeTab, setActiveTab] = useState<string>("dashboard");
+
+  // Data Collections — loaded from localStorage on mount
   const [students, setStudents] = useState<StudentProfile[]>(MOCK_STUDENTS);
   const [projects, setProjects] = useState<Project[]>(MOCK_PROJECTS);
   const [requests, setRequests] = useState<CollaborationRequest[]>(MOCK_REQUESTS);
+
+  // Hydrate from localStorage on first mount (client only)
+  useEffect(() => {
+    const storedUser = loadStoredCurrentUser();
+    const storedStudents = loadStoredStudents();
+    const storedProjects = loadStoredProjects();
+    const storedRequests = loadStoredRequests();
+
+    setCurrentUser(storedUser);
+    setStudents(storedStudents);
+    setProjects(storedProjects);
+    setRequests(storedRequests);
+    setHydrated(true);
+  }, []);
+
+  // Persist changes to localStorage whenever state updates (after hydration)
+  useEffect(() => {
+    if (!hydrated) return;
+    saveStoredCurrentUser(currentUser);
+  }, [currentUser, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveStoredStudents(students);
+  }, [students, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveStoredProjects(projects);
+  }, [projects, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveStoredRequests(requests);
+  }, [requests, hydrated]);
 
   // Search & Filtering States
   const [searchQuery, setSearchQuery] = useState("");
@@ -75,9 +118,9 @@ export default function HomePage() {
   // Available personas to test reciprocal matchmaking
   const availablePersonas = [
     MOCK_CURRENT_USER,
-    students[0], // Priya Sharma (AI/ML @ Stanford)
-    students[1], // Marcus Chen (Backend @ MIT)
-    students[2], // Elena Rostova (UI/UX @ CMU)
+    MOCK_STUDENTS[0], // Priya Sharma (AI/ML @ Stanford)
+    MOCK_STUDENTS[1], // Marcus Chen (Backend @ MIT)
+    MOCK_STUDENTS[2], // Elena Rostova (UI/UX @ CMU)
   ];
 
   const handleSwitchPersona = (persona: StudentProfile) => {
@@ -119,7 +162,7 @@ export default function HomePage() {
       createdAt: new Date().toISOString(),
     };
 
-    setRequests([newReq, ...requests]);
+    setRequests((prev) => [newReq, ...prev]);
   };
 
   // Project Modal Handlers
@@ -157,11 +200,11 @@ export default function HomePage() {
       createdAt: new Date().toISOString(),
     };
 
-    setRequests([newReq, ...requests]);
+    setRequests((prev) => [newReq, ...prev]);
   };
 
   const handleCreateProject = (newProject: Project) => {
-    setProjects([newProject, ...projects]);
+    setProjects((prev) => [newProject, ...prev]);
   };
 
   const handleOpenGapAnalyzer = (project: Project) => {
@@ -192,7 +235,7 @@ export default function HomePage() {
       createdAt: new Date().toISOString(),
     };
 
-    setRequests([newReq, ...requests]);
+    setRequests((prev) => [newReq, ...prev]);
   };
 
   const handleBatchInvitesFromDreamTeam = (studentIds: string[], projectTitle: string) => {
@@ -216,19 +259,28 @@ export default function HomePage() {
       };
     });
 
-    setRequests([...newBatch, ...requests]);
+    setRequests((prev) => [...newBatch, ...prev]);
   };
 
   // Request status updates
   const handleAcceptRequest = (requestId: string) => {
-    setRequests(
-      requests.map((r) => (r.id === requestId ? { ...r, status: "accepted" } : r))
+    setRequests((prev) =>
+      prev.map((r) => (r.id === requestId ? { ...r, status: "accepted" } : r))
     );
   };
 
   const handleDeclineRequest = (requestId: string) => {
-    setRequests(
-      requests.map((r) => (r.id === requestId ? { ...r, status: "declined" } : r))
+    setRequests((prev) =>
+      prev.map((r) => (r.id === requestId ? { ...r, status: "declined" } : r))
+    );
+  };
+
+  // Profile update — persists to localStorage automatically via useEffect
+  const handleUpdateProfile = (updated: StudentProfile) => {
+    setCurrentUser(updated);
+    // Also update the student in the students list so their card reflects changes
+    setStudents((prev) =>
+      prev.map((s) => (s.id === updated.id ? updated : s))
     );
   };
 
@@ -237,7 +289,6 @@ export default function HomePage() {
 
   const filteredStudents = allDisplayStudents
     .filter((student) => {
-      // Search filter
       const query = searchQuery.toLowerCase();
       const matchesSearch =
         !query ||
@@ -247,17 +298,14 @@ export default function HomePage() {
         student.skillsOffered.some((s) => s.name.toLowerCase().includes(query)) ||
         student.skillsSeeking.some((s) => s.name.toLowerCase().includes(query));
 
-      // Category filter
       const matchesCategory =
         selectedCategory === "all" ||
         student.skillsOffered.some((s) => s.category === selectedCategory);
 
-      // University filter
       const matchesUni =
         selectedUniversity === "all" ||
         student.university.toLowerCase().includes(selectedUniversity.toLowerCase());
 
-      // Synergy threshold filter (skip for self)
       const synergy = calculateStudentSynergy(currentUser, student);
       const matchesSynergy =
         student.id === currentUser.id || synergy.overallScore >= minSynergyFilter;
@@ -269,7 +317,7 @@ export default function HomePage() {
       if (b.id === currentUser.id) return 1;
       const synergyA = calculateStudentSynergy(currentUser, a).overallScore;
       const synergyB = calculateStudentSynergy(currentUser, b).overallScore;
-      return synergyB - synergyA; // Highest synergy first
+      return synergyB - synergyA;
     });
 
   // Filtered Projects
@@ -283,11 +331,24 @@ export default function HomePage() {
       project.openRoles.some((r) =>
         r.requiredSkills.some((sk) => sk.toLowerCase().includes(query))
       );
-
     return matchesSearch;
   });
 
-  const pendingRequestsCount = requests.filter((r) => r.status === "pending").length;
+  const pendingRequestsCount = requests.filter(
+    (r) => r.status === "pending" && r.receiverId === currentUser.id
+  ).length;
+
+  // Show loading skeleton while hydrating from storage
+  if (!hydrated) {
+    return (
+      <div className="min-h-screen bg-navy-950 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 animate-pulse" />
+          <p className="text-slate-400 text-sm">Loading SkillSwap AI...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-navy-950 text-slate-100 flex flex-col bg-grid-pattern relative">
@@ -307,86 +368,21 @@ export default function HomePage() {
 
       {/* Main Page Body */}
       <main className="flex-1 container mx-auto px-4 sm:px-6 pt-8 pb-16">
-        {/* Hero Section */}
-        <section className="mb-10 text-center max-w-4xl mx-auto pt-4 sm:pt-8">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-navy-900 border border-cyan-500/30 text-cyan-300 text-xs font-semibold mb-4 shadow-lg shadow-cyan-950/50">
-            <Sparkles className="w-4 h-4 text-cyan-400 animate-pulse" />
-            <span>AI Matchmaking for College Innovators</span>
-          </div>
 
-          <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-[1.1] mb-4">
-            Find your{" "}
-            <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">
-              perfect team.
-            </span>
-          </h1>
-
-          <p className="text-slate-300 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed mb-6">
-            College students struggle to find collaborators who bring the exact skills their projects need. SkillSwap AI calculates deep complementary technical synergy, work style alignment, and team gap coverage.
-          </p>
-
-          {/* Quick Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
-            <Button
-              variant="glow"
-              size="lg"
-              onClick={() => setActiveTab("ai-studio")}
-              className="text-sm shadow-xl shadow-cyan-500/20"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Generate AI Dream Team
-            </Button>
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={() => setIsCreateProjectModalOpen(true)}
-              className="text-sm border-slate-700 bg-navy-900"
-            >
-              <Rocket className="w-4 h-4 mr-2 text-cyan-400" />
-              Post a Project
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => setActiveTab("students")}
-              className="text-sm"
-            >
-              <Users className="w-4 h-4 mr-2 text-indigo-400" />
-              Discover Teammates
-            </Button>
-          </div>
-
-          {/* Live Persona Match Banner */}
-          <div className="rounded-2xl border border-slate-800 bg-navy-900/60 p-3.5 max-w-2xl mx-auto backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2.5">
-              <img
-                src={currentUser.avatarUrl}
-                alt={currentUser.fullName}
-                className="w-8 h-8 rounded-full object-cover border border-cyan-400"
-              />
-              <div className="text-left">
-                <span className="text-slate-400 block text-[11px]">
-                  Viewing Feed As:
-                </span>
-                <span className="font-bold text-white">
-                  {currentUser.fullName} ({currentUser.university})
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-slate-400 text-[11px]">
-                Seeking: {currentUser.skillsSeeking.slice(0, 2).map((s) => s.name).join(", ")}
-              </span>
-              <button
-                onClick={() => setActiveTab("profile")}
-                className="text-cyan-400 font-semibold hover:underline"
-              >
-                Edit
-              </button>
-            </div>
-          </div>
-        </section>
+        {/* TAB 0: DASHBOARD */}
+        {activeTab === "dashboard" && (
+          <Dashboard
+            currentUser={currentUser}
+            students={students}
+            projects={projects}
+            requests={requests}
+            onNavigate={setActiveTab}
+            onOpenStudentDetail={handleOpenStudentDetail}
+            onOpenProjectDetail={handleOpenProjectDetail}
+            onAcceptRequest={handleAcceptRequest}
+            onDeclineRequest={handleDeclineRequest}
+          />
+        )}
 
         {/* Search & Filter Toolbar (for Students and Projects tabs) */}
         {(activeTab === "students" || activeTab === "projects") && (
@@ -418,9 +414,9 @@ export default function HomePage() {
                     <option value="all">All Disciplines</option>
                     <option value="frontend">Frontend Engineering</option>
                     <option value="backend">Distributed Backend</option>
-                    <option value="ai_ml">AI & Machine Learning</option>
+                    <option value="ai_ml">AI &amp; Machine Learning</option>
                     <option value="design">UI/UX Design Systems</option>
-                    <option value="cloud_devops">DevOps & Cloud</option>
+                    <option value="cloud_devops">DevOps &amp; Cloud</option>
                     <option value="mobile">Mobile Applications</option>
                   </select>
 
@@ -553,6 +549,21 @@ export default function HomePage() {
                 />
               ))}
             </div>
+
+            {filteredProjects.length === 0 && (
+              <div className="p-12 text-center rounded-2xl border border-slate-800 bg-navy-900/40 text-slate-400">
+                <p className="text-base font-semibold text-slate-300 mb-1">
+                  No projects match your search
+                </p>
+                <p className="text-xs mb-4">
+                  Clear the search query or post your own project.
+                </p>
+                <Button variant="glow" size="sm" onClick={() => setIsCreateProjectModalOpen(true)}>
+                  <Rocket className="w-4 h-4 mr-1.5" />
+                  Post a Project
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
@@ -581,7 +592,7 @@ export default function HomePage() {
         {activeTab === "profile" && (
           <SkillProfileEditor
             currentUser={currentUser}
-            onUpdateProfile={(updated) => setCurrentUser(updated)}
+            onUpdateProfile={handleUpdateProfile}
           />
         )}
       </main>

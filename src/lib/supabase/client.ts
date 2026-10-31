@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
@@ -6,17 +6,22 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 export const isSupabaseConfigured = Boolean(
   supabaseUrl &&
   supabaseAnonKey &&
-  !supabaseUrl.includes("your-project-id")
+  !supabaseUrl.includes("your-project-id") &&
+  supabaseUrl.startsWith("https://")
 );
 
-// If configured, instantiate real Supabase client; otherwise null
-export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
-
 /**
- * Returns whether the application is running in Live Supabase mode or Interactive Demo mode
+ * Client-side Supabase client singleton for browser components
  */
+export function createClient() {
+  if (!isSupabaseConfigured) {
+    return null;
+  }
+  return createBrowserClient(supabaseUrl, supabaseAnonKey);
+}
+
+export const supabase = isSupabaseConfigured ? createClient() : null;
+
 export function getSupabaseMode(): {
   isLive: boolean;
   message: string;
@@ -29,6 +34,6 @@ export function getSupabaseMode(): {
   }
   return {
     isLive: false,
-    message: "Demo Mode active (Interactive local memory store with seed data)",
+    message: "Demo Mode active (Persistent storage enabled)",
   };
 }
