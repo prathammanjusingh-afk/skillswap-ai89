@@ -3,7 +3,10 @@ import { StudentProfile, SynergyBreakdown, Project, ProjectRole } from "@/types"
 /**
  * Weights proficiency into numeric factor (0.45 to 1.0)
  */
-function getProficiencyWeight(proficiency: string): number {
+function getProficiencyFactor(proficiency: string, level?: number): number {
+  if (typeof level === "number" && level >= 1 && level <= 5) {
+    return 0.2 * level;
+  }
   switch (proficiency) {
     case "expert":
       return 1.0;
@@ -18,7 +21,12 @@ function getProficiencyWeight(proficiency: string): number {
 }
 
 /**
- * Calculates bilateral synergy between active student user and a target peer student
+ * Calculates real transparent synergy score between active student and a peer:
+ * - Skill complementarity: 35%
+ * - Shared project interests: 25%
+ * - Availability compatibility: 15%
+ * - Goal alignment: 15%
+ * - Experience compatibility: 10%
  */
 export function calculateStudentSynergy(
   currentUser: StudentProfile,
@@ -28,109 +36,140 @@ export function calculateStudentSynergy(
     return {
       overallScore: 100,
       skillComplementScore: 100,
-      goalAlignmentScore: 100,
-      workStyleScore: 100,
+      interestsScore: 100,
       timeCommitmentScore: 100,
+      goalAlignmentScore: 100,
+      experienceScore: 100,
+      workStyleScore: 100,
       matchedSkills: [],
       complementaryHighlights: ["This is your active profile"],
       synergyLevel: "Exceptional",
     };
   }
 
-  // 1. Bilateral Complementarity:
-  // How many skills TARGET offers that CURRENT USER seeks?
+  // 1. Skill Complementarity (35% weight)
+  // Target skills offered that Current User seeks
   const mySeekingNames = currentUser.skillsSeeking.map((s) => s.name.toLowerCase());
   const peerOfferedMatches = targetStudent.skillsOffered.filter((s) =>
-    mySeekingNames.some((needed) => needed === s.name.toLowerCase() || s.name.toLowerCase().includes(needed))
+    mySeekingNames.some((needed) => needed === s.name.toLowerCase() || s.name.toLowerCase().includes(needed) || needed.includes(s.name.toLowerCase()))
   );
 
-  // How many skills CURRENT USER offers that TARGET seeks?
+  // Current User skills offered that Target seeks (bilateral reciprocal bonus)
   const peerSeekingNames = targetStudent.skillsSeeking.map((s) => s.name.toLowerCase());
   const myOfferedMatches = currentUser.skillsOffered.filter((s) =>
-    peerSeekingNames.some((needed) => needed === s.name.toLowerCase() || s.name.toLowerCase().includes(needed))
+    peerSeekingNames.some((needed) => needed === s.name.toLowerCase() || s.name.toLowerCase().includes(needed) || needed.includes(s.name.toLowerCase()))
   );
 
-  // Skill Score Calculation
-  let skillComplementScore = 50; // base baseline
+  let skillComplementScore = 40; // baseline
   if (peerOfferedMatches.length > 0) {
-    const peerScore =
-      peerOfferedMatches.reduce((acc, s) => acc + getProficiencyWeight(s.proficiency) * 20, 0);
-    skillComplementScore += Math.min(peerScore, 30);
+    const peerScore = peerOfferedMatches.reduce(
+      (acc, s) => acc + getProficiencyFactor(s.proficiency, s.proficiencyLevel) * 25,
+      0
+    );
+    skillComplementScore += Math.min(peerScore, 35);
   }
   if (myOfferedMatches.length > 0) {
-    const myScore =
-      myOfferedMatches.reduce((acc, s) => acc + getProficiencyWeight(s.proficiency) * 20, 0);
-    skillComplementScore += Math.min(myScore, 20);
+    const myScore = myOfferedMatches.reduce(
+      (acc, s) => acc + getProficiencyFactor(s.proficiency, s.proficiencyLevel) * 20,
+      0
+    );
+    skillComplementScore += Math.min(myScore, 25);
   }
   skillComplementScore = Math.min(Math.round(skillComplementScore), 99);
 
-  // 2. Time Commitment Compatibility
+  // 2. Shared Project Interests (25% weight)
+  const myInterests = (currentUser.interests || []).map((i) => i.toLowerCase());
+  const peerInterests = (targetStudent.interests || []).map((i) => i.toLowerCase());
+  
+  let sharedInterests = myInterests.filter((i) => peerInterests.includes(i));
+  // If either doesn't have custom interests yet, compare major/domain alignment
+  let interestsScore = 65;
+  if (myInterests.length > 0 && peerInterests.length > 0) {
+    const overlapRatio = sharedInterests.length / Math.max(1, Math.min(myInterests.length, peerInterests.length));
+    interestsScore = Math.round(50 + overlapRatio * 48);
+  } else if (currentUser.major && targetStudent.major) {
+    const sameMajor = currentUser.major.toLowerCase() === targetStudent.major.toLowerCase();
+    interestsScore = sameMajor ? 88 : 72;
+  }
+
+  // 3. Availability & Work Rhythm Compatibility (15% weight)
   const hourDiff = Math.abs(currentUser.availabilityHoursPerWeek - targetStudent.availabilityHoursPerWeek);
   let timeCommitmentScore = 95 - hourDiff * 3;
-  timeCommitmentScore = Math.max(50, Math.min(100, timeCommitmentScore));
+  if (currentUser.preferredWorkStyle === targetStudent.preferredWorkStyle) {
+    timeCommitmentScore += 5;
+  }
+  timeCommitmentScore = Math.max(50, Math.min(100, Math.round(timeCommitmentScore)));
 
-  // 3. Work Style Alignment
+  // 4. Goal Alignment (15% weight)
+  let goalAlignmentScore = 75;
+  const myGoals = (currentUser.learningGoals || []).map((g) => g.toLowerCase());
+  const targetCanTeachGoals = targetStudent.skillsOffered.filter((s) =>
+    myGoals.some((g) => g.includes(s.name.toLowerCase()) || s.name.toLowerCase().includes(g))
+  );
+  if (targetCanTeachGoals.length > 0) {
+    goalAlignmentScore += Math.min(20, targetCanTeachGoals.length * 10);
+  }
+  if (currentUser.university === targetStudent.university) {
+    goalAlignmentScore += 5; // Campus sync bonus
+  }
+  goalAlignmentScore = Math.min(99, Math.round(goalAlignmentScore));
+
+  // 5. Experience Compatibility (10% weight)
+  const expDiff = Math.abs(currentUser.completedProjectsCount - targetStudent.completedProjectsCount);
+  let experienceScore = Math.max(60, 95 - expDiff * 4);
+
+  // Work Style Score (for display)
   let workStyleScore = 80;
   if (currentUser.preferredWorkStyle === targetStudent.preferredWorkStyle) {
     workStyleScore = 98;
-  } else if (
-    (currentUser.preferredWorkStyle === "hybrid" && targetStudent.preferredWorkStyle !== "hybrid") ||
-    (targetStudent.preferredWorkStyle === "hybrid" && currentUser.preferredWorkStyle !== "hybrid")
-  ) {
+  } else if (currentUser.preferredWorkStyle === "hybrid" || targetStudent.preferredWorkStyle === "hybrid") {
     workStyleScore = 88;
   } else {
-    workStyleScore = 68; // async vs sync_intensive
+    workStyleScore = 70;
   }
 
-  // 4. Goal Alignment (University & experience level)
-  let goalAlignmentScore = 82;
-  if (currentUser.university === targetStudent.university) {
-    goalAlignmentScore += 8; // same campus bonus for in-person sync
-  }
-  if (Math.abs(currentUser.graduationYear - targetStudent.graduationYear) <= 1) {
-    goalAlignmentScore += 6;
-  }
-  goalAlignmentScore = Math.min(goalAlignmentScore, 98);
-
-  // Overall Weighted Score
-  // 50% skill complementarity + 20% availability + 15% work style + 15% goal alignment
-  const overallScore = Math.round(
-    skillComplementScore * 0.5 +
-      timeCommitmentScore * 0.2 +
-      workStyleScore * 0.15 +
-      goalAlignmentScore * 0.15
+  // Final Transparent Weighted Formula:
+  // 35% Skill + 25% Interests + 15% Availability + 15% Goals + 10% Experience
+  const overallScore = Math.min(
+    99,
+    Math.max(
+      45,
+      Math.round(
+        skillComplementScore * 0.35 +
+        interestsScore * 0.25 +
+        timeCommitmentScore * 0.15 +
+        goalAlignmentScore * 0.15 +
+        experienceScore * 0.10
+      )
+    )
   );
 
-  // Human-readable AI highlights
+  // Generate transparent natural language explanations
   const complementaryHighlights: string[] = [];
 
   if (peerOfferedMatches.length > 0) {
     const names = peerOfferedMatches.map((s) => s.name).join(", ");
     complementaryHighlights.push(
-      `Fills your missing stack with expert ${names} capabilities.`
+      `Complementary Skillset: Can teach or build with ${names} to cover your learning needs.`
     );
   }
 
   if (myOfferedMatches.length > 0) {
     const names = myOfferedMatches.map((s) => s.name).join(", ");
     complementaryHighlights.push(
-      `Reciprocal match: They are actively seeking your ${names} skillset.`
+      `Reciprocal Swap: You can teach them your ${names} expertise in return.`
+    );
+  }
+
+  if (sharedInterests.length > 0) {
+    complementaryHighlights.push(
+      `Shared Interests: Both excited about ${sharedInterests.slice(0, 3).join(", ")}.`
     );
   }
 
   if (hourDiff <= 4) {
     complementaryHighlights.push(
-      `Synchronized availability (~${targetStudent.availabilityHoursPerWeek}h vs your ${currentUser.availabilityHoursPerWeek}h/wk) ensures balanced sprint workload.`
-    );
-  }
-
-  if (currentUser.preferredWorkStyle === targetStudent.preferredWorkStyle) {
-    complementaryHighlights.push(
-      `Mutual preference for ${currentUser.preferredWorkStyle.toUpperCase()} working rhythm reduces communication friction.`
-    );
-  } else {
-    complementaryHighlights.push(
-      `Compatible collaboration styles (${currentUser.preferredWorkStyle} & ${targetStudent.preferredWorkStyle}).`
+      `Aligned Availability: Compatible schedules (${targetStudent.availabilityHoursPerWeek} hrs/wk vs your ${currentUser.availabilityHoursPerWeek} hrs/wk).`
     );
   }
 
@@ -146,9 +185,11 @@ export function calculateStudentSynergy(
   return {
     overallScore,
     skillComplementScore,
-    goalAlignmentScore,
-    workStyleScore,
+    interestsScore,
     timeCommitmentScore,
+    goalAlignmentScore,
+    experienceScore,
+    workStyleScore,
     matchedSkills,
     complementaryHighlights,
     synergyLevel,
@@ -214,7 +255,7 @@ export function calculateTeamSkillCoverage(members: StudentProfile[]): {
 
   members.forEach((m) => {
     m.skillsOffered.forEach((skill) => {
-      const weight = getProficiencyWeight(skill.proficiency) * 35;
+      const weight = getProficiencyFactor(skill.proficiency, skill.proficiencyLevel) * 35;
       if (skill.category === "frontend") coverage.frontend = Math.min(100, coverage.frontend + weight);
       if (skill.category === "backend") coverage.backend = Math.min(100, coverage.backend + weight);
       if (skill.category === "ai_ml") coverage.ai_ml = Math.min(100, coverage.ai_ml + weight);
@@ -277,7 +318,6 @@ export function generateDreamTeamRecommendation(
         skillsFilled: bestMatchDetails.matchedRoleSkills,
         justification: bestMatchDetails.justification,
       });
-      // Remove selected student so they are not assigned to multiple roles
       unassignedStudents.splice(bestStudentIndex, 1);
     }
   }

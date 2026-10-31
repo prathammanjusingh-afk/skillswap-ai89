@@ -5,6 +5,7 @@ import { StudentProfile, SynergyBreakdown } from "@/types";
 import { calculateStudentSynergy } from "@/lib/ai-matchmaker";
 import { getCategoryBadgeColor } from "@/lib/utils";
 import { SynergyScoreCard } from "@/components/ai/SynergyScoreCard";
+import { AvatarImage } from "@/components/ui/avatar-image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -40,13 +41,14 @@ export function StudentCard({
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <img
+              <AvatarImage
                 src={student.avatarUrl}
                 alt={student.fullName}
-                className="w-14 h-14 rounded-full object-cover border-2 border-slate-700 group-hover:border-cyan-400 transition-colors"
+                size={56}
+                className="border-2 border-slate-700 group-hover:border-cyan-400 transition-colors"
               />
               <div
-                className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-navy-900"
+                className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-navy-900 z-10"
                 title="Active & Looking for Team"
               />
             </div>

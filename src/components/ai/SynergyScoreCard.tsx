@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { SynergyBreakdown } from "@/types";
 import { getSynergyColor } from "@/lib/utils";
-import { Sparkles, ChevronDown, ChevronUp, Zap, Clock, Compass, Target } from "lucide-react";
+import { Sparkles, ChevronDown, ChevronUp, Zap, Clock, Compass, Target, Award, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SynergyScoreCardProps {
@@ -48,7 +48,7 @@ export function SynergyScoreCard({ synergy, compact = false }: SynergyScoreCardP
               </h4>
             </div>
             <p className="text-xs text-slate-300 mt-0.5">
-              AI-calculated complementarity index
+              Transparent 5-factor compatibility score
             </p>
           </div>
         </div>
@@ -66,12 +66,12 @@ export function SynergyScoreCard({ synergy, compact = false }: SynergyScoreCardP
         </button>
       </div>
 
-      {/* Progress Bars Overview */}
+      {/* Progress Bars Overview (Top 2 Primary Drivers) */}
       <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-slate-700/40 text-xs">
         <div>
           <div className="flex justify-between text-slate-300 mb-1">
             <span className="flex items-center gap-1">
-              <Zap className="w-3 h-3 text-cyan-400" /> Skill Synergy
+              <Zap className="w-3 h-3 text-cyan-400" /> Skill Fit (35%)
             </span>
             <span className="font-semibold text-cyan-400">
               {synergy.skillComplementScore}%
@@ -88,22 +88,22 @@ export function SynergyScoreCard({ synergy, compact = false }: SynergyScoreCardP
         <div>
           <div className="flex justify-between text-slate-300 mb-1">
             <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3 text-indigo-400" /> Availability Fit
+              <Heart className="w-3 h-3 text-pink-400" /> Interests (25%)
             </span>
-            <span className="font-semibold text-indigo-400">
-              {synergy.timeCommitmentScore}%
+            <span className="font-semibold text-pink-400">
+              {synergy.interestsScore}%
             </span>
           </div>
           <div className="h-1.5 w-full bg-navy-950 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
-              style={{ width: `${synergy.timeCommitmentScore}%` }}
+              className="h-full bg-gradient-to-r from-pink-500 to-rose-400 rounded-full transition-all duration-500"
+              style={{ width: `${synergy.interestsScore}%` }}
             />
           </div>
         </div>
       </div>
 
-      {/* Expandable AI Insights */}
+      {/* Expandable Transparent Breakdown */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -113,29 +113,37 @@ export function SynergyScoreCard({ synergy, compact = false }: SynergyScoreCardP
             transition={{ duration: 0.2 }}
             className="overflow-hidden mt-3 pt-3 border-t border-slate-700/40"
           >
-            <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+            <div className="grid grid-cols-3 gap-2 mb-3 text-xs">
               <div className="p-2 rounded-lg bg-navy-950/60 border border-slate-800">
-                <span className="text-slate-400 flex items-center gap-1">
-                  <Compass className="w-3 h-3 text-emerald-400" /> Work Rhythm
+                <span className="text-slate-400 flex items-center gap-1 text-[11px]">
+                  <Clock className="w-3 h-3 text-indigo-400" /> Hours (15%)
                 </span>
                 <span className="font-semibold text-white mt-0.5 block">
-                  {synergy.workStyleScore}% Match
+                  {synergy.timeCommitmentScore}%
                 </span>
               </div>
               <div className="p-2 rounded-lg bg-navy-950/60 border border-slate-800">
-                <span className="text-slate-400 flex items-center gap-1">
-                  <Target className="w-3 h-3 text-amber-400" /> Academic & Goals
+                <span className="text-slate-400 flex items-center gap-1 text-[11px]">
+                  <Target className="w-3 h-3 text-amber-400" /> Goals (15%)
                 </span>
                 <span className="font-semibold text-white mt-0.5 block">
-                  {synergy.goalAlignmentScore}% Match
+                  {synergy.goalAlignmentScore}%
+                </span>
+              </div>
+              <div className="p-2 rounded-lg bg-navy-950/60 border border-slate-800">
+                <span className="text-slate-400 flex items-center gap-1 text-[11px]">
+                  <Award className="w-3 h-3 text-emerald-400" /> Exp. (10%)
+                </span>
+                <span className="font-semibold text-white mt-0.5 block">
+                  {synergy.experienceScore}%
                 </span>
               </div>
             </div>
 
             <div className="space-y-1.5 text-xs text-slate-300">
               <p className="font-semibold text-slate-200 flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-cyan-400" /> AI Compatibility
-                Analysis:
+                <Sparkles className="w-3 h-3 text-cyan-400" /> Algorithm Match
+                Factors:
               </p>
               {synergy.complementaryHighlights.map((highlight, index) => (
                 <div

@@ -1,4 +1,4 @@
-import { StudentProfile, Project, CollaborationRequest } from "@/types";
+import { StudentProfile, Project, CollaborationRequest, ExchangeSession, ChatMessage, NotificationItem } from "@/types";
 import { MOCK_CURRENT_USER, MOCK_STUDENTS, MOCK_PROJECTS, MOCK_REQUESTS } from "./mock-data";
 
 const KEYS = {
@@ -6,6 +6,9 @@ const KEYS = {
   STUDENTS: "skillswap_students_v1",
   PROJECTS: "skillswap_projects_v1",
   REQUESTS: "skillswap_requests_v1",
+  SESSIONS: "skillswap_sessions_v1",
+  MESSAGES: "skillswap_messages_v1",
+  NOTIFICATIONS: "skillswap_notifications_v1",
 };
 
 function isClient(): boolean {
@@ -105,6 +108,69 @@ export function saveStoredRequests(requests: CollaborationRequest[]): void {
   }
 }
 
+export function loadStoredSessions(): ExchangeSession[] {
+  if (!isClient()) return [];
+  try {
+    const raw = localStorage.getItem(KEYS.SESSIONS);
+    if (!raw) return [];
+    return JSON.parse(raw) as ExchangeSession[];
+  } catch (e) {
+    console.error("Failed to load sessions from storage", e);
+    return [];
+  }
+}
+
+export function saveStoredSessions(sessions: ExchangeSession[]): void {
+  if (!isClient()) return;
+  try {
+    localStorage.setItem(KEYS.SESSIONS, JSON.stringify(sessions));
+  } catch (e) {
+    console.error("Failed to save sessions to storage", e);
+  }
+}
+
+export function loadStoredMessages(): ChatMessage[] {
+  if (!isClient()) return [];
+  try {
+    const raw = localStorage.getItem(KEYS.MESSAGES);
+    if (!raw) return [];
+    return JSON.parse(raw) as ChatMessage[];
+  } catch (e) {
+    console.error("Failed to load messages from storage", e);
+    return [];
+  }
+}
+
+export function saveStoredMessages(messages: ChatMessage[]): void {
+  if (!isClient()) return;
+  try {
+    localStorage.setItem(KEYS.MESSAGES, JSON.stringify(messages));
+  } catch (e) {
+    console.error("Failed to save messages to storage", e);
+  }
+}
+
+export function loadStoredNotifications(): NotificationItem[] {
+  if (!isClient()) return [];
+  try {
+    const raw = localStorage.getItem(KEYS.NOTIFICATIONS);
+    if (!raw) return [];
+    return JSON.parse(raw) as NotificationItem[];
+  } catch (e) {
+    console.error("Failed to load notifications from storage", e);
+    return [];
+  }
+}
+
+export function saveStoredNotifications(notifications: NotificationItem[]): void {
+  if (!isClient()) return;
+  try {
+    localStorage.setItem(KEYS.NOTIFICATIONS, JSON.stringify(notifications));
+  } catch (e) {
+    console.error("Failed to save notifications to storage", e);
+  }
+}
+
 export function resetStorageToDefaults(): void {
   if (!isClient()) return;
   try {
@@ -112,6 +178,9 @@ export function resetStorageToDefaults(): void {
     localStorage.removeItem(KEYS.STUDENTS);
     localStorage.removeItem(KEYS.PROJECTS);
     localStorage.removeItem(KEYS.REQUESTS);
+    localStorage.removeItem(KEYS.SESSIONS);
+    localStorage.removeItem(KEYS.MESSAGES);
+    localStorage.removeItem(KEYS.NOTIFICATIONS);
   } catch (e) {
     console.error("Failed to reset storage", e);
   }

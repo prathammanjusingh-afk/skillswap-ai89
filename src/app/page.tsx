@@ -6,6 +6,9 @@ import {
   Project,
   CollaborationRequest,
   SynergyBreakdown,
+  ExchangeSession,
+  ChatMessage,
+  NotificationItem,
 } from "@/types";
 import {
   MOCK_CURRENT_USER,
@@ -22,6 +25,12 @@ import {
   saveStoredProjects,
   loadStoredRequests,
   saveStoredRequests,
+  loadStoredSessions,
+  saveStoredSessions,
+  loadStoredMessages,
+  saveStoredMessages,
+  loadStoredNotifications,
+  saveStoredNotifications,
 } from "@/lib/storage";
 import { calculateStudentSynergy } from "@/lib/ai-matchmaker";
 import { Navbar } from "@/components/layout/Navbar";
@@ -36,15 +45,18 @@ import { TeamBuilderStudio } from "@/components/ai/TeamBuilderStudio";
 import { CollabHub } from "@/components/workspace/CollabHub";
 import { SkillProfileEditor } from "@/components/profile/SkillProfileEditor";
 import { Dashboard } from "@/components/dashboard/Dashboard";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { SessionsManager } from "@/components/sessions/SessionsManager";
+import { SessionSchedulerModal } from "@/components/sessions/SessionSchedulerModal";
+import { DirectMessagingHub } from "@/components/messaging/DirectMessagingHub";
+import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   Sparkles,
   Search,
   Rocket,
   Users,
-  LayoutDashboard,
 } from "lucide-react";
 
 export default function HomePage() {
@@ -59,6 +71,17 @@ export default function HomePage() {
   const [students, setStudents] = useState<StudentProfile[]>(MOCK_STUDENTS);
   const [projects, setProjects] = useState<Project[]>(MOCK_PROJECTS);
   const [requests, setRequests] = useState<CollaborationRequest[]>(MOCK_REQUESTS);
+  const [sessions, setSessions] = useState<ExchangeSession[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+
+  // Auth state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // Session scheduler modal state
+  const [sessionSchedulerPartner, setSessionSchedulerPartner] = useState<StudentProfile | null>(null);
+  const [isSessionSchedulerOpen, setIsSessionSchedulerOpen] = useState(false);
 
   // Hydrate from localStorage on first mount (client only)
   useEffect(() => {
@@ -66,11 +89,26 @@ export default function HomePage() {
     const storedStudents = loadStoredStudents();
     const storedProjects = loadStoredProjects();
     const storedRequests = loadStoredRequests();
+    const storedSessions = loadStoredSessions();
+    const storedMessages = loadStoredMessages();
+    const storedNotifications = loadStoredNotifications();
 
     setCurrentUser(storedUser);
     setStudents(storedStudents);
     setProjects(storedProjects);
     setRequests(storedRequests);
+    setSessions(storedSessions);
+    setMessages(storedMessages);
+    setNotifications(storedNotifications);
+
+    // Check if user was previously authenticated (demo mode)
+    if (typeof window !== "undefined") {
+      const authFlag = localStorage.getItem("skillswap_authenticated");
+      if (authFlag === "true") {
+        setIsAuthenticated(true);
+      }
+    }
+
     setHydrated(true);
   }, []);
 
@@ -94,6 +132,21 @@ export default function HomePage() {
     if (!hydrated) return;
     saveStoredRequests(requests);
   }, [requests, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveStoredSessions(sessions);
+  }, [sessions, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveStoredMessages(messages);
+  }, [messages, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveStoredNotifications(notifications);
+  }, [notifications, hydrated]);
 
   // Search & Filtering States
   const [searchQuery, setSearchQuery] = useState("");
@@ -127,7 +180,61 @@ export default function HomePage() {
     setCurrentUser(persona);
   };
 
-  // Student Modal Handlers
+  // ==========================================
+  // AUTH HANDLERS
+  // ==========================================
+  const handleLoginSuccess = (userProfile: StudentProfile) => {
+    setCurrentUser(userProfile);
+    setIsAuthenticated(true);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("skillswap_authenticated", "true");
+    }
+    setIsAuthModalOpen(false);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("skillswap_authenticated");
+    }
+    setCurrentUser(MOCK_CURRENT_USER);
+  };
+
+  // ==========================================
+  // NOTIFICATION HELPERS
+  // ==========================================
+  const addNotification = (
+    type: NotificationItem["type"],
+    title: string,
+    message: string,
+    linkTab?: string
+  ) => {
+    const newNotif: NotificationItem = {
+      id: `notif-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      userId: currentUser.id,
+      type,
+      title,
+      message,
+      linkTab,
+      read: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications((prev) => [newNotif, ...prev]);
+  };
+
+  const handleMarkNotificationRead = (notificationId: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
+    );
+  };
+
+  const handleMarkAllNotificationsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  // ==========================================
+  // STUDENT MODAL HANDLERS
+  // ==========================================
   const handleOpenStudentDetail = (student: StudentProfile, synergy: SynergyBreakdown) => {
     setSelectedStudentForModal(student);
     setSelectedStudentSynergy(synergy);
@@ -163,9 +270,18 @@ export default function HomePage() {
     };
 
     setRequests((prev) => [newReq, ...prev]);
+
+    addNotification(
+      "request_received",
+      "Swap Request Sent",
+      `Your skill swap proposal was sent to ${receiver.fullName}.`,
+      "collab"
+    );
   };
 
-  // Project Modal Handlers
+  // ==========================================
+  // PROJECT MODAL HANDLERS
+  // ==========================================
   const handleOpenProjectDetail = (project: Project) => {
     setSelectedProjectForModal(project);
     setPreselectedRoleId(null);
@@ -262,11 +378,22 @@ export default function HomePage() {
     setRequests((prev) => [...newBatch, ...prev]);
   };
 
-  // Request status updates
+  // ==========================================
+  // REQUEST STATUS UPDATES
+  // ==========================================
   const handleAcceptRequest = (requestId: string) => {
     setRequests((prev) =>
       prev.map((r) => (r.id === requestId ? { ...r, status: "accepted" } : r))
     );
+    const req = requests.find((r) => r.id === requestId);
+    if (req) {
+      addNotification(
+        "request_accepted",
+        "Request Accepted",
+        `You accepted a collaboration request from ${req.senderName}.`,
+        "collab"
+      );
+    }
   };
 
   const handleDeclineRequest = (requestId: string) => {
@@ -275,7 +402,9 @@ export default function HomePage() {
     );
   };
 
-  // Profile update — persists to localStorage automatically via useEffect
+  // ==========================================
+  // PROFILE UPDATE
+  // ==========================================
   const handleUpdateProfile = (updated: StudentProfile) => {
     setCurrentUser(updated);
     // Also update the student in the students list so their card reflects changes
@@ -283,6 +412,67 @@ export default function HomePage() {
       prev.map((s) => (s.id === updated.id ? updated : s))
     );
   };
+
+  // ==========================================
+  // SESSION HANDLERS
+  // ==========================================
+  const handleScheduleSession = (newSession: ExchangeSession) => {
+    setSessions((prev) => [newSession, ...prev]);
+    addNotification(
+      "session_scheduled",
+      "Session Scheduled",
+      `1-on-1 session with ${newSession.partnerName} scheduled for ${new Date(newSession.scheduledAt).toLocaleDateString()}.`,
+      "sessions"
+    );
+  };
+
+  const handleUpdateSessionStatus = (sessionId: string, newStatus: ExchangeSession["status"]) => {
+    setSessions((prev) =>
+      prev.map((s) => (s.id === sessionId ? { ...s, status: newStatus } : s))
+    );
+  };
+
+  const handleOpenSessionScheduler = (partner: StudentProfile) => {
+    setSessionSchedulerPartner(partner);
+    setIsSessionSchedulerOpen(true);
+  };
+
+  // ==========================================
+  // MESSAGE HANDLERS
+  // ==========================================
+  const handleSendMessage = (receiverId: string, content: string) => {
+    const newMsg: ChatMessage = {
+      id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      senderId: currentUser.id,
+      senderName: currentUser.fullName,
+      senderAvatar: currentUser.avatarUrl,
+      receiverId,
+      content,
+      timestamp: new Date().toISOString(),
+      read: false,
+    };
+    setMessages((prev) => [...prev, newMsg]);
+  };
+
+  // ==========================================
+  // ADMIN HANDLERS
+  // ==========================================
+  const handleUpdateUserRole = (userId: string, newRole: StudentProfile["role"]) => {
+    setStudents((prev) =>
+      prev.map((s) => (s.id === userId ? { ...s, role: newRole } : s))
+    );
+    if (userId === currentUser.id) {
+      setCurrentUser((prev) => ({ ...prev, role: newRole }));
+    }
+  };
+
+  const handleDeleteProject = (projectId: string) => {
+    setProjects((prev) => prev.filter((p) => p.id !== projectId));
+  };
+
+  // ==========================================
+  // COMPUTED VALUES
+  // ==========================================
 
   // Filtered Students list with live AI synergy ranking
   const allDisplayStudents = [currentUser, ...students.filter((s) => s.id !== currentUser.id)];
@@ -338,6 +528,10 @@ export default function HomePage() {
     (r) => r.status === "pending" && r.receiverId === currentUser.id
   ).length;
 
+  const unreadMessageCount = messages.filter(
+    (m) => m.receiverId === currentUser.id && !m.read
+  ).length;
+
   // Show loading skeleton while hydrating from storage
   if (!hydrated) {
     return (
@@ -364,6 +558,13 @@ export default function HomePage() {
         availablePersonas={availablePersonas}
         onSwitchPersona={handleSwitchPersona}
         pendingRequestsCount={pendingRequestsCount}
+        isAuthenticated={isAuthenticated}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
+        onLogout={handleLogout}
+        notifications={notifications}
+        onMarkNotificationRead={handleMarkNotificationRead}
+        onMarkAllNotificationsRead={handleMarkAllNotificationsRead}
+        unreadMessageCount={unreadMessageCount}
       />
 
       {/* Main Page Body */}
@@ -588,16 +789,76 @@ export default function HomePage() {
           />
         )}
 
-        {/* TAB 5: MY SKILL PROFILE & MATCH RADAR */}
+        {/* TAB 5: 1-ON-1 SESSIONS */}
+        {activeTab === "sessions" && (
+          <SessionsManager
+            sessions={sessions}
+            currentUser={currentUser}
+            onUpdateSessionStatus={handleUpdateSessionStatus}
+            onNavigate={setActiveTab}
+          />
+        )}
+
+        {/* TAB 6: DIRECT MESSAGES */}
+        {activeTab === "messages" && (
+          <DirectMessagingHub
+            currentUser={currentUser}
+            students={students}
+            messages={messages}
+            onSendMessage={handleSendMessage}
+            onOpenScheduleModal={handleOpenSessionScheduler}
+            onNavigate={setActiveTab}
+          />
+        )}
+
+        {/* TAB 7: MY SKILL PROFILE & MATCH RADAR */}
         {activeTab === "profile" && (
           <SkillProfileEditor
             currentUser={currentUser}
             onUpdateProfile={handleUpdateProfile}
           />
         )}
+
+        {/* TAB 8: ADMIN DASHBOARD (Admin only) */}
+        {activeTab === "admin" && currentUser.role === "admin" && (
+          <AdminDashboard
+            currentUser={currentUser}
+            students={students}
+            projects={projects}
+            requests={requests}
+            sessions={sessions}
+            onUpdateUserRole={handleUpdateUserRole}
+            onDeleteProject={handleDeleteProject}
+          />
+        )}
+
+        {/* Admin access denied for non-admin users */}
+        {activeTab === "admin" && currentUser.role !== "admin" && (
+          <div className="p-12 text-center rounded-2xl border border-slate-800 bg-navy-900/40 text-slate-400">
+            <p className="text-base font-semibold text-slate-300 mb-1">
+              Admin Access Required
+            </p>
+            <p className="text-xs">
+              You need administrator privileges to access this dashboard.
+            </p>
+          </div>
+        )}
       </main>
 
-      {/* Global Modals */}
+      {/* ==========================================
+          GLOBAL MODALS
+          ========================================== */}
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+        currentUser={isAuthenticated ? currentUser : null}
+        onLogout={handleLogout}
+      />
+
+      {/* Student Detail Modal */}
       <StudentDetailModal
         isOpen={isStudentModalOpen}
         onClose={() => setIsStudentModalOpen(false)}
@@ -607,6 +868,7 @@ export default function HomePage() {
         onSubmitRequest={handleSendSwapProposal}
       />
 
+      {/* Project Detail Modal */}
       <ProjectDetailModal
         isOpen={isProjectModalOpen}
         onClose={() => setIsProjectModalOpen(false)}
@@ -616,6 +878,7 @@ export default function HomePage() {
         onApply={handleApplySubmission}
       />
 
+      {/* Create Project Modal */}
       <CreateProjectModal
         isOpen={isCreateProjectModalOpen}
         onClose={() => setIsCreateProjectModalOpen(false)}
@@ -623,12 +886,22 @@ export default function HomePage() {
         onCreateProject={handleCreateProject}
       />
 
+      {/* Team Gap Analyzer Modal */}
       <TeamGapAnalyzerModal
         isOpen={isGapAnalyzerModalOpen}
         onClose={() => setIsGapAnalyzerModalOpen(false)}
         project={gapAnalyzerProject}
         allStudents={students}
         onInviteCandidate={handleInviteFromGapAnalyzer}
+      />
+
+      {/* Session Scheduler Modal */}
+      <SessionSchedulerModal
+        isOpen={isSessionSchedulerOpen}
+        onClose={() => setIsSessionSchedulerOpen(false)}
+        currentUser={currentUser}
+        partner={sessionSchedulerPartner}
+        onScheduleSession={handleScheduleSession}
       />
 
       {/* Global Footer */}

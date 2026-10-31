@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { StudentProfile, SynergyBreakdown } from "@/types";
 import { Modal } from "@/components/ui/modal";
 import { SynergyScoreCard } from "@/components/ai/SynergyScoreCard";
+import { AvatarImage } from "@/components/ui/avatar-image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
