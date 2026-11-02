@@ -54,8 +54,10 @@ export function NotificationDropdown({
         return <Calendar className="w-3.5 h-3.5 text-indigo-400" />;
       case "new_message":
         return <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />;
-      default:
+      case "review_received":
         return <Sparkles className="w-3.5 h-3.5 text-amber-400" />;
+      default:
+        return <Sparkles className="w-3.5 h-3.5 text-cyan-400" />;
     }
   };
 

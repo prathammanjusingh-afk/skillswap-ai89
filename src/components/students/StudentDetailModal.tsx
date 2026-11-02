@@ -21,7 +21,9 @@ import {
   Award,
   CheckCircle2,
   AlertCircle,
+  Star,
 } from "lucide-react";
+import { fetchReviews, ReviewItem } from "@/lib/supabase/data-service";
 
 interface StudentDetailModalProps {
   isOpen: boolean;
@@ -42,6 +44,17 @@ export function StudentDetailModal({
 }: StudentDetailModalProps) {
   const [pitch, setPitch] = useState("");
   const [sentSuccess, setSentSuccess] = useState(false);
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+
+  React.useEffect(() => {
+    if (student?.id) {
+      setLoadingReviews(true);
+      fetchReviews(student.id)
+        .then((res) => setReviews(res))
+        .finally(() => setLoadingReviews(false));
+    }
+  }, [student?.id]);
 
   if (!student) return null;
 
@@ -212,6 +225,47 @@ export function StudentDetailModal({
             >
               <Globe className="w-4 h-4 text-emerald-400" /> Portfolio Site
             </a>
+          )}
+        </div>
+
+        {/* Peer Reviews & Endorsements */}
+        <div className="rounded-xl bg-navy-950/70 border border-slate-800 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" /> Peer Reviews & Endorsements ({reviews.length})
+            </h4>
+            {reviews.length > 0 && (
+              <span className="text-xs font-semibold text-amber-300">
+                ⭐ {(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)} / 5.0
+              </span>
+            )}
+          </div>
+
+          {loadingReviews ? (
+            <p className="text-xs text-slate-500 italic py-2">Loading reviews...</p>
+          ) : reviews.length === 0 ? (
+            <p className="text-xs text-slate-500 italic py-2">
+              No peer reviews recorded yet. Completed sessions will feature feedback here.
+            </p>
+          ) : (
+            <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
+              {reviews.map((rev) => (
+                <div key={rev.id} className="p-2.5 rounded-lg bg-navy-900/80 border border-slate-800 text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-slate-200">{rev.reviewerName}</span>
+                    <div className="flex items-center gap-0.5 text-amber-400">
+                      {Array.from({ length: rev.rating }).map((_, i) => (
+                        <Star key={i} className="w-3 h-3 fill-amber-400" />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-slate-300 text-[11px] leading-relaxed">&ldquo;{rev.comment}&rdquo;</p>
+                  <span className="text-[10px] text-slate-500 block">
+                    {new Date(rev.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 

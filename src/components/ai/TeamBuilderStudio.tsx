@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { StudentProfile, Project } from "@/types";
 import { generateDreamTeamRecommendation, calculateTeamSkillCoverage } from "@/lib/ai-matchmaker";
+import { filterPublicProfiles } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -38,7 +39,11 @@ export function TeamBuilderStudio({
 
   const targetProject = projects.find((p) => p.id === selectedProjectId) || projects[0];
 
-  const pool = [currentUser, ...students.filter((s) => s.id !== currentUser.id)];
+  // Candidates pool: self plus discoverable public students
+  const pool = [
+    currentUser,
+    ...students.filter((s) => s.id !== currentUser.id && s.isPublic === true),
+  ];
   const dreamTeam = generateDreamTeamRecommendation(targetProject, pool);
 
   const handleRegenerate = () => {

@@ -74,6 +74,7 @@ export function Navbar({
   const isAdmin = currentUser.role === "admin";
 
   const navItems = [
+    { id: "home", label: "Home", icon: Sparkles },
     { id: "dashboard", label: "Dashboard", icon: LayoutGrid },
     { id: "students", label: "Find Skills", icon: Users },
     { id: "projects", label: "Projects", icon: Rocket },
@@ -103,7 +104,7 @@ export function Navbar({
         {/* Brand Logo & Tagline */}
         <div className="flex items-center gap-6">
           <div
-            onClick={() => setActiveTab("dashboard")}
+            onClick={() => setActiveTab("home")}
             className="flex items-center gap-2.5 cursor-pointer group"
           >
             <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 shadow-lg shadow-cyan-500/20 group-hover:shadow-cyan-500/40 transition-all">
@@ -192,16 +193,16 @@ export function Navbar({
           <div
             title={
               isSupabaseConfigured
-                ? "Connected to live Supabase PostgreSQL & RLS"
-                : "Running in Interactive Demo Mode with preloaded student network"
+                ? "Connected to live Supabase PostgreSQL & Auth"
+                : "Supabase not configured — set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY"
             }
             className="hidden md:flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-medium bg-navy-900 border border-slate-800 text-slate-300"
           >
             <Database className="w-3 h-3 text-cyan-400" />
-            <span>{isSupabaseConfigured ? "Live" : "Demo"}</span>
+            <span>{isSupabaseConfigured ? "Supabase Live" : "Not Connected"}</span>
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                isSupabaseConfigured ? "bg-emerald-400 animate-ping" : "bg-cyan-400"
+                isSupabaseConfigured ? "bg-emerald-400 animate-ping" : "bg-amber-400"
               }`}
             />
           </div>
@@ -229,52 +230,140 @@ export function Navbar({
               <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
             </button>
 
-            {/* Persona Switch Menu */}
+            {/* Active Account / Persona Menu */}
             {isPersonaOpen && (
               <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-navy-900 border border-slate-800 p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95">
-                <div className="px-3 py-2 border-b border-slate-800 mb-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    Switch Test Persona
-                  </span>
-                  <p className="text-[11px] text-slate-300 mt-0.5">
-                    Experience dynamic bilateral matching from different student perspectives:
-                  </p>
-                </div>
+                {isAuthenticated ? (
+                  <div className="p-3 space-y-2.5">
+                    <div className="flex items-center gap-2.5">
+                      <AvatarImage
+                        src={currentUser.avatarUrl}
+                        alt={currentUser.fullName}
+                        size={36}
+                        className="border border-cyan-400/40"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <span className="font-bold text-white block text-xs truncate">
+                          {currentUser.fullName}
+                        </span>
+                        <span className="text-[10px] text-slate-400 block truncate">
+                          {currentUser.university}
+                        </span>
+                        {currentUser.email && (
+                          <span className="text-[10px] text-cyan-300/80 block truncate">
+                            {currentUser.email}
+                          </span>
+                        )}
+                      </div>
+                    </div>
 
-                <div className="space-y-1">
-                  {availablePersonas.map((persona) => {
-                    const isSelected = persona.id === currentUser.id;
-                    return (
-                      <button
-                        key={persona.id}
+                    <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px]">
+                      <span className="text-slate-400">Profile Privacy:</span>
+                      <Badge
+                        variant={currentUser.isPublic ? "success" : "outline"}
+                        className="text-[10px] py-0"
+                      >
+                        {currentUser.isPublic ? "Public" : "Private"}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-slate-400">Database Role:</span>
+                      <Badge
+                        variant={currentUser.role === "admin" ? "indigo" : "outline"}
+                        className="text-[10px] uppercase font-bold py-0"
+                      >
+                        {currentUser.role || "student"}
+                      </Badge>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-800 flex flex-col gap-1.5">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="w-full text-xs h-8"
                         onClick={() => {
-                          onSwitchPersona(persona);
+                          setActiveTab("profile");
                           setIsPersonaOpen(false);
                         }}
-                        className={`w-full flex items-center gap-2.5 p-2 rounded-xl text-left transition-all text-xs ${
-                          isSelected
-                            ? "bg-cyan-500/15 border border-cyan-500/30 text-white"
-                            : "hover:bg-navy-800/80 text-slate-300"
-                        }`}
                       >
-                        <AvatarImage
-                          src={persona.avatarUrl}
-                          alt={persona.fullName}
-                          size={32}
-                          className="border border-slate-700"
-                        />
-                        <div className="flex-1 truncate">
-                          <span className="font-bold text-white block text-xs truncate">
-                            {persona.fullName}
-                          </span>
-                          <span className="text-[10px] text-slate-400 block truncate">
-                            {persona.skillsOffered[0]?.name} &bull; {persona.university}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                        <Sliders className="w-3.5 h-3.5 mr-1 text-cyan-400" />
+                        My Profile &amp; Privacy
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="w-full text-xs h-8"
+                        onClick={() => {
+                          onLogout();
+                          setIsPersonaOpen(false);
+                        }}
+                      >
+                        <LogOut className="w-3.5 h-3.5 mr-1" />
+                        Sign Out
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="px-3 py-2 border-b border-slate-800 mb-1">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                        Guest / Demo Session
+                      </span>
+                      <p className="text-[11px] text-slate-300 mt-0.5">
+                        Sign in with Supabase or preview bilateral matching from test student profiles:
+                      </p>
+                    </div>
+
+                    <div className="space-y-1 mb-2">
+                      {availablePersonas.map((persona) => {
+                        const isSelected = persona.id === currentUser.id;
+                        return (
+                          <button
+                            key={persona.id}
+                            onClick={() => {
+                              onSwitchPersona(persona);
+                              setIsPersonaOpen(false);
+                            }}
+                            className={`w-full flex items-center gap-2.5 p-2 rounded-xl text-left transition-all text-xs ${
+                              isSelected
+                                ? "bg-cyan-500/15 border border-cyan-500/30 text-white"
+                                : "hover:bg-navy-800/80 text-slate-300"
+                            }`}
+                          >
+                            <AvatarImage
+                              src={persona.avatarUrl}
+                              alt={persona.fullName}
+                              size={30}
+                              className="border border-slate-700"
+                            />
+                            <div className="flex-1 truncate">
+                              <span className="font-bold text-white block text-xs truncate">
+                                {persona.fullName}
+                              </span>
+                              <span className="text-[10px] text-slate-400 block truncate">
+                                {persona.skillsOffered[0]?.name} &bull; {persona.university}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <Button
+                      size="sm"
+                      variant="glow"
+                      className="w-full text-xs h-8"
+                      onClick={() => {
+                        onOpenAuth();
+                        setIsPersonaOpen(false);
+                      }}
+                    >
+                      <LogIn className="w-3.5 h-3.5 mr-1.5" />
+                      Sign In with Real Account
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>

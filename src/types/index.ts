@@ -48,9 +48,11 @@ export interface StudentProfile {
   learningGoals?: string[];
   skillsOffered: SkillItem[];
   skillsSeeking: SkillItem[];
+  skills?: string[];
   githubUrl?: string;
   linkedinUrl?: string;
   portfolioUrl?: string;
+  isPublic?: boolean;
   completedProjectsCount: number;
   completedSessionsCount?: number;
   badges: string[];
@@ -160,7 +162,8 @@ export interface NotificationItem {
     | 'request_declined'
     | 'new_message'
     | 'session_scheduled'
-    | 'session_reminder';
+    | 'session_reminder'
+    | 'review_received';
   title: string;
   message: string;
   linkTab?: string;

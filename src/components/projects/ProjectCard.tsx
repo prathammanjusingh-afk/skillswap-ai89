@@ -56,7 +56,7 @@ export function ProjectCard({
   return (
     <div className="group rounded-2xl border border-slate-800/80 bg-navy-900/70 p-5 shadow-lg backdrop-blur-md transition-all duration-300 hover:border-cyan-500/40 hover:bg-navy-850 hover:shadow-cyan-950/40 flex flex-col justify-between">
       <div>
-        {/* Header Tags: Event, Category, Stage */}
+        {/* Header Tags: Event, Category, Stage, Status */}
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 flex-wrap">
             {project.targetEvent && (
@@ -68,14 +68,36 @@ export function ProjectCard({
             <Badge variant="secondary" className="text-[11px] capitalize border-slate-700 bg-navy-950">
               {project.category}
             </Badge>
+            {project.status === "recruiting" && (
+              <Badge variant="default" className="text-[10px] bg-cyan-500/20 text-cyan-300 border-cyan-500/40 py-0.5">
+                Recruiting
+              </Badge>
+            )}
+            {project.status === "in_progress" && (
+              <Badge variant="outline" className="text-[10px] bg-amber-500/20 text-amber-300 border-amber-500/40 py-0.5">
+                In Progress
+              </Badge>
+            )}
+            {project.status === "completed" && (
+              <Badge variant="outline" className="text-[10px] bg-emerald-500/20 text-emerald-300 border-emerald-500/40 py-0.5">
+                Completed
+              </Badge>
+            )}
           </div>
 
-          <Badge
-            variant="outline"
-            className="text-[11px] capitalize border-cyan-500/30 text-cyan-300 bg-cyan-500/10"
-          >
-            {project.stage.replace("_", " ")}
-          </Badge>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {isCreator && (
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                You
+              </span>
+            )}
+            <Badge
+              variant="outline"
+              className="text-[11px] capitalize border-cyan-500/30 text-cyan-300 bg-cyan-500/10"
+            >
+              {project.stage.replace("_", " ")}
+            </Badge>
+          </div>
         </div>
 
         {/* Project Title & Tagline */}
@@ -170,13 +192,18 @@ export function ProjectCard({
                   </div>
                 </div>
 
-                {!isCreator && !role.isFilled && (
+                {!isCreator && !role.isFilled && (project.status === "recruiting" || !project.status) && (
                   <button
                     onClick={() => onApplyRole(project, role.id)}
                     className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 ml-2 px-2 py-1 rounded hover:bg-cyan-950/40 transition-colors shrink-0"
                   >
                     Apply
                   </button>
+                )}
+                {role.isFilled && (
+                  <span className="text-[10px] text-emerald-400 font-semibold ml-2 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 shrink-0">
+                    Filled
+                  </span>
                 )}
               </div>
             ))}

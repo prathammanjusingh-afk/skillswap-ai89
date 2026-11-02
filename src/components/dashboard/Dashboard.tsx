@@ -80,9 +80,9 @@ export function Dashboard({
     (r) => r.senderId === currentUser.id
   );
 
-  // Top AI matches (excluding self)
+  // Top AI matches (strictly public profiles, excluding self)
   const topMatches = students
-    .filter((s) => s.id !== currentUser.id)
+    .filter((s) => s.id !== currentUser.id && s.isPublic === true)
     .map((s) => ({ student: s, synergy: calculateStudentSynergy(currentUser, s) }))
     .sort((a, b) => b.synergy.overallScore - a.synergy.overallScore)
     .slice(0, 3);
@@ -326,36 +326,42 @@ export function Dashboard({
             </button>
           </div>
 
-          <div className="space-y-3">
-            {topMatches.map(({ student, synergy }) => (
-              <button
-                key={student.id}
-                onClick={() => onOpenStudentDetail(student, synergy)}
-                className="w-full flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-navy-950/60 hover:border-cyan-500/40 transition-all text-left"
-              >
-                <img
-                  src={student.avatarUrl}
-                  alt={student.fullName}
-                  className="w-9 h-9 rounded-full object-cover border border-slate-700 shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-white text-sm truncate">{student.fullName}</p>
-                  <p className="text-[11px] text-slate-400 truncate">{student.university}</p>
-                </div>
-                <span
-                  className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${
-                    synergy.overallScore >= 90
-                      ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
-                      : synergy.overallScore >= 80
-                      ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30"
-                      : "bg-indigo-500/15 text-indigo-300 border border-indigo-500/30"
-                  }`}
+          {topMatches.length > 0 ? (
+            <div className="space-y-3">
+              {topMatches.map(({ student, synergy }) => (
+                <button
+                  key={student.id}
+                  onClick={() => onOpenStudentDetail(student, synergy)}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-navy-950/60 hover:border-cyan-500/40 transition-all text-left"
                 >
-                  {synergy.overallScore}%
-                </span>
-              </button>
-            ))}
-          </div>
+                  <img
+                    src={student.avatarUrl}
+                    alt={student.fullName}
+                    className="w-9 h-9 rounded-full object-cover border border-slate-700 shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-white text-sm truncate">{student.fullName}</p>
+                    <p className="text-[11px] text-slate-400 truncate">{student.university}</p>
+                  </div>
+                  <span
+                    className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                      synergy.overallScore >= 90
+                        ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                        : synergy.overallScore >= 80
+                        ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30"
+                        : "bg-indigo-500/15 text-indigo-300 border border-indigo-500/30"
+                    }`}
+                  >
+                    {synergy.overallScore}%
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="py-6 text-center text-xs text-slate-500">
+              No public student matches available right now.
+            </div>
+          )}
 
           <Button
             variant="outline"

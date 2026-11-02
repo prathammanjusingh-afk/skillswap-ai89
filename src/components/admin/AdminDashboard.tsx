@@ -1,10 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { StudentProfile, Project, CollaborationRequest, ExchangeSession } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  fetchModerationReports,
+  updateReportStatus,
+  ModerationReport,
+} from "@/lib/supabase/data-service";
 import {
   ShieldAlert,
   Users,
@@ -15,8 +20,9 @@ import {
   Lock,
   Plus,
   Trash2,
-  TrendingUp,
-  Sliders,
+  ShieldCheck,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
 
 interface AdminDashboardProps {
@@ -25,7 +31,7 @@ interface AdminDashboardProps {
   projects: Project[];
   requests: CollaborationRequest[];
   sessions: ExchangeSession[];
-  onUpdateUserRole: (userId: string, newRole: StudentProfile["role"]) => void;
+  onUpdateUserRole: (userId: string, newRole: StudentProfile["role"]) => Promise<void> | void;
   onDeleteProject: (projectId: string) => void;
 }
 
@@ -38,8 +44,15 @@ export function AdminDashboard({
   onUpdateUserRole,
   onDeleteProject,
 }: AdminDashboardProps) {
+  const isAdmin = currentUser.role === "admin";
+  const isModerator = currentUser.role === "moderator";
+  const isAuthorized = isAdmin || isModerator;
+
   const [activeSubTab, setActiveSubTab] = useState<"users" | "projects" | "moderation">("users");
   const [userSearch, setUserSearch] = useState("");
+  const [roleUpdatingId, setRoleUpdatingId] = useState<string | null>(null);
+  const [actionMessage, setActionMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   const [categories, setCategories] = useState<string[]>([
     "Frontend Engineering",
     "Distributed Backend",
@@ -47,21 +60,59 @@ export function AdminDashboard({
     "UI/UX Design Systems",
     "Cloud & DevOps",
     "Mobile Applications",
-    "Cybersecurity",
+    "Hardware & IoT",
+    "Product Management",
     "Data Science",
+    "Cybersecurity",
+    "Languages",
+    "Other",
   ]);
   const [newCatInput, setNewCatInput] = useState("");
 
-  const [reports, setReports] = useState([
-    {
-      id: "rep-1",
-      reportedUser: "David Kim",
-      reason: "No-show for scheduled learning session without notice",
-      reportedBy: "Maya Lin",
-      status: "pending",
-      date: "Oct 30, 2026",
-    },
-  ]);
+  const [reports, setReports] = useState<ModerationReport[]>([]);
+  const [loadingReports, setLoadingReports] = useState(false);
+
+  // Fetch real database reports if available
+  useEffect(() => {
+    async function loadReports() {
+      if (!isAuthorized || !currentUser.id) return;
+      setLoadingReports(true);
+      try {
+        const dbReports = await fetchModerationReports(currentUser.id);
+        if (dbReports && dbReports.length > 0) {
+          setReports(dbReports);
+        } else {
+          // Empty or non-existing table
+          setReports([]);
+        }
+      } catch (err) {
+        console.warn("[AdminDashboard] Error loading reports:", err);
+      } finally {
+        setLoadingReports(false);
+      }
+    }
+
+    loadReports();
+  }, [currentUser.id, isAuthorized]);
+
+  // Enforce access control: Ordinary users cannot access admin operations
+  if (!isAuthorized) {
+    return (
+      <div className="p-12 text-center rounded-3xl border border-rose-500/30 bg-navy-900/80 backdrop-blur-xl shadow-2xl space-y-4">
+        <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center mx-auto">
+          <ShieldAlert className="w-6 h-6" />
+        </div>
+        <h2 className="text-xl font-bold text-white tracking-tight">
+          Admin Access Required
+        </h2>
+        <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+          You do not have administrative permissions. Platform governance, user role modification,
+          and moderation queues are strictly restricted to verified administrators in the{" "}
+          <code className="text-rose-300 font-mono">admin_roles</code> database table.
+        </p>
+      </div>
+    );
+  }
 
   const handleAddCategory = () => {
     if (!newCatInput.trim()) return;
@@ -75,8 +126,38 @@ export function AdminDashboard({
     setCategories(categories.filter((c) => c !== cat));
   };
 
-  const handleDismissReport = (repId: string) => {
-    setReports(reports.map((r) => (r.id === repId ? { ...r, status: "resolved" } : r)));
+  const handleRoleToggle = async (userId: string, currentRole: StudentProfile["role"]) => {
+    if (!isAdmin) {
+      setActionMessage({ type: "error", text: "Only full administrators can reassign roles." });
+      return;
+    }
+
+    setRoleUpdatingId(userId);
+    setActionMessage(null);
+
+    const nextRole: StudentProfile["role"] = currentRole === "admin" ? "student" : "admin";
+    try {
+      await onUpdateUserRole(userId, nextRole);
+      setActionMessage({
+        type: "success",
+        text: `Successfully updated user role to ${nextRole.toUpperCase()}.`,
+      });
+      setTimeout(() => setActionMessage(null), 3000);
+    } catch (err: any) {
+      setActionMessage({
+        type: "error",
+        text: err.message || "Failed to update role.",
+      });
+    } finally {
+      setRoleUpdatingId(null);
+    }
+  };
+
+  const handleDismissReport = async (repId: string) => {
+    setReports((prev) =>
+      prev.map((r) => (r.id === repId ? { ...r, status: "resolved" } : r))
+    );
+    await updateReportStatus(currentUser.id, repId, "resolved");
   };
 
   const filteredStudents = students.filter(
@@ -91,30 +172,49 @@ export function AdminDashboard({
       <div className="p-6 rounded-3xl border border-cyan-500/30 bg-navy-900/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-semibold mb-2">
-            <Lock className="w-3.5 h-3.5" />
-            Superadmin Management Portal
+            <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+            Verified Admin Portal
           </div>
           <h2 className="text-2xl font-black text-white tracking-tight">
             Platform Operations & Moderation
           </h2>
           <p className="text-slate-400 text-xs sm:text-sm mt-0.5">
-            Real-time telemetry, student verification, category curation, and community trust.
+            Role validation, telemetry, category curation, and community trust.
           </p>
         </div>
 
-        <Badge variant="indigo" className="text-xs px-3 py-1 self-start sm:self-auto">
-          Role: Admin (Verified)
+        <Badge variant="indigo" className="text-xs px-3 py-1 self-start sm:self-auto flex items-center gap-1">
+          <Lock className="w-3 h-3 text-cyan-300" />
+          Verified: {currentUser.role?.toUpperCase()}
         </Badge>
       </div>
 
-      {/* Honest Real-Time Platform Telemetry (No Fake Numbers) */}
+      {/* Action status message banner */}
+      {actionMessage && (
+        <div
+          className={`p-3 rounded-xl border text-xs flex items-center gap-2 animate-in fade-in ${
+            actionMessage.type === "success"
+              ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
+              : "bg-rose-500/15 border-rose-500/30 text-rose-300"
+          }`}
+        >
+          {actionMessage.type === "success" ? (
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+          ) : (
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+          )}
+          <span>{actionMessage.text}</span>
+        </div>
+      )}
+
+      {/* Honest Real-Time Platform Telemetry */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="p-4 rounded-2xl border border-slate-800 bg-navy-900/70">
           <div className="flex items-center gap-2 mb-1 text-slate-400 text-xs font-semibold uppercase">
             <Users className="w-4 h-4 text-cyan-400" /> Total Students
           </div>
           <span className="text-3xl font-black text-white">{students.length}</span>
-          <p className="text-[11px] text-slate-500 mt-1">Verified collegiate members</p>
+          <p className="text-[11px] text-slate-500 mt-1">Collegiate members</p>
         </div>
 
         <div className="p-4 rounded-2xl border border-slate-800 bg-navy-900/70">
@@ -122,7 +222,7 @@ export function AdminDashboard({
             <Rocket className="w-4 h-4 text-indigo-400" /> Active Projects
           </div>
           <span className="text-3xl font-black text-white">{projects.length}</span>
-          <p className="text-[11px] text-slate-500 mt-1">Recruiting collaborations</p>
+          <p className="text-[11px] text-slate-500 mt-1">Collaborations posted</p>
         </div>
 
         <div className="p-4 rounded-2xl border border-slate-800 bg-navy-900/70">
@@ -130,7 +230,7 @@ export function AdminDashboard({
             <Calendar className="w-4 h-4 text-emerald-400" /> Exchange Sessions
           </div>
           <span className="text-3xl font-black text-white">{sessions.length}</span>
-          <p className="text-[11px] text-slate-500 mt-1">Arranged 1-on-1 sessions</p>
+          <p className="text-[11px] text-slate-500 mt-1">1-on-1 swaps scheduled</p>
         </div>
 
         <div className="p-4 rounded-2xl border border-slate-800 bg-navy-900/70">
@@ -174,7 +274,7 @@ export function AdminDashboard({
               : "text-slate-400 hover:text-white"
           }`}
         >
-          Community Moderation Queue
+          Community Moderation Queue ({reports.filter((r) => r.status === "pending").length})
         </button>
       </div>
 
@@ -199,9 +299,9 @@ export function AdminDashboard({
                 <tr>
                   <th className="py-2.5 px-3">Student Name</th>
                   <th className="py-2.5 px-3">University</th>
-                  <th className="py-2.5 px-3">Major</th>
+                  <th className="py-2.5 px-3">Visibility</th>
                   <th className="py-2.5 px-3">Skills Offered</th>
-                  <th className="py-2.5 px-3">Role</th>
+                  <th className="py-2.5 px-3">Database Role</th>
                   <th className="py-2.5 px-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -217,27 +317,41 @@ export function AdminDashboard({
                       <span>{st.fullName}</span>
                     </td>
                     <td className="py-3 px-3 text-slate-300">{st.university}</td>
-                    <td className="py-3 px-3 text-slate-400">{st.major}</td>
+                    <td className="py-3 px-3">
+                      <Badge
+                        variant={st.isPublic ? "success" : "outline"}
+                        className="text-[10px]"
+                      >
+                        {st.isPublic ? "Public" : "Private"}
+                      </Badge>
+                    </td>
                     <td className="py-3 px-3 text-cyan-300">
                       {st.skillsOffered.length} skills
                     </td>
                     <td className="py-3 px-3">
-                      <Badge variant="outline" className="text-[10px] capitalize">
+                      <Badge
+                        variant={st.role === "admin" ? "indigo" : "outline"}
+                        className="text-[10px] uppercase font-bold"
+                      >
                         {st.role || "student"}
                       </Badge>
                     </td>
                     <td className="py-3 px-3 text-right">
-                      <button
-                        onClick={() =>
-                          onUpdateUserRole(
-                            st.id,
-                            st.role === "admin" ? "student" : "admin"
-                          )
-                        }
-                        className="text-[11px] text-cyan-400 hover:underline"
-                      >
-                        {st.role === "admin" ? "Demote to Member" : "Grant Admin"}
-                      </button>
+                      {isAdmin && st.id !== currentUser.id && (
+                        <button
+                          disabled={roleUpdatingId === st.id}
+                          onClick={() => handleRoleToggle(st.id, st.role)}
+                          className="text-[11px] text-cyan-400 hover:underline disabled:opacity-50"
+                        >
+                          {roleUpdatingId === st.id ? (
+                            <Loader2 className="w-3 h-3 animate-spin inline mr-1" />
+                          ) : null}
+                          {st.role === "admin" ? "Demote to Member" : "Grant Admin"}
+                        </button>
+                      )}
+                      {st.id === currentUser.id && (
+                        <span className="text-[11px] text-slate-500 italic">Current Session</span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -251,10 +365,10 @@ export function AdminDashboard({
       {activeSubTab === "projects" && (
         <div className="rounded-2xl border border-slate-800 bg-navy-900/70 p-5 space-y-4">
           <h3 className="font-bold text-white text-sm">
-            Curated Skill Categories
+            Curated Skill Disciplines & Categories
           </h3>
           <p className="text-xs text-slate-400">
-            Define official skill disciplines that categorize peer exchange workshops and filter algorithms.
+            Official skill disciplines that categorize peer exchange workshops and filter algorithms.
           </p>
 
           <div className="flex gap-2 max-w-md">
@@ -292,44 +406,58 @@ export function AdminDashboard({
       {activeSubTab === "moderation" && (
         <div className="rounded-2xl border border-slate-800 bg-navy-900/70 p-5 space-y-4">
           <h3 className="font-bold text-white text-sm">
-            Community Safety & Incident Reports
+            Community Safety & Moderation Reports
           </h3>
 
-          <div className="space-y-3">
-            {reports.map((rep) => (
-              <div
-                key={rep.id}
-                className="p-4 rounded-xl border border-slate-800 bg-navy-950/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
-              >
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-bold text-white">Reported: {rep.reportedUser}</span>
-                    <Badge variant={rep.status === "pending" ? "amber" : "success"} className="text-[10px]">
-                      {rep.status}
-                    </Badge>
+          {loadingReports ? (
+            <div className="py-8 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
+              Loading moderation reports...
+            </div>
+          ) : reports.length === 0 ? (
+            <div className="p-8 text-center rounded-xl border border-slate-800 bg-navy-950/60 text-xs text-slate-500">
+              No pending reports in the moderation queue. Community is healthy!
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {reports.map((rep) => (
+                <div
+                  key={rep.id}
+                  className="p-4 rounded-xl border border-slate-800 bg-navy-950/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                >
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-bold text-white">Reported: {rep.reportedUserName}</span>
+                      <Badge variant={rep.status === "pending" ? "amber" : "success"} className="text-[10px]">
+                        {rep.status}
+                      </Badge>
+                    </div>
+                    <p className="text-slate-300">{rep.reason}</p>
+                    {rep.details && (
+                      <p className="text-[11px] text-slate-400 mt-1 italic">&ldquo;{rep.details}&rdquo;</p>
+                    )}
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      Submitted on {new Date(rep.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
-                  <p className="text-slate-300">{rep.reason}</p>
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    Submitted by {rep.reportedBy} on {rep.date}
-                  </p>
-                </div>
 
-                {rep.status === "pending" && (
-                  <div className="flex gap-2 shrink-0">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-8 text-xs"
-                      onClick={() => handleDismissReport(rep.id)}
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-400" />
-                      Resolve / Dismiss
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+                  {rep.status === "pending" && (
+                    <div className="flex gap-2 shrink-0">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 text-xs"
+                        onClick={() => handleDismissReport(rep.id)}
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-400" />
+                        Resolve / Dismiss
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -27,6 +27,8 @@ interface CollabHubProps {
   projects: Project[];
   onAcceptRequest: (requestId: string) => void;
   onDeclineRequest: (requestId: string) => void;
+  onCancelPendingRequest?: (requestId: string) => void;
+  onCancelAcceptedCollaboration?: (requestId: string) => void;
 }
 
 interface ChatMessage {
@@ -44,9 +46,11 @@ export function CollabHub({
   projects,
   onAcceptRequest,
   onDeclineRequest,
+  onCancelPendingRequest,
+  onCancelAcceptedCollaboration,
 }: CollabHubProps) {
   const [activeTab, setActiveTab] = useState<"incoming" | "outgoing" | "workspace">("incoming");
-  const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "accepted" | "declined">("all");
+  const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "accepted" | "declined" | "cancelled">("all");
 
   // Demo workspace chat (local-only, not persisted — labelled clearly)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -130,6 +134,7 @@ export function CollabHub({
   const getStatusColor = (status: string) => {
     if (status === "accepted") return "text-emerald-300 bg-emerald-500/10 border-emerald-500/30";
     if (status === "declined") return "text-rose-300 bg-rose-500/10 border-rose-500/30";
+    if (status === "cancelled") return "text-slate-400 bg-slate-500/10 border-slate-500/30";
     return "text-amber-300 bg-amber-500/10 border-amber-500/30";
   };
 
@@ -190,8 +195,8 @@ export function CollabHub({
       {(activeTab === "incoming" || activeTab === "outgoing") && (
         <div className="pt-6 space-y-4">
           {/* Status filter */}
-          <div className="flex items-center gap-2">
-            {(["all", "pending", "accepted", "declined"] as const).map((status) => (
+          <div className="flex items-center gap-2 flex-wrap">
+            {(["all", "pending", "accepted", "declined", "cancelled"] as const).map((status) => (
               <button
                 key={status}
                 onClick={() => setFilterStatus(status)}
@@ -290,6 +295,47 @@ export function CollabHub({
                           <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
                           Accept
                         </Button>
+                      </div>
+                    ) : activeTab === "outgoing" && req.status === "pending" ? (
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border capitalize ${getStatusColor(req.status)}`}
+                        >
+                          {req.status}
+                        </span>
+                        {onCancelPendingRequest && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs px-2 border-rose-500/40 text-rose-300 hover:bg-rose-500/10"
+                            onClick={() => onCancelPendingRequest(req.id)}
+                          >
+                            <XCircle className="w-3 h-3 mr-1" />
+                            Cancel Request
+                          </Button>
+                        )}
+                      </div>
+                    ) : req.status === "accepted" ? (
+                      <div className="flex items-center gap-2 flex-wrap justify-end">
+                        <span
+                          className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border capitalize ${getStatusColor(req.status)}`}
+                        >
+                          {req.status}
+                        </span>
+                        {onCancelAcceptedCollaboration && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 text-xs px-2 text-slate-400 hover:text-rose-300 hover:bg-rose-500/10"
+                            onClick={() => {
+                              if (confirm("Are you sure you want to end and cancel this accepted collaboration?")) {
+                                onCancelAcceptedCollaboration(req.id);
+                              }
+                            }}
+                          >
+                            End Collab
+                          </Button>
+                        )}
                       </div>
                     ) : (
                       <span

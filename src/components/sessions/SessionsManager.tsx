@@ -16,7 +16,9 @@ import {
   ArrowRight,
   Sparkles,
   Users,
+  Star,
 } from "lucide-react";
+import { ReviewModal } from "@/components/reviews/ReviewModal";
 
 interface SessionsManagerProps {
   sessions: ExchangeSession[];
@@ -31,15 +33,25 @@ export function SessionsManager({
   onUpdateSessionStatus,
   onNavigate,
 }: SessionsManagerProps) {
-  const [filter, setFilter] = useState<"all" | "scheduled" | "completed" | "cancelled">("scheduled");
+  const [filter, setFilter] = useState<"upcoming" | "past" | "cancelled" | "all">("upcoming");
+  const [reviewSession, setReviewSession] = useState<ExchangeSession | null>(null);
+
+  const nowTime = Date.now();
+
+  const isUpcoming = (s: ExchangeSession) => s.status === "scheduled" && new Date(s.scheduledAt).getTime() >= nowTime;
+  const isPast = (s: ExchangeSession) => s.status === "completed" || (s.status === "scheduled" && new Date(s.scheduledAt).getTime() < nowTime);
 
   const filtered = sessions.filter((s) => {
     if (filter === "all") return true;
-    return s.status === filter;
+    if (filter === "upcoming") return isUpcoming(s);
+    if (filter === "past") return isPast(s);
+    if (filter === "cancelled") return s.status === "cancelled";
+    return true;
   });
 
-  const scheduledCount = sessions.filter((s) => s.status === "scheduled").length;
+  const upcomingCount = sessions.filter(isUpcoming).length;
   const completedCount = sessions.filter((s) => s.status === "completed").length;
+  const cancelledCount = sessions.filter((s) => s.status === "cancelled").length;
 
   return (
     <div className="space-y-6">
@@ -60,31 +72,41 @@ export function SessionsManager({
 
         {/* Stats Summary */}
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-navy-900 border border-slate-800 text-center min-w-[90px]">
+          <div className="p-2.5 rounded-xl bg-navy-900 border border-slate-800 text-center min-w-[80px]">
             <span className="text-[10px] text-slate-400 block uppercase font-bold">Upcoming</span>
-            <span className="text-xl font-bold text-cyan-300">{scheduledCount}</span>
+            <span className="text-xl font-bold text-cyan-300">{upcomingCount}</span>
           </div>
-          <div className="p-2.5 rounded-xl bg-navy-900 border border-slate-800 text-center min-w-[90px]">
+          <div className="p-2.5 rounded-xl bg-navy-900 border border-slate-800 text-center min-w-[80px]">
             <span className="text-[10px] text-slate-400 block uppercase font-bold">Completed</span>
             <span className="text-xl font-bold text-emerald-300">{completedCount}</span>
+          </div>
+          <div className="p-2.5 rounded-xl bg-navy-900 border border-slate-800 text-center min-w-[80px]">
+            <span className="text-[10px] text-slate-400 block uppercase font-bold">Cancelled</span>
+            <span className="text-xl font-bold text-slate-400">{cancelledCount}</span>
           </div>
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2">
-        {(["scheduled", "all", "completed", "cancelled"] as const).map((tab) => (
+      <div className="flex gap-2 flex-wrap">
+        {(
+          [
+            { id: "upcoming", label: "Upcoming", count: upcomingCount },
+            { id: "past", label: "Past / Completed", count: completedCount },
+            { id: "cancelled", label: "Cancelled", count: cancelledCount },
+            { id: "all", label: "All Sessions", count: sessions.length },
+          ] as const
+        ).map((tab) => (
           <button
-            key={tab}
-            onClick={() => setFilter(tab)}
+            key={tab.id}
+            onClick={() => setFilter(tab.id as any)}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize border transition-all ${
-              filter === tab
+              filter === tab.id
                 ? "bg-cyan-500/15 border-cyan-500/40 text-cyan-300 shadow-sm"
                 : "border-slate-800 text-slate-400 hover:text-white"
             }`}
           >
-            {tab}
-            {tab === "scheduled" && scheduledCount > 0 && ` (${scheduledCount})`}
+            {tab.label} ({tab.count})
           </button>
         ))}
       </div>
@@ -145,18 +167,25 @@ export function SessionsManager({
                       </div>
                     </div>
 
-                    <Badge
-                      variant={
-                        session.status === "completed"
-                          ? "success"
-                          : session.status === "scheduled"
-                          ? "indigo"
-                          : "secondary"
-                      }
-                      className="capitalize text-[11px]"
-                    >
-                      {session.status}
-                    </Badge>
+                    <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                      {session.status === "scheduled" && new Date(session.scheduledAt).getTime() < nowTime && (
+                        <span className="text-[10px] font-semibold text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                          Pending Completion
+                        </span>
+                      )}
+                      <Badge
+                        variant={
+                          session.status === "completed"
+                            ? "success"
+                            : session.status === "scheduled"
+                            ? "indigo"
+                            : "secondary"
+                        }
+                        className="capitalize text-[11px]"
+                      >
+                        {session.status}
+                      </Badge>
+                    </div>
                   </div>
 
                   {/* Skills Exchanged */}
@@ -229,8 +258,12 @@ export function SessionsManager({
                       <Button
                         variant="secondary"
                         size="sm"
-                        className="h-8 text-xs border-slate-700"
-                        onClick={() => onUpdateSessionStatus(session.id, "cancelled")}
+                        className="h-8 text-xs border-slate-700 hover:text-rose-300"
+                        onClick={() => {
+                          if (confirm("Are you sure you want to cancel this scheduled session?")) {
+                            onUpdateSessionStatus(session.id, "cancelled");
+                          }
+                        }}
                       >
                         Cancel
                       </Button>
@@ -247,15 +280,38 @@ export function SessionsManager({
                   )}
 
                   {session.status === "completed" && (
-                    <span className="text-xs text-emerald-400 flex items-center gap-1 ml-auto font-medium">
-                      <CheckCircle2 className="w-4 h-4" /> Exchange Verified
-                    </span>
+                    <div className="flex items-center gap-2 ml-auto">
+                      <span className="text-xs text-emerald-400 flex items-center gap-1 font-medium">
+                        <CheckCircle2 className="w-4 h-4" /> Exchange Verified
+                      </span>
+                      <Button
+                        variant="glow"
+                        size="sm"
+                        className="h-8 text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30"
+                        onClick={() => setReviewSession(session)}
+                      >
+                        <Star className="w-3.5 h-3.5 mr-1 fill-amber-300" />
+                        Leave Review
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>
             );
           })}
         </div>
+      )}
+
+      {/* Peer Review Modal */}
+      {reviewSession && (
+        <ReviewModal
+          isOpen={Boolean(reviewSession)}
+          onClose={() => setReviewSession(null)}
+          reviewerId={currentUser.id}
+          targetId={reviewSession.partnerId}
+          targetName={reviewSession.partnerName}
+          sessionId={reviewSession.id}
+        />
       )}
     </div>
   );

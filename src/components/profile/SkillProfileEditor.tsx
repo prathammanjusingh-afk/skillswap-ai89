@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { getCategoryBadgeColor } from "@/lib/utils";
+import { ProfilePrivacyToggle } from "@/components/profile/ProfilePrivacyToggle";
+import { useProfilePrivacy } from "@/hooks/useProfilePrivacy";
 import {
   Sparkles,
   Clock,
@@ -19,6 +21,8 @@ import {
   Github,
   Linkedin,
   Globe,
+  Lock,
+  Eye,
 } from "lucide-react";
 
 interface SkillProfileEditorProps {
@@ -35,6 +39,10 @@ const CATEGORIES: { value: SkillCategory; label: string }[] = [
   { value: "mobile", label: "Mobile" },
   { value: "hardware_iot", label: "Hardware & IoT" },
   { value: "product_management", label: "Product Management" },
+  { value: "data_science", label: "Data Science" },
+  { value: "cybersecurity", label: "Cybersecurity" },
+  { value: "languages", label: "Languages" },
+  { value: "other", label: "Other" },
 ];
 
 export function SkillProfileEditor({
@@ -48,6 +56,22 @@ export function SkillProfileEditor({
   const [newSkillProficiency, setNewSkillProficiency] = useState<SkillProficiency>("intermediate");
   const [newSkillTargetType, setNewSkillTargetType] = useState<"offered" | "seeking">("offered");
   const [savedSuccess, setSavedSuccess] = useState(false);
+
+  const {
+    isPublic,
+    togglePrivacy,
+    loading: privacyLoading,
+    success: privacySuccess,
+    error: privacyError,
+  } = useProfilePrivacy({
+    initialIsPublic: currentUser.isPublic ?? false,
+    userId: currentUser.id,
+    onUpdate: (nextState) => {
+      const updated = { ...profile, isPublic: nextState };
+      setProfile(updated);
+      onUpdateProfile(updated);
+    },
+  });
 
   // Sync if persona changed externally
   React.useEffect(() => {
@@ -274,6 +298,18 @@ export function SkillProfileEditor({
                 className="text-xs"
               />
             </div>
+          </div>
+
+          {/* Privacy & Discovery Settings */}
+          <div className="p-4 rounded-2xl bg-navy-950/70 border border-slate-800">
+            <ProfilePrivacyToggle
+              isPublic={profile.isPublic ?? isPublic}
+              onToggle={togglePrivacy}
+              disabled={privacyLoading}
+              loading={privacyLoading}
+              success={privacySuccess}
+              error={privacyError}
+            />
           </div>
         </div>
       )}

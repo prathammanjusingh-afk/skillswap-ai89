@@ -21,6 +21,7 @@ interface DirectMessagingHubProps {
   onSendMessage: (receiverId: string, content: string) => void;
   onOpenScheduleModal: (partner: StudentProfile) => void;
   onNavigate: (tab: string) => void;
+  onMarkMessagesAsRead?: (partnerId: string) => void;
 }
 
 export function DirectMessagingHub({
@@ -30,6 +31,7 @@ export function DirectMessagingHub({
   onSendMessage,
   onOpenScheduleModal,
   onNavigate,
+  onMarkMessagesAsRead,
 }: DirectMessagingHubProps) {
   // Available partners from the student roster (excluding self)
   const peerPartners = students.filter((s) => s.id !== currentUser.id);
@@ -41,6 +43,18 @@ export function DirectMessagingHub({
   const [searchFilter, setSearchFilter] = useState("");
 
   const activePartner = peerPartners.find((p) => p.id === activePartnerId) || peerPartners[0];
+
+  // Auto mark incoming messages as read when viewing conversation
+  React.useEffect(() => {
+    if (activePartnerId && onMarkMessagesAsRead) {
+      const hasUnread = messages.some(
+        (m) => m.senderId === activePartnerId && m.receiverId === currentUser.id && !m.read
+      );
+      if (hasUnread) {
+        onMarkMessagesAsRead(activePartnerId);
+      }
+    }
+  }, [activePartnerId, messages, currentUser.id, onMarkMessagesAsRead]);
 
   // Filter messages between current user and active partner
   const conversationMessages = messages.filter(
@@ -99,6 +113,10 @@ export function DirectMessagingHub({
                   (m.senderId === partner.id && m.receiverId === currentUser.id)
               );
 
+            const unreadCount = messages.filter(
+              (m) => m.senderId === partner.id && m.receiverId === currentUser.id && !m.read
+            ).length;
+
             return (
               <button
                 key={partner.id}
@@ -122,11 +140,18 @@ export function DirectMessagingHub({
                     <span className="font-bold text-white text-xs truncate">
                       {partner.fullName}
                     </span>
-                    {lastMsg && (
-                      <span className="text-[10px] text-slate-500 shrink-0">
-                        {lastMsg.timestamp}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {lastMsg && (
+                        <span className="text-[10px] text-slate-500">
+                          {lastMsg.timestamp}
+                        </span>
+                      )}
+                      {unreadCount > 0 && (
+                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-cyan-500 text-white">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <p className="text-[11px] text-slate-400 truncate">
                     {lastMsg ? lastMsg.content : `${partner.university} · ${partner.skillsOffered[0]?.name}`}
@@ -214,7 +239,17 @@ export function DirectMessagingHub({
                           }`}
                         >
                           <span>{msg.timestamp}</span>
-                          {isSelf && <CheckCheck className="w-3 h-3 text-cyan-300" />}
+                          {isSelf && (
+                            msg.read ? (
+                              <span title="Read" className="flex items-center text-cyan-200">
+                                <CheckCheck className="w-3.5 h-3.5" />
+                              </span>
+                            ) : (
+                              <span title="Sent" className="flex items-center text-cyan-300/70">
+                                <Check className="w-3 h-3" />
+                              </span>
+                            )
+                          )}
                         </div>
                       </div>
                     </div>

@@ -6,6 +6,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { calculateProjectCandidateMatch, calculateTeamSkillCoverage } from "@/lib/ai-matchmaker";
+import { filterPublicProfiles } from "@/lib/utils";
 import {
   Sparkles,
   Users,
@@ -35,11 +36,14 @@ export function TeamGapAnalyzerModal({
 
   if (!project) return null;
 
-  // Find candidate matches for each open role
+  // Find candidate matches for each open role (strictly publicly visible candidates, excluding project lead)
   const unfilledRoles = project.openRoles.filter((r) => !r.isFilled);
+  const eligibleCandidates = allStudents.filter(
+    (s) => s.isPublic === true && s.id !== project.creatorId
+  );
 
   const roleRecommendations = unfilledRoles.map((role) => {
-    const candidatesWithScore = allStudents
+    const candidatesWithScore = eligibleCandidates
       .map((student) => {
         const match = calculateProjectCandidateMatch(project, role, student);
         return {

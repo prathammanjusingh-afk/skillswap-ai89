@@ -5,38 +5,37 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
-import { StudentProfile } from "@/types";
+import { useAuth } from "@/lib/supabase/AuthContext";
 import {
   Sparkles,
   Lock,
   Mail,
   User,
   GraduationCap,
-  ArrowRight,
   CheckCircle2,
   AlertCircle,
   Eye,
   EyeOff,
   LogOut,
   ShieldCheck,
+  AlertTriangle,
 } from "lucide-react";
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess: (userProfile: StudentProfile) => void;
-  currentUser: StudentProfile | null;
-  onLogout: () => void;
 }
 
-export function AuthModal({
-  isOpen,
-  onClose,
-  onLoginSuccess,
-  currentUser,
-  onLogout,
-}: AuthModalProps) {
+export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+  const {
+    currentUser,
+    login,
+    signup,
+    logout,
+    resetPassword,
+    isConfigured,
+  } = useAuth();
+
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,6 +61,14 @@ export function AuthModal({
     e.preventDefault();
     setErrorMessage(null);
     setSuccessMessage(null);
+
+    if (!isConfigured) {
+      setErrorMessage(
+        "Supabase Authentication is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment."
+      );
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -72,14 +79,12 @@ export function AuthModal({
           return;
         }
 
-        if (isSupabaseConfigured && supabase) {
-          const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-            redirectTo: `${window.location.origin}/auth/reset-password`,
-          });
-          if (error) throw error;
+        const res = await resetPassword(email.trim());
+        if (!res.success) {
+          setErrorMessage(res.error || "Failed to send reset email.");
+        } else {
+          setSuccessMessage(`Password recovery link dispatched to ${email.trim()}. Please inspect your inbox.`);
         }
-
-        setSuccessMessage(`Password reset link dispatched to ${email}. Check your inbox.`);
         setLoading(false);
         return;
       }
@@ -101,82 +106,27 @@ export function AuthModal({
           return;
         }
 
-        // Live Supabase flow if credentials present
-        if (isSupabaseConfigured && supabase) {
-          const { data, error } = await supabase.auth.signUp({
-            email: email.trim(),
-            password,
-            options: {
-              data: {
-                full_name: fullName.trim(),
-                university: university.trim(),
-                primary_skill: primarySkill.trim() || "Full-Stack Development",
-              },
-            },
-          });
-          if (error) throw error;
-
-          if (data.user) {
-            const newProfile: StudentProfile = {
-              id: data.user.id,
-              email: data.user.email,
-              fullName: fullName.trim(),
-              avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}`,
-              headline: `Student Innovator @ ${university}`,
-              university: university.trim(),
-              major: "Computer Science",
-              graduationYear: 2026,
-              bio: "Eager to swap technical skills, build collaborative hackathon MVPs, and learn from peers.",
-              availabilityHoursPerWeek: 15,
-              preferredWorkStyle: "hybrid",
-              learningPreference: "both",
-              timezone: "EST (UTC-5)",
-              interests: ["Web Development", "AI/ML"],
-              learningGoals: ["Master Next.js App Router"],
-              completedProjectsCount: 1,
-              completedSessionsCount: 0,
-              badges: ["Verified Student", "New Builder"],
-              skillsOffered: primarySkill.trim()
-                ? [{ name: primarySkill.trim(), category: "frontend", proficiency: "intermediate", proficiencyLevel: 3, type: "offered" }]
-                : [{ name: "Web Development", category: "frontend", proficiency: "intermediate", proficiencyLevel: 3, type: "offered" }],
-              skillsSeeking: [{ name: "Machine Learning", category: "ai_ml", proficiency: "beginner", proficiencyLevel: 2, type: "seeking" }],
-            };
-            onLoginSuccess(newProfile);
-            setSuccessMessage("Account created successfully!");
-            setTimeout(onClose, 800);
-            return;
-          }
-        }
-
-        // Demo / offline fallback flow
-        const newProfile: StudentProfile = {
-          id: `user-${Date.now()}`,
+        const res = await signup({
           email: email.trim(),
+          password,
           fullName: fullName.trim(),
-          avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(fullName)}`,
-          headline: `Student Builder @ ${university}`,
           university: university.trim(),
-          major: "Computer Science",
-          graduationYear: 2026,
-          bio: "Excited to share skills and collaborate on impactful projects with fellow students.",
-          availabilityHoursPerWeek: 15,
-          preferredWorkStyle: "hybrid",
-          learningPreference: "both",
-          timezone: "PST (UTC-8)",
-          interests: ["Web Development", "AI Systems"],
-          learningGoals: ["Learn PyTorch and Rust"],
-          completedProjectsCount: 1,
-          completedSessionsCount: 0,
-          badges: ["Verified Student", "Community Pioneer"],
-          skillsOffered: primarySkill.trim()
-            ? [{ name: primarySkill.trim(), category: "frontend", proficiency: "advanced", proficiencyLevel: 4, type: "offered" }]
-            : [{ name: "Next.js", category: "frontend", proficiency: "advanced", proficiencyLevel: 4, type: "offered" }],
-          skillsSeeking: [{ name: "Backend Architecture", category: "backend", proficiency: "beginner", proficiencyLevel: 2, type: "seeking" }],
-        };
+          primarySkill: primarySkill.trim() || undefined,
+        });
 
-        onLoginSuccess(newProfile);
-        setSuccessMessage("Registration successful! Welcome to SkillSwap AI.");
-        setTimeout(onClose, 800);
+        if (!res.success) {
+          setErrorMessage(res.error || "Registration failed. Please check your credentials.");
+        } else if (res.requiresEmailVerification) {
+          setSuccessMessage(
+            "Registration submitted! A verification link has been sent to your email. Please verify your address before signing in."
+          );
+        } else {
+          setSuccessMessage("Account created successfully! Welcome to SkillSwap AI.");
+          setTimeout(() => {
+            onClose();
+            resetForm();
+          }, 800);
+        }
         return;
       }
 
@@ -188,70 +138,16 @@ export function AuthModal({
           return;
         }
 
-        if (isSupabaseConfigured && supabase) {
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email: email.trim(),
-            password,
-          });
-          if (error) throw error;
-
-          if (data.user) {
-            const userProfile: StudentProfile = {
-              id: data.user.id,
-              email: data.user.email,
-              fullName: data.user.user_metadata?.full_name || email.split("@")[0],
-              avatarUrl: data.user.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(email)}`,
-              headline: "SkillSwap Innovator",
-              university: data.user.user_metadata?.university || "Campus University",
-              major: "Computer Science",
-              graduationYear: 2026,
-              bio: "Passionate about reciprocal skill learning and building projects.",
-              availabilityHoursPerWeek: 15,
-              preferredWorkStyle: "hybrid",
-              learningPreference: "both",
-              timezone: "EST (UTC-5)",
-              interests: ["AI/ML", "Web3"],
-              learningGoals: ["Deploy Full-Stack AI"],
-              completedProjectsCount: 2,
-              completedSessionsCount: 0,
-              badges: ["Verified Student"],
-              skillsOffered: [{ name: "Next.js", category: "frontend", proficiency: "advanced", proficiencyLevel: 4, type: "offered" }],
-              skillsSeeking: [{ name: "PyTorch", category: "ai_ml", proficiency: "intermediate", proficiencyLevel: 3, type: "seeking" }],
-            };
-            onLoginSuccess(userProfile);
-            setSuccessMessage("Authenticated successfully!");
-            setTimeout(onClose, 600);
-            return;
-          }
+        const res = await login(email.trim(), password);
+        if (!res.success) {
+          setErrorMessage(res.error || "Invalid login credentials. Please try again.");
+        } else {
+          setSuccessMessage("Authenticated successfully!");
+          setTimeout(() => {
+            onClose();
+            resetForm();
+          }, 600);
         }
-
-        // Demo / offline fallback flow
-        const demoUser: StudentProfile = {
-          id: `user-auth-${Date.now()}`,
-          email: email.trim(),
-          fullName: email.split("@")[0].replace(/[._-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-          avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(email)}`,
-          headline: "Student Member @ SkillSwap AI",
-          university: "University Partner",
-          major: "Computer Science",
-          graduationYear: 2026,
-          bio: "Looking to exchange knowledge and build ambitious products.",
-          availabilityHoursPerWeek: 16,
-          preferredWorkStyle: "hybrid",
-          learningPreference: "both",
-          timezone: "EST (UTC-5)",
-          interests: ["Product Design", "Distributed Systems"],
-          learningGoals: ["Master Full-Stack App Router"],
-          completedProjectsCount: 3,
-          completedSessionsCount: 1,
-          badges: ["Verified Member"],
-          skillsOffered: [{ name: "TypeScript", category: "frontend", proficiency: "expert", proficiencyLevel: 5, type: "offered" }],
-          skillsSeeking: [{ name: "FastAPI", category: "backend", proficiency: "intermediate", proficiencyLevel: 3, type: "seeking" }],
-        };
-
-        onLoginSuccess(demoUser);
-        setSuccessMessage("Signed in successfully!");
-        setTimeout(onClose, 600);
       }
     } catch (err: unknown) {
       const errObj = err as { message?: string };
@@ -275,9 +171,9 @@ export function AuthModal({
             {currentUser
               ? "Account Settings & Session"
               : mode === "login"
-              ? "Welcome Back to SkillSwap AI"
+              ? "Sign In to SkillSwap AI"
               : mode === "signup"
-              ? "Join the Student Skill Exchange"
+              ? "Create Student Account"
               : "Reset Your Password"}
           </span>
         </div>
@@ -286,12 +182,25 @@ export function AuthModal({
         currentUser
           ? "Manage your active session or switch to a different account."
           : mode === "login"
-          ? "Sign in with your student account to access real-time matching and collaborations."
+          ? "Sign in with your verified Supabase account to access real-time matching."
           : mode === "signup"
-          ? "Create your profile to start teaching what you know and learning what you need."
-          : "Enter your registered email address and we'll dispatch a secure recovery link."
+          ? "Register with your student email to begin exchanging skills and collaborating."
+          : "Enter your registered email address to receive a secure recovery link."
       }
     >
+      {/* Configuration warning banner if Supabase env vars are absent */}
+      {!isConfigured && (
+        <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2.5">
+          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
+          <div className="space-y-1">
+            <span className="font-semibold block text-amber-200">Supabase Credentials Missing</span>
+            <p className="text-[11px] text-amber-300/80 leading-relaxed">
+              Real Supabase Authentication requires <code className="bg-navy-950 px-1 py-0.5 rounded text-amber-200 font-mono">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="bg-navy-950 px-1 py-0.5 rounded text-amber-200 font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>. Demo logins with arbitrary credentials are disabled.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* If already signed in, show profile overview and Logout button */}
       {currentUser ? (
         <div className="space-y-4 pt-2">
@@ -310,13 +219,16 @@ export function AuthModal({
               </div>
               <p className="text-xs text-slate-400">{currentUser.headline}</p>
               <p className="text-[11px] text-cyan-400 mt-0.5">{currentUser.university}</p>
+              {currentUser.email && (
+                <p className="text-[10px] text-slate-500 mt-0.5">{currentUser.email}</p>
+              )}
             </div>
           </div>
 
           <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-            <span>Backend Provider:</span>
+            <span>Auth Provider:</span>
             <span className="font-semibold text-slate-200">
-              {isSupabaseConfigured ? "Live Supabase PostgreSQL" : "Local Storage Engine"}
+              {isConfigured ? "Supabase Auth (PostgreSQL & RLS)" : "Supabase Not Configured"}
             </span>
           </div>
 
@@ -327,8 +239,8 @@ export function AuthModal({
             <Button
               variant="destructive"
               size="sm"
-              onClick={() => {
-                onLogout();
+              onClick={async () => {
+                await logout();
                 onClose();
               }}
             >
@@ -425,7 +337,7 @@ export function AuthModal({
 
               <div>
                 <label className="font-semibold text-slate-300 block mb-1">
-                  Primary Skill You Can Teach (Optional)
+                  Primary Skill You Offer (Optional)
                 </label>
                 <Input
                   placeholder="e.g. Python, UI/UX Design, React, PyTorch"
@@ -508,19 +420,19 @@ export function AuthModal({
               variant="glow"
               size="sm"
               className="w-full h-9 text-xs"
-              disabled={loading}
+              disabled={loading || !isConfigured}
             >
               {loading ? (
-                "Processing..."
+                "Processing with Supabase..."
               ) : mode === "login" ? (
                 <>
                   <Lock className="w-3.5 h-3.5 mr-1.5" />
-                  Sign In to SkillSwap
+                  Sign In with Supabase
                 </>
               ) : mode === "signup" ? (
                 <>
                   <Sparkles className="w-3.5 h-3.5 mr-1.5" />
-                  Create Student Profile
+                  Register Account
                 </>
               ) : (
                 <>
@@ -547,7 +459,7 @@ export function AuthModal({
             </div>
           ) : (
             <p className="text-[11px] text-slate-500 text-center pt-1">
-              By connecting, you agree to student community guidelines and fair skill exchange principles.
+              Credentials are securely authenticated directly via Supabase Auth with encrypted sessions.
             </p>
           )}
         </form>

@@ -33,9 +33,37 @@ import {
   saveStoredNotifications,
 } from "@/lib/storage";
 import { calculateStudentSynergy } from "@/lib/ai-matchmaker";
+import { filterPublicProfiles } from "@/lib/utils";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase/client";
+import {
+  fetchPublicStudents,
+  fetchProjects,
+  fetchCollaborationRequests,
+  fetchSessions,
+  fetchMessages,
+  fetchNotifications,
+  updateStudentProfile as updateStudentProfileInDb,
+  createProjectInDb,
+  updateProjectInDb,
+  deleteProjectFromDb,
+  sendCollaborationRequest as sendCollaborationRequestInDb,
+  updateRequestStatusInDb,
+  updateCollaborationRequestStatus,
+  scheduleSessionInDb,
+  updateSessionStatusInDb,
+  sendMessageInDb,
+  markMessagesAsReadInDb,
+  markNotificationAsReadInDb,
+  markAllNotificationsAsReadInDb,
+  createNotificationInDb,
+  assignAdminRole,
+  revokeAdminRole,
+  checkUserAdminRole,
+} from "@/lib/supabase/data-service";
 import { Navbar } from "@/components/layout/Navbar";
+import { HomeSection } from "@/components/home/HomeSection";
 import { Footer } from "@/components/layout/Footer";
-import { StudentCard } from "@/components/students/StudentCard";
+import { MarketplaceSection } from "@/components/marketplace/MarketplaceSection";
 import { StudentDetailModal } from "@/components/students/StudentDetailModal";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ProjectDetailModal } from "@/components/projects/ProjectDetailModal";
@@ -46,6 +74,7 @@ import { CollabHub } from "@/components/workspace/CollabHub";
 import { SkillProfileEditor } from "@/components/profile/SkillProfileEditor";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { useAuth } from "@/lib/supabase/AuthContext";
 import { SessionsManager } from "@/components/sessions/SessionsManager";
 import { SessionSchedulerModal } from "@/components/sessions/SessionSchedulerModal";
 import { DirectMessagingHub } from "@/components/messaging/DirectMessagingHub";
@@ -60,12 +89,27 @@ import {
 } from "lucide-react";
 
 export default function HomePage() {
+  const {
+    currentUser: authUser,
+    isAuthenticated,
+    logout: authLogout,
+  } = useAuth();
+
   // Hydration guard: use null until client-side storage is loaded
   const [hydrated, setHydrated] = useState(false);
 
-  // Active Persona State — loaded from localStorage on mount
+  // Active Persona State — initialized with authUser if present, otherwise default
   const [currentUser, setCurrentUser] = useState<StudentProfile>(MOCK_CURRENT_USER);
-  const [activeTab, setActiveTab] = useState<string>("dashboard");
+  const [activeTab, setActiveTab] = useState<string>("home");
+
+  // Keep currentUser synced with authUser when user signs in or out
+  useEffect(() => {
+    if (authUser) {
+      setCurrentUser(authUser);
+    } else {
+      setCurrentUser(MOCK_CURRENT_USER);
+    }
+  }, [authUser]);
 
   // Data Collections — loaded from localStorage on mount
   const [students, setStudents] = useState<StudentProfile[]>(MOCK_STUDENTS);
@@ -75,42 +119,191 @@ export default function HomePage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
-  // Auth state
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Modal control
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Session scheduler modal state
   const [sessionSchedulerPartner, setSessionSchedulerPartner] = useState<StudentProfile | null>(null);
   const [isSessionSchedulerOpen, setIsSessionSchedulerOpen] = useState(false);
 
-  // Hydrate from localStorage on first mount (client only)
+  // Hydrate data from Supabase if configured, otherwise fallback to local storage
   useEffect(() => {
-    const storedUser = loadStoredCurrentUser();
-    const storedStudents = loadStoredStudents();
-    const storedProjects = loadStoredProjects();
-    const storedRequests = loadStoredRequests();
-    const storedSessions = loadStoredSessions();
-    const storedMessages = loadStoredMessages();
-    const storedNotifications = loadStoredNotifications();
+    async function loadInitialData() {
+      if (isSupabaseConfigured) {
+        try {
+          const [dbStudents, dbProjects] = await Promise.all([
+            fetchPublicStudents(authUser?.id),
+            fetchProjects(),
+          ]);
 
-    setCurrentUser(storedUser);
-    setStudents(storedStudents);
-    setProjects(storedProjects);
-    setRequests(storedRequests);
-    setSessions(storedSessions);
-    setMessages(storedMessages);
-    setNotifications(storedNotifications);
+          // Use real database collections (do not introduce mock data into live flow)
+          setStudents(dbStudents || []);
+          setProjects(dbProjects || []);
 
-    // Check if user was previously authenticated (demo mode)
-    if (typeof window !== "undefined") {
-      const authFlag = localStorage.getItem("skillswap_authenticated");
-      if (authFlag === "true") {
-        setIsAuthenticated(true);
+          if (authUser?.id) {
+            const [dbReqs, dbSessions, dbMsgs, dbNotifs] = await Promise.all([
+              fetchCollaborationRequests(authUser.id),
+              fetchSessions(authUser.id),
+              fetchMessages(authUser.id),
+              fetchNotifications(authUser.id),
+            ]);
+
+            setRequests(dbReqs || []);
+            setSessions(dbSessions || []);
+            setMessages(dbMsgs || []);
+            setNotifications(dbNotifs || []);
+          } else {
+            setRequests([]);
+            setSessions([]);
+            setMessages([]);
+            setNotifications([]);
+          }
+        } catch (err) {
+          console.warn("[InitialData] Note loading Supabase data:", err);
+          setStudents([]);
+          setProjects([]);
+        }
+      } else {
+        const storedUser = loadStoredCurrentUser();
+        const storedStudents = loadStoredStudents();
+        const storedProjects = loadStoredProjects();
+        const storedRequests = loadStoredRequests();
+        const storedSessions = loadStoredSessions();
+        const storedMessages = loadStoredMessages();
+        const storedNotifications = loadStoredNotifications();
+
+        setCurrentUser(storedUser);
+        setStudents(storedStudents);
+        setProjects(storedProjects);
+        setRequests(storedRequests);
+        setSessions(storedSessions);
+        setMessages(storedMessages);
+        setNotifications(storedNotifications);
       }
+
+      setHydrated(true);
     }
 
-    setHydrated(true);
-  }, []);
+    loadInitialData();
+  }, [authUser]);
+
+  // Realtime notification sync for authenticated user
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !authUser?.id) return;
+
+    const client = supabase;
+    const channel = client
+      .channel(`user-notifications-${authUser.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${authUser.id}`,
+        },
+        (payload) => {
+          const newRow = payload.new as any;
+          if (newRow) {
+            setNotifications((prev) => [
+              {
+                id: newRow.id,
+                userId: newRow.user_id,
+                type: newRow.type,
+                title: newRow.title,
+                message: newRow.message,
+                linkTab: newRow.link_tab || undefined,
+                read: Boolean(newRow.read),
+                createdAt: newRow.created_at,
+              },
+              ...prev.filter((n) => n.id !== newRow.id),
+            ]);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      client.removeChannel(channel);
+    };
+  }, [authUser?.id]);
+
+  // Realtime message sync for authenticated user
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !authUser?.id) return;
+
+    const client = supabase;
+    const channel = client
+      .channel(`user-messages-${authUser.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+        },
+        (payload) => {
+          const newRow = payload.new as any;
+          if (
+            newRow &&
+            (newRow.receiver_id === authUser.id || newRow.sender_id === authUser.id)
+          ) {
+            setMessages((prev) => {
+              if (prev.some((m) => m.id === newRow.id)) return prev;
+              const sender = students.find((s) => s.id === newRow.sender_id);
+              const newMsg: ChatMessage = {
+                id: newRow.id,
+                senderId: newRow.sender_id,
+                senderName:
+                  sender?.fullName ||
+                  (newRow.sender_id === authUser.id ? currentUser.fullName : "Collaborator"),
+                senderAvatar:
+                  sender?.avatarUrl ||
+                  (newRow.sender_id === authUser.id
+                    ? currentUser.avatarUrl
+                    : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"),
+                receiverId: newRow.receiver_id,
+                content: newRow.content,
+                timestamp: new Date(newRow.created_at).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }),
+                read: Boolean(newRow.read),
+              };
+              return [...prev, newMsg];
+            });
+          }
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+        },
+        (payload) => {
+          const updatedRow = payload.new as any;
+          if (
+            updatedRow &&
+            (updatedRow.receiver_id === authUser.id || updatedRow.sender_id === authUser.id)
+          ) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === updatedRow.id
+                  ? { ...m, read: Boolean(updatedRow.read) }
+                  : m
+              )
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      client.removeChannel(channel);
+    };
+  }, [authUser?.id, currentUser.fullName, currentUser.avatarUrl, students]);
 
   // Persist changes to localStorage whenever state updates (after hydration)
   useEffect(() => {
@@ -183,20 +376,8 @@ export default function HomePage() {
   // ==========================================
   // AUTH HANDLERS
   // ==========================================
-  const handleLoginSuccess = (userProfile: StudentProfile) => {
-    setCurrentUser(userProfile);
-    setIsAuthenticated(true);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("skillswap_authenticated", "true");
-    }
-    setIsAuthModalOpen(false);
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("skillswap_authenticated");
-    }
+  const handleLogout = async () => {
+    await authLogout();
     setCurrentUser(MOCK_CURRENT_USER);
   };
 
@@ -220,16 +401,32 @@ export default function HomePage() {
       createdAt: new Date().toISOString(),
     };
     setNotifications((prev) => [newNotif, ...prev]);
+
+    if (isSupabaseConfigured && currentUser.id) {
+      createNotificationInDb({
+        userId: currentUser.id,
+        type,
+        title,
+        message,
+        linkTab,
+      }).catch((e) => console.warn("[Notifications] Create in DB note:", e));
+    }
   };
 
-  const handleMarkNotificationRead = (notificationId: string) => {
+  const handleMarkNotificationRead = async (notificationId: string) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
     );
+    if (isSupabaseConfigured) {
+      await markNotificationAsReadInDb(notificationId);
+    }
   };
 
-  const handleMarkAllNotificationsRead = () => {
+  const handleMarkAllNotificationsRead = async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    if (isSupabaseConfigured && currentUser.id) {
+      await markAllNotificationsAsReadInDb(currentUser.id);
+    }
   };
 
   // ==========================================
@@ -247,7 +444,7 @@ export default function HomePage() {
     setIsStudentModalOpen(true);
   };
 
-  const handleSendSwapProposal = (receiverId: string, pitchMessage: string) => {
+  const handleSendSwapProposal = async (receiverId: string, pitchMessage: string) => {
     const receiver = students.find((s) => s.id === receiverId);
     if (!receiver) return;
 
@@ -271,12 +468,16 @@ export default function HomePage() {
 
     setRequests((prev) => [newReq, ...prev]);
 
-    addNotification(
-      "request_received",
-      "Swap Request Sent",
-      `Your skill swap proposal was sent to ${receiver.fullName}.`,
-      "collab"
-    );
+    if (isSupabaseConfigured) {
+      await sendCollaborationRequestInDb(newReq);
+    } else {
+      addNotification(
+        "request_received",
+        "Swap Request Sent",
+        `Your skill swap proposal was sent to ${receiver.fullName}.`,
+        "collab"
+      );
+    }
   };
 
   // ==========================================
@@ -319,8 +520,23 @@ export default function HomePage() {
     setRequests((prev) => [newReq, ...prev]);
   };
 
-  const handleCreateProject = (newProject: Project) => {
+  const handleCreateProject = async (newProject: Project) => {
     setProjects((prev) => [newProject, ...prev]);
+    if (isSupabaseConfigured && currentUser.id) {
+      await createProjectInDb(newProject, currentUser.id);
+    }
+  };
+
+  const handleUpdateProject = async (projectId: string, updates: Partial<Project>) => {
+    setProjects((prev) =>
+      prev.map((p) => (p.id === projectId ? { ...p, ...updates } : p))
+    );
+    if (selectedProjectForModal?.id === projectId) {
+      setSelectedProjectForModal((prev) => (prev ? { ...prev, ...updates } : prev));
+    }
+    if (isSupabaseConfigured && currentUser.id) {
+      await updateProjectInDb(projectId, currentUser.id, updates);
+    }
   };
 
   const handleOpenGapAnalyzer = (project: Project) => {
@@ -381,10 +597,13 @@ export default function HomePage() {
   // ==========================================
   // REQUEST STATUS UPDATES
   // ==========================================
-  const handleAcceptRequest = (requestId: string) => {
+  const handleAcceptRequest = async (requestId: string) => {
     setRequests((prev) =>
       prev.map((r) => (r.id === requestId ? { ...r, status: "accepted" } : r))
     );
+    if (isSupabaseConfigured && currentUser.id) {
+      await updateCollaborationRequestStatus(requestId, currentUser.id, "accepted");
+    }
     const req = requests.find((r) => r.id === requestId);
     if (req) {
       addNotification(
@@ -396,28 +615,54 @@ export default function HomePage() {
     }
   };
 
-  const handleDeclineRequest = (requestId: string) => {
+  const handleDeclineRequest = async (requestId: string) => {
     setRequests((prev) =>
       prev.map((r) => (r.id === requestId ? { ...r, status: "declined" } : r))
     );
+    if (isSupabaseConfigured && currentUser.id) {
+      await updateCollaborationRequestStatus(requestId, currentUser.id, "declined");
+    }
+  };
+
+  const handleCancelPendingRequest = async (requestId: string) => {
+    setRequests((prev) =>
+      prev.map((r) => (r.id === requestId ? { ...r, status: "cancelled" } : r))
+    );
+    if (isSupabaseConfigured && currentUser.id) {
+      await updateCollaborationRequestStatus(requestId, currentUser.id, "cancelled");
+    }
+  };
+
+  const handleCancelAcceptedCollaboration = async (requestId: string) => {
+    setRequests((prev) =>
+      prev.map((r) => (r.id === requestId ? { ...r, status: "cancelled" } : r))
+    );
+    if (isSupabaseConfigured && currentUser.id) {
+      await updateCollaborationRequestStatus(requestId, currentUser.id, "cancelled");
+    }
   };
 
   // ==========================================
   // PROFILE UPDATE
   // ==========================================
-  const handleUpdateProfile = (updated: StudentProfile) => {
+  const handleUpdateProfile = async (updated: StudentProfile) => {
     setCurrentUser(updated);
-    // Also update the student in the students list so their card reflects changes
     setStudents((prev) =>
       prev.map((s) => (s.id === updated.id ? updated : s))
     );
+    if (isSupabaseConfigured) {
+      await updateStudentProfileInDb(updated);
+    }
   };
 
   // ==========================================
   // SESSION HANDLERS
   // ==========================================
-  const handleScheduleSession = (newSession: ExchangeSession) => {
+  const handleScheduleSession = async (newSession: ExchangeSession) => {
     setSessions((prev) => [newSession, ...prev]);
+    if (isSupabaseConfigured && currentUser.id) {
+      await scheduleSessionInDb(newSession, currentUser.id);
+    }
     addNotification(
       "session_scheduled",
       "Session Scheduled",
@@ -426,10 +671,13 @@ export default function HomePage() {
     );
   };
 
-  const handleUpdateSessionStatus = (sessionId: string, newStatus: ExchangeSession["status"]) => {
+  const handleUpdateSessionStatus = async (sessionId: string, newStatus: ExchangeSession["status"]) => {
     setSessions((prev) =>
       prev.map((s) => (s.id === sessionId ? { ...s, status: newStatus } : s))
     );
+    if (isSupabaseConfigured && currentUser.id) {
+      await updateSessionStatusInDb(sessionId, newStatus, currentUser.id);
+    }
   };
 
   const handleOpenSessionScheduler = (partner: StudentProfile) => {
@@ -440,7 +688,7 @@ export default function HomePage() {
   // ==========================================
   // MESSAGE HANDLERS
   // ==========================================
-  const handleSendMessage = (receiverId: string, content: string) => {
+  const handleSendMessage = async (receiverId: string, content: string) => {
     const newMsg: ChatMessage = {
       id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       senderId: currentUser.id,
@@ -452,12 +700,43 @@ export default function HomePage() {
       read: false,
     };
     setMessages((prev) => [...prev, newMsg]);
+
+    if (isSupabaseConfigured) {
+      await sendMessageInDb(newMsg);
+    }
+  };
+
+  const handleMarkMessagesAsRead = async (partnerId: string) => {
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.senderId === partnerId && m.receiverId === currentUser.id
+          ? { ...m, read: true }
+          : m
+      )
+    );
+    if (isSupabaseConfigured && currentUser.id) {
+      await markMessagesAsReadInDb(currentUser.id, partnerId);
+    }
   };
 
   // ==========================================
   // ADMIN HANDLERS
   // ==========================================
-  const handleUpdateUserRole = (userId: string, newRole: StudentProfile["role"]) => {
+  const handleUpdateUserRole = async (userId: string, newRole: StudentProfile["role"]) => {
+    if (isSupabaseConfigured && currentUser.id) {
+      if (newRole === "admin") {
+        const res = await assignAdminRole(currentUser.id, userId, "admin");
+        if (!res.success) {
+          throw new Error(res.error || "Failed to grant admin role.");
+        }
+      } else {
+        const res = await revokeAdminRole(currentUser.id, userId);
+        if (!res.success) {
+          throw new Error(res.error || "Failed to revoke admin role.");
+        }
+      }
+    }
+
     setStudents((prev) =>
       prev.map((s) => (s.id === userId ? { ...s, role: newRole } : s))
     );
@@ -466,8 +745,11 @@ export default function HomePage() {
     }
   };
 
-  const handleDeleteProject = (projectId: string) => {
+  const handleDeleteProject = async (projectId: string) => {
     setProjects((prev) => prev.filter((p) => p.id !== projectId));
+    if (isSupabaseConfigured) {
+      await deleteProjectFromDb(projectId);
+    }
   };
 
   // ==========================================
@@ -475,7 +757,8 @@ export default function HomePage() {
   // ==========================================
 
   // Filtered Students list with live AI synergy ranking
-  const allDisplayStudents = [currentUser, ...students.filter((s) => s.id !== currentUser.id)];
+  const visibleStudents = filterPublicProfiles(students, currentUser.id);
+  const allDisplayStudents = [currentUser, ...visibleStudents.filter((s) => s.id !== currentUser.id)];
 
   const filteredStudents = allDisplayStudents
     .filter((student) => {
@@ -485,12 +768,22 @@ export default function HomePage() {
         student.fullName.toLowerCase().includes(query) ||
         student.university.toLowerCase().includes(query) ||
         student.headline.toLowerCase().includes(query) ||
-        student.skillsOffered.some((s) => s.name.toLowerCase().includes(query)) ||
-        student.skillsSeeking.some((s) => s.name.toLowerCase().includes(query));
+        student.bio.toLowerCase().includes(query) ||
+        student.skillsOffered.some(
+          (s) =>
+            s.name.toLowerCase().includes(query) ||
+            s.category.toLowerCase().includes(query)
+        ) ||
+        student.skillsSeeking.some(
+          (s) =>
+            s.name.toLowerCase().includes(query) ||
+            s.category.toLowerCase().includes(query)
+        );
 
       const matchesCategory =
         selectedCategory === "all" ||
-        student.skillsOffered.some((s) => s.category === selectedCategory);
+        student.skillsOffered.some((s) => s.category === selectedCategory) ||
+        student.skillsSeeking.some((s) => s.category === selectedCategory);
 
       const matchesUni =
         selectedUniversity === "all" ||
@@ -571,6 +864,13 @@ export default function HomePage() {
       <main className="flex-1 container mx-auto px-4 sm:px-6 pt-8 pb-16">
 
         {/* TAB 0: DASHBOARD */}
+        {activeTab === "home" && (
+          <HomeSection
+            students={students}
+            currentUser={currentUser}
+            onOpenSession={setSessionSchedulerPartner}
+          />
+        )}
         {activeTab === "dashboard" && (
           <Dashboard
             currentUser={currentUser}
@@ -619,6 +919,12 @@ export default function HomePage() {
                     <option value="design">UI/UX Design Systems</option>
                     <option value="cloud_devops">DevOps &amp; Cloud</option>
                     <option value="mobile">Mobile Applications</option>
+                    <option value="hardware_iot">Hardware &amp; IoT</option>
+                    <option value="product_management">Product Management</option>
+                    <option value="data_science">Data Science</option>
+                    <option value="cybersecurity">Cybersecurity</option>
+                    <option value="languages">Languages</option>
+                    <option value="other">Other Disciplines</option>
                   </select>
 
                   {/* University Filter */}
@@ -672,46 +978,13 @@ export default function HomePage() {
 
         {/* TAB 1: DISCOVER TEAMMATES */}
         {activeTab === "students" && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-                  <Users className="w-5 h-5 text-cyan-400" />
-                  Complementary Teammates Feed
-                </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Ranked in real-time by compatibility score with your active profile ({currentUser.fullName}).
-                </p>
-              </div>
-
-              <span className="text-xs font-semibold text-slate-400 bg-navy-900 border border-slate-800 px-3 py-1 rounded-full">
-                Showing {filteredStudents.length} Students
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredStudents.map((student) => (
-                <StudentCard
-                  key={student.id}
-                  student={student}
-                  currentUser={currentUser}
-                  onSelectStudent={handleOpenStudentDetail}
-                  onRequestSwap={handleOpenSwapFromCard}
-                />
-              ))}
-            </div>
-
-            {filteredStudents.length === 0 && (
-              <div className="p-12 text-center rounded-2xl border border-slate-800 bg-navy-900/40 text-slate-400">
-                <p className="text-base font-semibold text-slate-300 mb-1">
-                  No teammates match the selected criteria
-                </p>
-                <p className="text-xs">
-                  Try lowering the minimum match threshold or clearing the search keyword.
-                </p>
-              </div>
-            )}
-          </div>
+          <MarketplaceSection
+            students={filteredStudents}
+            currentUser={currentUser}
+            onOpenStudentDetail={handleOpenStudentDetail}
+            onRequestSwap={handleOpenSwapFromCard}
+            onNavigateToProfile={() => setActiveTab("profile")}
+          />
         )}
 
         {/* TAB 2: EXPLORE PROJECTS */}
@@ -786,6 +1059,8 @@ export default function HomePage() {
             projects={projects}
             onAcceptRequest={handleAcceptRequest}
             onDeclineRequest={handleDeclineRequest}
+            onCancelPendingRequest={handleCancelPendingRequest}
+            onCancelAcceptedCollaboration={handleCancelAcceptedCollaboration}
           />
         )}
 
@@ -808,6 +1083,7 @@ export default function HomePage() {
             onSendMessage={handleSendMessage}
             onOpenScheduleModal={handleOpenSessionScheduler}
             onNavigate={setActiveTab}
+            onMarkMessagesAsRead={handleMarkMessagesAsRead}
           />
         )}
 
@@ -819,8 +1095,8 @@ export default function HomePage() {
           />
         )}
 
-        {/* TAB 8: ADMIN DASHBOARD (Admin only) */}
-        {activeTab === "admin" && currentUser.role === "admin" && (
+        {/* TAB 8: ADMIN DASHBOARD (Verified Admin or Moderator only) */}
+        {activeTab === "admin" && (currentUser.role === "admin" || currentUser.role === "moderator") && (
           <AdminDashboard
             currentUser={currentUser}
             students={students}
@@ -832,14 +1108,14 @@ export default function HomePage() {
           />
         )}
 
-        {/* Admin access denied for non-admin users */}
-        {activeTab === "admin" && currentUser.role !== "admin" && (
+        {/* Admin access denied for ordinary users */}
+        {activeTab === "admin" && currentUser.role !== "admin" && currentUser.role !== "moderator" && (
           <div className="p-12 text-center rounded-2xl border border-slate-800 bg-navy-900/40 text-slate-400">
             <p className="text-base font-semibold text-slate-300 mb-1">
               Admin Access Required
             </p>
             <p className="text-xs">
-              You need administrator privileges to access this dashboard.
+              You need verified administrator privileges in the database to access this dashboard.
             </p>
           </div>
         )}
@@ -853,9 +1129,6 @@ export default function HomePage() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onLoginSuccess={handleLoginSuccess}
-        currentUser={isAuthenticated ? currentUser : null}
-        onLogout={handleLogout}
       />
 
       {/* Student Detail Modal */}
@@ -876,6 +1149,8 @@ export default function HomePage() {
         currentUser={currentUser}
         preselectedRoleId={preselectedRoleId}
         onApply={handleApplySubmission}
+        onUpdateProject={handleUpdateProject}
+        onDeleteProject={handleDeleteProject}
       />
 
       {/* Create Project Modal */}

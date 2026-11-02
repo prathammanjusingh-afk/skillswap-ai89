@@ -1,69 +1,68 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+export { cn } from "cn";
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
-export function formatAvailability(hours: number): string {
-  if (hours <= 10) return `${hours} hrs/wk (Part-time)`;
-  if (hours <= 20) return `${hours} hrs/wk (Standard)`;
-  return `${hours} hrs/wk (High focus)`;
-}
-
-export function getSynergyColor(score: number): {
-  text: string;
-  bg: string;
-  border: string;
-  glow: string;
-} {
-  if (score >= 90) {
-    return {
-      text: "text-emerald-400",
-      bg: "bg-emerald-500/10",
-      border: "border-emerald-500/30",
-      glow: "shadow-[0_0_15px_rgba(16,185,129,0.3)]",
-    };
-  }
+/**
+ * Return Tailwind color classes for a synergy score.
+ * The returned object contains classes used in SynergyScoreCard.
+ */
+export function getSynergyColor(score: number) {
   if (score >= 80) {
     return {
-      text: "text-cyan-400",
-      bg: "bg-cyan-500/10",
-      border: "border-cyan-500/30",
-      glow: "shadow-[0_0_15px_rgba(6,182,212,0.3)]",
+      bg: "bg-emerald-900",
+      text: "text-emerald-300",
+      border: "border-emerald-500",
+      glow: "shadow-emerald-500/50",
     };
   }
-  if (score >= 70) {
+  if (score >= 60) {
     return {
-      text: "text-indigo-400",
-      bg: "bg-indigo-500/10",
-      border: "border-indigo-500/30",
-      glow: "shadow-[0_0_15px_rgba(99,102,241,0.25)]",
+      bg: "bg-cyan-900",
+      text: "text-cyan-300",
+      border: "border-cyan-500",
+      glow: "shadow-cyan-500/50",
     };
   }
+  // low score
   return {
-    text: "text-amber-400",
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/30",
-    glow: "shadow-[0_0_15px_rgba(245,158,11,0.2)]",
+    bg: "bg-rose-900",
+    text: "text-rose-300",
+    border: "border-rose-500",
+    glow: "shadow-rose-500/50",
   };
 }
 
-export function getCategoryBadgeColor(category: string): string {
-  switch (category) {
-    case "frontend":
-      return "bg-sky-500/15 text-sky-300 border-sky-500/30";
-    case "backend":
-      return "bg-emerald-500/15 text-emerald-300 border-emerald-500/30";
-    case "ai_ml":
-      return "bg-purple-500/15 text-purple-300 border-purple-500/30";
-    case "design":
-      return "bg-pink-500/15 text-pink-300 border-pink-500/30";
-    case "cloud_devops":
-      return "bg-amber-500/15 text-amber-300 border-amber-500/30";
-    case "mobile":
-      return "bg-teal-500/15 text-teal-300 border-teal-500/30";
-    default:
-      return "bg-slate-500/15 text-slate-300 border-slate-500/30";
-  }
+/**
+ * Map a skill category to a Tailwind badge color.
+ */
+export function getCategoryBadgeColor(category: string) {
+  const map: Record<string, string> = {
+    frontend: "bg-cyan-500/20 text-cyan-300",
+    backend: "bg-amber-500/20 text-amber-300",
+    ai_ml: "bg-purple-500/20 text-purple-300",
+    design: "bg-pink-500/20 text-pink-300",
+    cloud_devops: "bg-indigo-500/20 text-indigo-300",
+    mobile: "bg-teal-500/20 text-teal-300",
+    hardware_iot: "bg-orange-500/20 text-orange-300",
+    product_management: "bg-emerald-500/20 text-emerald-300",
+  };
+  return map[category] ?? "bg-slate-500/20 text-slate-300";
 }
+
+/**
+ * Checks if a profile is publicly visible in marketplaces and public directories.
+ * Returns true if isPublic is explicitly true.
+ */
+export function isProfilePubliclyVisible(profile: { isPublic?: boolean } | null | undefined): boolean {
+  return Boolean(profile?.isPublic);
+}
+
+/**
+ * Filters a list of student profiles for public marketplace listings.
+ * Only profiles with isPublic === true are included, unless viewing user owns the profile.
+ */
+export function filterPublicProfiles<T extends { id: string; isPublic?: boolean }>(
+  profiles: T[],
+  currentUserId?: string
+): T[] {
+  return profiles.filter((p) => p.isPublic === true || (currentUserId && p.id === currentUserId));
+}
+
