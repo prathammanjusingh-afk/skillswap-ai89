@@ -188,3 +188,24 @@ export interface TeamRecommendation {
     devops: number;
   };
 }
+
+export interface ProjectTask {
+  id: string;
+  projectId: string;
+  title: string;
+  description?: string;
+  done: boolean;
+  assigneeId?: string;
+  assigneeName?: string;
+  createdAt: string;
+}
+
+export interface ProjectChatMessage {
+  id: string;
+  projectId: string;
+  senderId: string;
+  senderName: string;
+  senderAvatar: string;
+  content: string;
+  createdAt: string;
+}

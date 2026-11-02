@@ -46,11 +46,11 @@ export function ReviewModal({
       }
 
       setCheckingEligibility(true);
-      checkReviewEligibility(reviewerId, targetId)
+      checkReviewEligibility(reviewerId, targetId, sessionId)
         .then((res) => setEligibility(res))
         .finally(() => setCheckingEligibility(false));
     }
-  }, [isOpen, reviewerId, targetId, isSelf]);
+  }, [isOpen, reviewerId, targetId, isSelf, sessionId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

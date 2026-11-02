@@ -7,6 +7,8 @@ import {
   ChatMessage,
   NotificationItem,
   SkillItem,
+  ProjectTask,
+  ProjectChatMessage,
 } from "@/types";
 
 export interface ReviewItem {
@@ -1000,7 +1002,8 @@ export async function fetchReviews(targetUserId: string): Promise<ReviewItem[]> 
 
 export async function checkReviewEligibility(
   reviewerId: string,
-  targetId: string
+  targetId: string,
+  sessionId?: string
 ): Promise<{ eligible: boolean; reason?: string }> {
   if (reviewerId === targetId) {
     return { eligible: false, reason: "You cannot write a review for your own profile." };
@@ -1011,7 +1014,39 @@ export async function checkReviewEligibility(
   }
 
   try {
-    // 1. Check for completed exchange sessions between participants
+    // 1. Duplicate review check
+    if (sessionId) {
+      const { data: existingSessionReview } = await supabase
+        .from("reviews")
+        .select("id")
+        .eq("reviewer_id", reviewerId)
+        .eq("session_id", sessionId)
+        .maybeSingle();
+
+      if (existingSessionReview) {
+        return {
+          eligible: false,
+          reason: "You have already submitted a review for this session.",
+        };
+      }
+    } else {
+      const { data: existingGeneralReview } = await supabase
+        .from("reviews")
+        .select("id")
+        .eq("reviewer_id", reviewerId)
+        .eq("target_id", targetId)
+        .is("session_id", null)
+        .maybeSingle();
+
+      if (existingGeneralReview) {
+        return {
+          eligible: false,
+          reason: "You have already submitted a review for this student.",
+        };
+      }
+    }
+
+    // 2. Check for completed exchange sessions between participants
     const { data: sessionMatch } = await supabase
       .from("sessions")
       .select("id")
@@ -1022,7 +1057,7 @@ export async function checkReviewEligibility(
       return { eligible: true };
     }
 
-    // 2. Check for accepted collaboration requests between participants
+    // 3. Check for accepted collaboration requests between participants
     const { data: collabMatch } = await supabase
       .from("collaboration_requests")
       .select("id")
@@ -1071,6 +1106,32 @@ export async function submitReview(review: {
   }
 
   try {
+    // Check for duplicate review
+    if (review.sessionId) {
+      const { data: existingReview } = await supabase
+        .from("reviews")
+        .select("id")
+        .eq("reviewer_id", review.reviewerId)
+        .eq("session_id", review.sessionId)
+        .maybeSingle();
+
+      if (existingReview) {
+        return { success: false, error: "You have already reviewed this session." };
+      }
+    } else {
+      const { data: existingReview } = await supabase
+        .from("reviews")
+        .select("id")
+        .eq("reviewer_id", review.reviewerId)
+        .eq("target_id", review.targetId)
+        .is("session_id", null)
+        .maybeSingle();
+
+      if (existingReview) {
+        return { success: false, error: "You have already submitted a general review for this student." };
+      }
+    }
+
     const { error } = await supabase.from("reviews").insert({
       reviewer_id: review.reviewerId,
       target_id: review.targetId,
@@ -1319,5 +1380,161 @@ export async function updateReportStatus(
     return !error;
   } catch {
     return false;
+  }
+}
+
+
+// -----------------------------------------------------------------------------
+// PROJECT TASKS & TEAM ROOM SERVICES
+// -----------------------------------------------------------------------------
+
+export async function fetchProjectTasks(projectId: string): Promise<ProjectTask[]> {
+  if (!isSupabaseConfigured || !supabase || !projectId) return [];
+  try {
+    const { data, error } = await supabase
+      .from("project_tasks")
+      .select("*")
+      .eq("project_id", projectId)
+      .order("created_at", { ascending: true });
+
+    if (error || !data) return [];
+    return data.map((t: any) => ({
+      id: t.id,
+      projectId: t.project_id,
+      title: t.title,
+      description: t.description || undefined,
+      done: Boolean(t.done),
+      assigneeId: t.assignee_id || undefined,
+      assigneeName: t.assignee_name || undefined,
+      createdAt: t.created_at,
+    }));
+  } catch (err) {
+    console.warn("[DataService] Error fetching project tasks:", err);
+    return [];
+  }
+}
+
+export async function createProjectTaskInDb(
+  task: Omit<ProjectTask, "id" | "createdAt">
+): Promise<{ success: boolean; data?: ProjectTask; error?: string }> {
+  if (!isSupabaseConfigured || !supabase) {
+    return { success: false, error: "Database not configured." };
+  }
+  try {
+    const { data, error } = await supabase
+      .from("project_tasks")
+      .insert({
+        project_id: task.projectId,
+        title: task.title.trim(),
+        description: task.description?.trim() || null,
+        done: Boolean(task.done),
+        assignee_id: task.assigneeId || null,
+        assignee_name: task.assigneeName || null,
+      })
+      .select()
+      .single();
+
+    if (error || !data) throw error;
+    return {
+      success: true,
+      data: {
+        id: data.id,
+        projectId: data.project_id,
+        title: data.title,
+        description: data.description || undefined,
+        done: Boolean(data.done),
+        assigneeId: data.assignee_id || undefined,
+        assigneeName: data.assignee_name || undefined,
+        createdAt: data.created_at,
+      },
+    };
+  } catch (err: any) {
+    console.error("[DataService] Error creating project task:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+export async function updateProjectTaskStatusInDb(
+  taskId: string,
+  done: boolean
+): Promise<boolean> {
+  if (!isSupabaseConfigured || !supabase || !taskId) return false;
+  try {
+    const { error } = await supabase
+      .from("project_tasks")
+      .update({ done, updated_at: new Date().toISOString() })
+      .eq("id", taskId);
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+export async function fetchProjectMessages(projectId: string): Promise<ProjectChatMessage[]> {
+  if (!isSupabaseConfigured || !supabase || !projectId) return [];
+  try {
+    const { data, error } = await supabase
+      .from("project_messages")
+      .select(`
+        *,
+        sender:sender_id (full_name, avatar_url)
+      `)
+      .eq("project_id", projectId)
+      .order("created_at", { ascending: true });
+
+    if (error || !data) return [];
+    return data.map((m: any) => ({
+      id: m.id,
+      projectId: m.project_id,
+      senderId: m.sender_id,
+      senderName: m.sender?.full_name || m.sender_name || "Team Member",
+      senderAvatar: m.sender?.avatar_url || m.sender_avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+      content: m.content,
+      createdAt: m.created_at,
+    }));
+  } catch (err) {
+    console.warn("[DataService] Error fetching project messages:", err);
+    return [];
+  }
+}
+
+export async function sendProjectMessageInDb(
+  message: Omit<ProjectChatMessage, "id" | "createdAt">
+): Promise<{ success: boolean; data?: ProjectChatMessage; error?: string }> {
+  if (!isSupabaseConfigured || !supabase) {
+    return { success: false, error: "Database not configured." };
+  }
+  try {
+    const { data, error } = await supabase
+      .from("project_messages")
+      .insert({
+        project_id: message.projectId,
+        sender_id: message.senderId,
+        sender_name: message.senderName,
+        sender_avatar: message.senderAvatar,
+        content: message.content.trim(),
+      })
+      .select(`
+        *,
+        sender:sender_id (full_name, avatar_url)
+      `)
+      .single();
+
+    if (error || !data) throw error;
+    return {
+      success: true,
+      data: {
+        id: data.id,
+        projectId: data.project_id,
+        senderId: data.sender_id,
+        senderName: data.sender?.full_name || data.sender_name || message.senderName,
+        senderAvatar: data.sender?.avatar_url || data.sender_avatar || message.senderAvatar,
+        content: data.content,
+        createdAt: data.created_at,
+      },
+    };
+  } catch (err: any) {
+    console.error("[DataService] Error sending project message:", err);
+    return { success: false, error: err.message };
   }
 }

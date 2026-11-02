@@ -86,6 +86,8 @@ import {
   Search,
   Rocket,
   Users,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 
 export default function HomePage() {
@@ -111,10 +113,12 @@ export default function HomePage() {
     }
   }, [authUser]);
 
-  // Data Collections — loaded from localStorage on mount
-  const [students, setStudents] = useState<StudentProfile[]>(MOCK_STUDENTS);
-  const [projects, setProjects] = useState<Project[]>(MOCK_PROJECTS);
-  const [requests, setRequests] = useState<CollaborationRequest[]>(MOCK_REQUESTS);
+  // Data Collections — initialized empty in Supabase mode to prevent mock data flash
+  const [students, setStudents] = useState<StudentProfile[]>(isSupabaseConfigured ? [] : MOCK_STUDENTS);
+  const [projects, setProjects] = useState<Project[]>(isSupabaseConfigured ? [] : MOCK_PROJECTS);
+  const [requests, setRequests] = useState<CollaborationRequest[]>(isSupabaseConfigured ? [] : MOCK_REQUESTS);
+  const [isLoadingInitialData, setIsLoadingInitialData] = useState(isSupabaseConfigured);
+  const [dataLoadError, setDataLoadError] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ExchangeSession[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -130,6 +134,8 @@ export default function HomePage() {
   useEffect(() => {
     async function loadInitialData() {
       if (isSupabaseConfigured) {
+        setIsLoadingInitialData(true);
+        setDataLoadError(null);
         try {
           const [dbStudents, dbProjects] = await Promise.all([
             fetchPublicStudents(authUser?.id),
@@ -158,10 +164,13 @@ export default function HomePage() {
             setMessages([]);
             setNotifications([]);
           }
-        } catch (err) {
-          console.warn("[InitialData] Note loading Supabase data:", err);
+        } catch (err: any) {
+          console.warn("[InitialData] Error loading Supabase data:", err);
+          setDataLoadError("Unable to retrieve real-time data from Supabase. Please verify network connectivity.");
           setStudents([]);
           setProjects([]);
+        } finally {
+          setIsLoadingInitialData(false);
         }
       } else {
         const storedUser = loadStoredCurrentUser();
@@ -307,37 +316,37 @@ export default function HomePage() {
 
   // Persist changes to localStorage whenever state updates (after hydration)
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || isSupabaseConfigured) return;
     saveStoredCurrentUser(currentUser);
   }, [currentUser, hydrated]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || isSupabaseConfigured) return;
     saveStoredStudents(students);
   }, [students, hydrated]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || isSupabaseConfigured) return;
     saveStoredProjects(projects);
   }, [projects, hydrated]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || isSupabaseConfigured) return;
     saveStoredRequests(requests);
   }, [requests, hydrated]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || isSupabaseConfigured) return;
     saveStoredSessions(sessions);
   }, [sessions, hydrated]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || isSupabaseConfigured) return;
     saveStoredMessages(messages);
   }, [messages, hydrated]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || isSupabaseConfigured) return;
     saveStoredNotifications(notifications);
   }, [notifications, hydrated]);
 
@@ -758,7 +767,10 @@ export default function HomePage() {
 
   // Filtered Students list with live AI synergy ranking
   const visibleStudents = filterPublicProfiles(students, currentUser.id);
-  const allDisplayStudents = [currentUser, ...visibleStudents.filter((s) => s.id !== currentUser.id)];
+  const allDisplayStudents =
+    authUser || !isSupabaseConfigured
+      ? [currentUser, ...visibleStudents.filter((s) => s.id !== currentUser.id)]
+      : visibleStudents;
 
   const filteredStudents = allDisplayStudents
     .filter((student) => {
@@ -862,6 +874,23 @@ export default function HomePage() {
 
       {/* Main Page Body */}
       <main className="flex-1 container mx-auto px-4 sm:px-6 pt-8 pb-16">
+        {/* Global Connection / Data Error Banner */}
+        {dataLoadError && (
+          <div className="mb-6 p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+              <span>{dataLoadError}</span>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-xs border-rose-500/40 hover:bg-rose-500/20 shrink-0"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
+          </div>
+        )}
 
         {/* TAB 0: DASHBOARD */}
         {activeTab === "home" && (
@@ -978,18 +1007,30 @@ export default function HomePage() {
 
         {/* TAB 1: DISCOVER TEAMMATES */}
         {activeTab === "students" && (
-          <MarketplaceSection
+          isLoadingInitialData ? (
+            <div className="py-24 flex flex-col items-center justify-center text-slate-400 space-y-3">
+              <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
+              <p className="text-sm font-medium text-slate-300">Loading discoverable profiles from Supabase...</p>
+            </div>
+          ) : (
+            <MarketplaceSection
             students={filteredStudents}
             currentUser={currentUser}
             onOpenStudentDetail={handleOpenStudentDetail}
             onRequestSwap={handleOpenSwapFromCard}
             onNavigateToProfile={() => setActiveTab("profile")}
-          />
+          />)
         )}
 
         {/* TAB 2: EXPLORE PROJECTS */}
         {activeTab === "projects" && (
-          <div className="space-y-6">
+          isLoadingInitialData ? (
+            <div className="py-24 flex flex-col items-center justify-center text-slate-400 space-y-3">
+              <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
+              <p className="text-sm font-medium text-slate-300">Loading active projects from Supabase...</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
@@ -1039,6 +1080,7 @@ export default function HomePage() {
               </div>
             )}
           </div>
+          )
         )}
 
         {/* TAB 3: AI DREAM TEAM BUILDER STUDIO */}
