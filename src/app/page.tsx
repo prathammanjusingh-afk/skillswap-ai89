@@ -478,7 +478,10 @@ export default function HomePage() {
     setRequests((prev) => [newReq, ...prev]);
 
     if (isSupabaseConfigured) {
-      await sendCollaborationRequestInDb(newReq);
+      const res = await sendCollaborationRequestInDb(newReq);
+      if (res.success && res.data) {
+        setRequests((prev) => prev.map((r) => (r.id === newReq.id ? res.data! : r)));
+      }
     } else {
       addNotification(
         "request_received",
@@ -504,7 +507,7 @@ export default function HomePage() {
     setIsProjectModalOpen(true);
   };
 
-  const handleApplySubmission = (projectId: string, roleTitle: string, pitch: string) => {
+  const handleApplySubmission = async (projectId: string, roleTitle: string, pitch: string) => {
     const targetProj = projects.find((p) => p.id === projectId);
     if (!targetProj) return;
 
@@ -527,12 +530,22 @@ export default function HomePage() {
     };
 
     setRequests((prev) => [newReq, ...prev]);
+
+    if (isSupabaseConfigured) {
+      const res = await sendCollaborationRequestInDb(newReq);
+      if (res.success && res.data) {
+        setRequests((prev) => prev.map((r) => (r.id === newReq.id ? res.data! : r)));
+      }
+    }
   };
 
   const handleCreateProject = async (newProject: Project) => {
     setProjects((prev) => [newProject, ...prev]);
     if (isSupabaseConfigured && currentUser.id) {
-      await createProjectInDb(newProject, currentUser.id);
+      const res = await createProjectInDb(newProject, currentUser.id);
+      if (res.success && res.data) {
+        setProjects((prev) => prev.map((p) => (p.id === newProject.id ? res.data! : p)));
+      }
     }
   };
 
@@ -553,7 +566,7 @@ export default function HomePage() {
     setIsGapAnalyzerModalOpen(true);
   };
 
-  const handleInviteFromGapAnalyzer = (studentId: string, roleTitle: string, projectId: string) => {
+  const handleInviteFromGapAnalyzer = async (studentId: string, roleTitle: string, projectId: string) => {
     const student = students.find((s) => s.id === studentId);
     const targetProj = projects.find((p) => p.id === projectId);
     if (!student || !targetProj) return;
@@ -577,9 +590,16 @@ export default function HomePage() {
     };
 
     setRequests((prev) => [newReq, ...prev]);
+
+    if (isSupabaseConfigured) {
+      const res = await sendCollaborationRequestInDb(newReq);
+      if (res.success && res.data) {
+        setRequests((prev) => prev.map((r) => (r.id === newReq.id ? res.data! : r)));
+      }
+    }
   };
 
-  const handleBatchInvitesFromDreamTeam = (studentIds: string[], projectTitle: string) => {
+  const handleBatchInvitesFromDreamTeam = async (studentIds: string[], projectTitle: string) => {
     const newBatch: CollaborationRequest[] = studentIds.map((id) => {
       const student = students.find((s) => s.id === id);
       return {
@@ -601,6 +621,15 @@ export default function HomePage() {
     });
 
     setRequests((prev) => [...newBatch, ...prev]);
+
+    if (isSupabaseConfigured) {
+      for (const req of newBatch) {
+        const res = await sendCollaborationRequestInDb(req);
+        if (res.success && res.data) {
+          setRequests((prev) => prev.map((r) => (r.id === req.id ? res.data! : r)));
+        }
+      }
+    }
   };
 
   // ==========================================
@@ -670,7 +699,10 @@ export default function HomePage() {
   const handleScheduleSession = async (newSession: ExchangeSession) => {
     setSessions((prev) => [newSession, ...prev]);
     if (isSupabaseConfigured && currentUser.id) {
-      await scheduleSessionInDb(newSession, currentUser.id);
+      const res = await scheduleSessionInDb(newSession, currentUser.id);
+      if (res.success && res.data) {
+        setSessions((prev) => prev.map((s) => (s.id === newSession.id ? res.data! : s)));
+      }
     }
     addNotification(
       "session_scheduled",

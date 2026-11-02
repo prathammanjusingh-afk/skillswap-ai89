@@ -154,10 +154,20 @@ export async function updateStudentProfile(
   }
 
   try {
+    // Security validation: ensure requester owns this profile or has admin privileges
+    const { data: authData } = await supabase.auth.getUser();
+    if (authData?.user && authData.user.id !== profile.id) {
+      const adminCheck = await checkUserAdminRole(authData.user.id);
+      if (!adminCheck.isAdmin) {
+        return { success: false, error: "Unauthorized: You may only modify your own profile." };
+      }
+    }
+
     const { error: profileError } = await supabase
       .from("profiles")
       .update({
         full_name: profile.fullName,
+        avatar_url: profile.avatarUrl || null,
         headline: profile.headline,
         university: profile.university,
         major: profile.major,
