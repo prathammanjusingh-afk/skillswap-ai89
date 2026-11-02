@@ -359,6 +359,10 @@ create table if not exists public.reviews (
 create index if not exists idx_reviews_target on public.reviews(target_id);
 create index if not exists idx_reviews_reviewer on public.reviews(reviewer_id);
 
+-- Enforce Duplicate Review Prevention: One review per completed session, or one general review per pair
+create unique index if not exists idx_reviews_unique_session on public.reviews(reviewer_id, session_id) where session_id is not null;
+create unique index if not exists idx_reviews_unique_general on public.reviews(reviewer_id, target_id) where session_id is null;
+
 -- ==============================================================================
 -- 10. CONTENT & USER MODERATION (REPORTS)
 -- ==============================================================================
