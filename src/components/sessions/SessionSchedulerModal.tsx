@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import React, { useState } from "react";
 import { Modal } from "@/components/ui/modal";
@@ -115,11 +116,7 @@ export function SessionSchedulerModal({
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           {/* Partner Header */}
           <div className="p-3 rounded-xl bg-navy-950/70 border border-slate-800 flex items-center gap-3">
-            <img
-              src={partner.avatarUrl}
-              alt={partner.fullName}
-              className="w-10 h-10 rounded-full object-cover border border-slate-700"
-            />
+            <Image src={partner.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={partner.fullName} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-slate-700" />
             <div>
               <span className="font-bold text-white text-sm">{partner.fullName}</span>
               <p className="text-[11px] text-slate-400">{partner.university} · {partner.headline}</p>

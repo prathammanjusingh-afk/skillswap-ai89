@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import React, { useState } from "react";
 import { Modal } from "@/components/ui/modal";
@@ -205,11 +206,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       {currentUser ? (
         <div className="space-y-4 pt-2">
           <div className="p-4 rounded-xl bg-navy-950/80 border border-slate-800 flex items-center gap-3">
-            <img
-              src={currentUser.avatarUrl}
-              alt={currentUser.fullName}
-              className="w-12 h-12 rounded-full object-cover border-2 border-cyan-400"
-            />
+            <Image src={currentUser.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={currentUser.fullName} width={48} height={48} className="w-12 h-12 rounded-full object-cover border-2 border-cyan-400" />
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-bold text-white text-sm">{currentUser.fullName}</span>

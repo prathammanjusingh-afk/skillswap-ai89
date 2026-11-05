@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import React, { useState } from "react";
 import { StudentProfile, SynergyBreakdown } from "@/types";
@@ -78,11 +79,7 @@ export function StudentDetailModal({
       maxWidth="3xl"
       title={
         <div className="flex items-center gap-3">
-          <img
-            src={student.avatarUrl}
-            alt={student.fullName}
-            className="w-12 h-12 rounded-full object-cover border-2 border-cyan-500/50"
-          />
+          <Image src={student.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={student.fullName} width={64} height={64} className="w-12 h-12 rounded-full object-cover border-2 border-cyan-500/50" />
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xl font-bold text-white">{student.fullName}</span>

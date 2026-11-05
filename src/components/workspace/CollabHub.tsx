@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import React, { useState, useRef, useEffect } from "react";
 import { CollaborationRequest, StudentProfile, Project, ProjectTask, ProjectChatMessage } from "@/types";
@@ -494,11 +495,7 @@ export function CollabHub({
                   className="p-4 rounded-xl border border-slate-800 bg-navy-950/60 hover:border-slate-700 transition-all flex flex-col md:flex-row md:items-start justify-between gap-4"
                 >
                   <div className="flex items-start gap-3.5">
-                    <img
-                      src={req.senderAvatar}
-                      alt={req.senderName}
-                      className="w-10 h-10 rounded-full object-cover border border-slate-700 mt-0.5 shrink-0"
-                    />
+                    <Image src={req.senderAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={req.senderName} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-slate-700 mt-0.5 shrink-0" />
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-bold text-white text-sm">{req.senderName}</span>
@@ -728,11 +725,7 @@ export function CollabHub({
                               key={msg.id}
                               className={`flex items-start gap-2.5 text-xs ${isSelf ? "flex-row-reverse" : ""}`}
                             >
-                              <img
-                                src={msg.senderAvatar}
-                                alt={msg.senderName}
-                                className="w-7 h-7 rounded-full object-cover shrink-0 border border-slate-700"
-                              />
+                              <Image src={msg.senderAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={msg.senderName} width={28} height={28} className="w-7 h-7 rounded-full object-cover shrink-0 border border-slate-700" />
                               <div
                                 className={`max-w-[80%] rounded-xl p-3 ${
                                   isSelf

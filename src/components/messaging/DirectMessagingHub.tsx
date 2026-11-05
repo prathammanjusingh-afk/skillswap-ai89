@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import React, { useState } from "react";
 import { ChatMessage, StudentProfile } from "@/types";
@@ -128,11 +129,7 @@ export function DirectMessagingHub({
                 }`}
               >
                 <div className="relative shrink-0">
-                  <img
-                    src={partner.avatarUrl}
-                    alt={partner.fullName}
-                    className="w-10 h-10 rounded-full object-cover border border-slate-700"
-                  />
+                  <Image src={partner.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={partner.fullName} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-slate-700" />
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-navy-950" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -170,11 +167,7 @@ export function DirectMessagingHub({
             {/* Header */}
             <div className="p-3.5 sm:px-5 border-b border-slate-800 flex items-center justify-between gap-3 bg-navy-950/40">
               <div className="flex items-center gap-3">
-                <img
-                  src={activePartner.avatarUrl}
-                  alt={activePartner.fullName}
-                  className="w-9 h-9 rounded-full object-cover border border-cyan-500/50"
-                />
+                <Image src={activePartner.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={activePartner.fullName} width={36} height={36} className="w-9 h-9 rounded-full object-cover border border-cyan-500/50" />
                 <div>
                   <h4 className="font-bold text-white text-sm leading-tight">
                     {activePartner.fullName}
@@ -219,11 +212,7 @@ export function DirectMessagingHub({
                       }`}
                     >
                       {!isSelf && (
-                        <img
-                          src={activePartner.avatarUrl}
-                          alt={activePartner.fullName}
-                          className="w-6 h-6 rounded-full object-cover border border-slate-700 shrink-0 mb-1"
-                        />
+                        <Image src={activePartner.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={activePartner.fullName} width={36} height={36} className="w-6 h-6 rounded-full object-cover border border-slate-700 shrink-0 mb-1" />
                       )}
                       <div
                         className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 shadow-sm leading-relaxed ${

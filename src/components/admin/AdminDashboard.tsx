@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import React, { useState, useEffect } from "react";
 import { StudentProfile, Project, CollaborationRequest, ExchangeSession } from "@/types";
@@ -309,11 +310,7 @@ export function AdminDashboard({
                 {filteredStudents.map((st) => (
                   <tr key={st.id} className="hover:bg-navy-850/50 transition-colors">
                     <td className="py-3 px-3 font-semibold text-white flex items-center gap-2">
-                      <img
-                        src={st.avatarUrl}
-                        alt={st.fullName}
-                        className="w-6 h-6 rounded-full object-cover border border-slate-700"
-                      />
+                      <Image src={st.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={st.fullName} width={24} height={24} className="w-6 h-6 rounded-full object-cover border border-slate-700" />
                       <span>{st.fullName}</span>
                     </td>
                     <td className="py-3 px-3 text-slate-300">{st.university}</td>

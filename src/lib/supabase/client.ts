@@ -1,29 +1,17 @@
 import { createBrowserClient } from "@supabase/ssr";
 
-/**
- * Validate that an environment variable is set and looks like a URL or key.
- * Returns the value if valid, otherwise logs a warning and returns an empty string.
- */
-function getEnvVar(name: string, validator?: (v: string) => boolean): string {
-  const value = process.env[name] ?? "";
-  if (!value) {
-    console.warn(`[Supabase] Environment variable ${name} is not defined.`);
-    return "";
-  }
-  if (validator && !validator(value)) {
-    console.warn(`[Supabase] Environment variable ${name} appears invalid: ${value}`);
-    return "";
-  }
-  return value;
-}
-
 // Basic validators – support standard JWT format and new Supabase publishable keys (sb_publishable_...)
 const isUrl = (v: string) => /^https:\/\/.+/.test(v);
 const isAnonKey = (v: string) =>
   /^[a-zA-Z0-9_\-\.]{30,}$/.test(v) || v.startsWith("sb_publishable_");
 
-const supabaseUrl = getEnvVar("NEXT_PUBLIC_SUPABASE_URL", isUrl);
-const supabaseAnonKey = getEnvVar("NEXT_PUBLIC_SUPABASE_ANON_KEY", isAnonKey);
+// Note: In Next.js client bundles, process.env.NEXT_PUBLIC_* MUST be referenced directly
+// so that Webpack can statically replace them during compilation.
+const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+
+const supabaseUrl = isUrl(rawUrl) ? rawUrl : "";
+const supabaseAnonKey = isAnonKey(rawKey) ? rawKey : "";
 
 /**
  * Flag indicating whether the Supabase client can be created.

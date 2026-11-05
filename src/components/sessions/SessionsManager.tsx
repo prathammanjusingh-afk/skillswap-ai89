@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import React, { useState } from "react";
 import { ExchangeSession, StudentProfile } from "@/types";
@@ -152,11 +153,7 @@ export function SessionsManager({
                   {/* Top Bar */}
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={session.partnerAvatar}
-                        alt={session.partnerName}
-                        className="w-11 h-11 rounded-full object-cover border border-slate-700"
-                      />
+                      <Image src={session.partnerAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={session.partnerName} width={44} height={44} className="w-11 h-11 rounded-full object-cover border border-slate-700" />
                       <div>
                         <h4 className="font-bold text-white text-sm">
                           {session.partnerName}

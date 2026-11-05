@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import React, { useState } from "react";
 import { StudentProfile, SkillCategory, SkillProficiency, WorkStyle } from "@/types";
@@ -232,11 +233,7 @@ export function SkillProfileEditor({
           {/* Avatar Upload Banner */}
           <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-navy-950/70 border border-slate-800">
             <div className="relative group shrink-0">
-              <img
-                src={profile.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"}
-                alt={profile.fullName}
-                className="w-16 h-16 rounded-full object-cover border-2 border-cyan-500/50 shadow-md"
-              />
+              <Image src={profile.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"} alt={profile.fullName} width={64} height={64} className="w-16 h-16 rounded-full object-cover border-2 border-cyan-500/50 shadow-md" />
               {avatarUploading && (
                 <div className="absolute inset-0 bg-navy-950/80 rounded-full flex items-center justify-center">
                   <Loader2 className="w-5 h-5 text-cyan-400 animate-spin" />

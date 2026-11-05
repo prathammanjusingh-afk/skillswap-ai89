@@ -2,10 +2,6 @@
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
-<<<<<<< HEAD
-    "target": "ES6",
-=======
->>>>>>> ae16928 (feat: complete SkillSwap AI production release)
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
@@ -14,11 +10,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-<<<<<<< HEAD
-    "jsx": "react-jsx",
-=======
     "jsx": "preserve",
->>>>>>> ae16928 (feat: complete SkillSwap AI production release)
     "incremental": true,
     "plugins": [
       {
@@ -26,22 +18,14 @@
       }
     ],
     "paths": {
-<<<<<<< HEAD
-      "@/*": ["./*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".next/types/**/*.ts"
   ],
-=======
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
->>>>>>> ae16928 (feat: complete SkillSwap AI production release)
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "legacy_v0_template"]
 }

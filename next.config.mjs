@@ -1,16 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-<<<<<<< HEAD
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    unoptimized: true,
-  },
-}
-
-export default nextConfig
-=======
   reactStrictMode: true,
   images: {
     remotePatterns: [
@@ -26,9 +15,12 @@ export default nextConfig
         protocol: "https",
         hostname: "api.dicebear.com",
       },
+      {
+        protocol: "https",
+        hostname: "*.supabase.co",
+      },
     ],
   },
 };
 
 export default nextConfig;
->>>>>>> ae16928 (feat: complete SkillSwap AI production release)

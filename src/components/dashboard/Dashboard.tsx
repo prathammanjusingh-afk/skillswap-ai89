@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import React from "react";
 import {
@@ -257,11 +258,7 @@ export function Dashboard({
                   className="p-3.5 rounded-xl border border-slate-800 bg-navy-950/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                 >
                   <div className="flex items-start gap-3">
-                    <img
-                      src={req.senderAvatar}
-                      alt={req.senderName}
-                      className="w-9 h-9 rounded-full object-cover border border-slate-700 shrink-0"
-                    />
+                    <Image src={req.senderAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={req.senderName} width={36} height={36} className="w-9 h-9 rounded-full object-cover border border-slate-700 shrink-0" />
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-bold text-white text-sm">{req.senderName}</span>
@@ -334,11 +331,7 @@ export function Dashboard({
                   onClick={() => onOpenStudentDetail(student, synergy)}
                   className="w-full flex items-center gap-3 p-3 rounded-xl border border-slate-800 bg-navy-950/60 hover:border-cyan-500/40 transition-all text-left"
                 >
-                  <img
-                    src={student.avatarUrl}
-                    alt={student.fullName}
-                    className="w-9 h-9 rounded-full object-cover border border-slate-700 shrink-0"
-                  />
+                  <Image src={student.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={student.fullName} width={32} height={32} className="w-9 h-9 rounded-full object-cover border border-slate-700 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-white text-sm truncate">{student.fullName}</p>
                     <p className="text-[11px] text-slate-400 truncate">{student.university}</p>

@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import React from "react";
 import { Project, StudentProfile } from "@/types";
@@ -114,11 +115,7 @@ export function ProjectCard({
         {/* Creator Info & Team Size */}
         <div className="flex items-center justify-between text-xs text-slate-400 p-2.5 rounded-xl bg-navy-950/70 border border-slate-800/70 mb-4">
           <div className="flex items-center gap-2">
-            <img
-              src={project.creatorAvatar}
-              alt={project.creatorName}
-              className="w-6 h-6 rounded-full object-cover border border-slate-700"
-            />
+            <Image src={project.creatorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={project.creatorName} width={24} height={24} className="w-6 h-6 rounded-full object-cover border border-slate-700" />
             <span className="truncate max-w-[130px] font-medium text-slate-200">
               {project.creatorName}
             </span>

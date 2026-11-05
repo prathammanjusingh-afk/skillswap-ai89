@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 import React, { useState } from "react";
 import { Project, StudentProfile } from "@/types";
@@ -134,11 +135,7 @@ export function TeamGapAnalyzerModal({
                       className="flex items-center justify-between p-3 rounded-lg bg-navy-900/80 border border-slate-800 hover:border-cyan-500/30 transition-all text-xs"
                     >
                       <div className="flex items-center gap-3">
-                        <img
-                          src={student.avatarUrl}
-                          alt={student.fullName}
-                          className="w-9 h-9 rounded-full object-cover border border-slate-700"
-                        />
+                        <Image src={student.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={student.fullName} width={32} height={32} className="w-9 h-9 rounded-full object-cover border border-slate-700" />
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-white">
