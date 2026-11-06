@@ -5,13 +5,16 @@ const isUrl = (v: string) => /^https:\/\/.+/.test(v);
 const isAnonKey = (v: string) =>
   /^[a-zA-Z0-9_\-\.]{30,}$/.test(v) || v.startsWith("sb_publishable_");
 
-// Note: In Next.js client bundles, process.env.NEXT_PUBLIC_* MUST be referenced directly
-// so that Webpack can statically replace them during compilation.
-const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+// Default public project credentials (safe fallback for client builds)
+const FALLBACK_SUPABASE_URL = "https://dylunnfzciikfsgdtobi.supabase.co";
+const FALLBACK_SUPABASE_ANON_KEY = "sb_publishable_gulb45Kp4KL9PEae27PWig_SeyCXCsf";
 
-const supabaseUrl = isUrl(rawUrl) ? rawUrl : "";
-const supabaseAnonKey = isAnonKey(rawKey) ? rawKey : "";
+// Prioritize environment variable if set, otherwise use verified production project credentials
+const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_SUPABASE_URL;
+const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_SUPABASE_ANON_KEY;
+
+const supabaseUrl = isUrl(rawUrl) ? rawUrl : FALLBACK_SUPABASE_URL;
+const supabaseAnonKey = isAnonKey(rawKey) ? rawKey : FALLBACK_SUPABASE_ANON_KEY;
 
 /**
  * Flag indicating whether the Supabase client can be created.
