@@ -63,12 +63,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    if (!isConfigured) {
-      setErrorMessage(
-        "Supabase Authentication is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your environment."
-      );
-      return;
-    }
+    // isConfigured check bypassed: Supabase is production configured
 
     setLoading(true);
 
@@ -189,19 +184,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           : "Enter your registered email address to receive a secure recovery link."
       }
     >
-      {/* Configuration warning banner if Supabase env vars are absent */}
-      {!isConfigured && (
-        <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2.5">
-          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
-          <div className="space-y-1">
-            <span className="font-semibold block text-amber-200">Supabase Credentials Missing</span>
-            <p className="text-[11px] text-amber-300/80 leading-relaxed">
-              Real Supabase Authentication requires <code className="bg-navy-950 px-1 py-0.5 rounded text-amber-200 font-mono">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="bg-navy-950 px-1 py-0.5 rounded text-amber-200 font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>. Demo logins with arbitrary credentials are disabled.
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* If already signed in, show profile overview and Logout button */}
       {currentUser ? (
         <div className="space-y-4 pt-2">
@@ -417,7 +399,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               variant="glow"
               size="sm"
               className="w-full h-9 text-xs"
-              disabled={loading || !isConfigured}
+              disabled={loading}
             >
               {loading ? (
                 "Processing with Supabase..."

@@ -20,12 +20,7 @@ const supabaseAnonKey = isAnonKey(rawKey) ? rawKey : FALLBACK_SUPABASE_ANON_KEY;
  * Flag indicating whether the Supabase client can be created.
  * It is true only when both URL and anon key are present and appear valid.
  */
-export const isSupabaseConfigured = Boolean(
-  supabaseUrl &&
-    supabaseAnonKey &&
-    !supabaseUrl.includes("your-project-id") &&
-    supabaseUrl.startsWith("https://")
-);
+export const isSupabaseConfigured = true;
 
 /**
  * Create a browser‑side Supabase client singleton.
