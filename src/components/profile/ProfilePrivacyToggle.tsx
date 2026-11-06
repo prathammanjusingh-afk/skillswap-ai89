@@ -51,7 +51,7 @@ export const ProfilePrivacyToggle: React.FC<ProfilePrivacyToggleProps> = ({
               className={`text-[10px] uppercase font-bold py-0 px-2 ${
                 isPublic
                   ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                  : "bg-slate-800 text-slate-400 border-slate-700"
+                  : "bg-slate-800 text-gray-400 border-gray-700"
               }`}
             >
               {isPublic ? "Public" : "Private"}
@@ -59,7 +59,7 @@ export const ProfilePrivacyToggle: React.FC<ProfilePrivacyToggleProps> = ({
           </div>
           <span
             id={descId}
-            className="text-xs text-slate-400 select-none leading-relaxed max-w-md"
+            className="text-xs text-gray-400 select-none leading-relaxed max-w-md"
           >
             {isPublic
               ? "Your profile is visible in the teammate marketplace and public AI recommendations."
@@ -69,7 +69,7 @@ export const ProfilePrivacyToggle: React.FC<ProfilePrivacyToggleProps> = ({
 
         <div className="flex items-center gap-2">
           {loading && (
-            <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
+            <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
           )}
 
           <button
@@ -85,7 +85,7 @@ export const ProfilePrivacyToggle: React.FC<ProfilePrivacyToggleProps> = ({
             className={`
               relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent
               transition-colors duration-200 ease-in-out
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2
               disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-offset-navy-950
               ${isPublic ? "bg-emerald-500" : "bg-slate-700"}
             `}

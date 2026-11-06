@@ -9,10 +9,8 @@ import {
   Users,
   Clock,
   Sparkles,
-  ExternalLink,
   ChevronRight,
   Briefcase,
-  Layers,
   Calendar,
 } from "lucide-react";
 
@@ -55,32 +53,38 @@ export function ProjectCard({
   const isCreator = project.creatorId === currentUser.id;
 
   return (
-    <div className="group rounded-2xl border border-slate-800/80 bg-navy-900/70 p-5 shadow-lg backdrop-blur-md transition-all duration-300 hover:border-cyan-500/40 hover:bg-navy-850 hover:shadow-cyan-950/40 flex flex-col justify-between">
+    <div
+      className="group rounded-2xl border border-gray-800 bg-gray-900/60 p-5 shadow-xl backdrop-blur-md transition-all duration-300 hover:border-purple-500/50 hover:shadow-purple-600/10 flex flex-col justify-between"
+      style={{
+        background:
+          "radial-gradient(130.39% 130.39% at 51.31% -0.71%, rgba(31, 41, 55, 0.4) 0%, rgba(17, 24, 39, 0.6) 100%)",
+      }}
+    >
       <div>
         {/* Header Tags: Event, Category, Stage, Status */}
         <div className="flex items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2 flex-wrap">
             {project.targetEvent && (
-              <Badge variant="indigo" className="text-[11px] font-semibold py-0.5">
+              <Badge variant="indigo" className="text-[11px] font-semibold py-0.5 rounded-full bg-purple-600/20 text-purple-300 border border-purple-500/30">
                 <Calendar className="w-3 h-3 mr-1" />
                 {project.targetEvent}
               </Badge>
             )}
-            <Badge variant="secondary" className="text-[11px] capitalize border-slate-700 bg-navy-950">
+            <Badge variant="secondary" className="text-[11px] capitalize border-gray-800 bg-gray-950 text-gray-300 rounded-full">
               {project.category}
             </Badge>
             {project.status === "recruiting" && (
-              <Badge variant="default" className="text-[10px] bg-cyan-500/20 text-cyan-300 border-cyan-500/40 py-0.5">
+              <Badge variant="default" className="text-[10px] bg-purple-600/20 text-purple-300 border-purple-500/40 py-0.5 rounded-full">
                 Recruiting
               </Badge>
             )}
             {project.status === "in_progress" && (
-              <Badge variant="outline" className="text-[10px] bg-amber-500/20 text-amber-300 border-amber-500/40 py-0.5">
+              <Badge variant="outline" className="text-[10px] bg-amber-500/20 text-amber-300 border-amber-500/40 py-0.5 rounded-full">
                 In Progress
               </Badge>
             )}
             {project.status === "completed" && (
-              <Badge variant="outline" className="text-[10px] bg-emerald-500/20 text-emerald-300 border-emerald-500/40 py-0.5">
+              <Badge variant="outline" className="text-[10px] bg-emerald-500/20 text-emerald-300 border-emerald-500/40 py-0.5 rounded-full">
                 Completed
               </Badge>
             )}
@@ -88,13 +92,13 @@ export function ProjectCard({
 
           <div className="flex items-center gap-1.5 shrink-0">
             {isCreator && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-600 text-white shadow-sm">
                 You
               </span>
             )}
             <Badge
               variant="outline"
-              className="text-[11px] capitalize border-cyan-500/30 text-cyan-300 bg-cyan-500/10"
+              className="text-[11px] capitalize border-purple-500/30 text-purple-300 bg-purple-600/10 rounded-full"
             >
               {project.stage.replace("_", " ")}
             </Badge>
@@ -104,31 +108,37 @@ export function ProjectCard({
         {/* Project Title & Tagline */}
         <h3
           onClick={() => onSelectProject(project)}
-          className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors cursor-pointer line-clamp-1 mb-1"
+          className="text-lg font-bold text-white group-hover:text-purple-300 transition-colors cursor-pointer line-clamp-1 mb-1"
         >
           {project.title}
         </h3>
-        <p className="text-xs text-slate-300 font-medium line-clamp-2 mb-4 leading-relaxed">
+        <p className="text-xs text-gray-300 font-medium line-clamp-2 mb-4 leading-relaxed">
           {project.tagline}
         </p>
 
         {/* Creator Info & Team Size */}
-        <div className="flex items-center justify-between text-xs text-slate-400 p-2.5 rounded-xl bg-navy-950/70 border border-slate-800/70 mb-4">
+        <div className="flex items-center justify-between text-xs text-gray-400 p-2.5 rounded-xl bg-gray-950 border border-gray-800 mb-4">
           <div className="flex items-center gap-2">
-            <Image src={project.creatorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={project.creatorName} width={24} height={24} className="w-6 h-6 rounded-full object-cover border border-slate-700" />
-            <span className="truncate max-w-[130px] font-medium text-slate-200">
+            <Image
+              src={project.creatorAvatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"}
+              alt={project.creatorName}
+              width={24}
+              height={24}
+              className="w-6 h-6 rounded-full object-cover border border-purple-500/40"
+            />
+            <span className="truncate max-w-[130px] font-medium text-gray-200">
               {project.creatorName}
             </span>
-            <span className="text-slate-500 hidden sm:inline">&bull; {project.creatorUniversity}</span>
+            <span className="text-gray-500 hidden sm:inline">&bull; {project.creatorUniversity}</span>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <span className="flex items-center gap-1 font-semibold text-slate-300">
-              <Users className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="flex items-center gap-1 font-semibold text-gray-300">
+              <Users className="w-3.5 h-3.5 text-purple-400" />
               {project.currentTeamSize}/{project.maxTeamSize}
             </span>
-            <span className="flex items-center gap-1 text-slate-400">
-              <Clock className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="flex items-center gap-1 text-gray-400">
+              <Clock className="w-3.5 h-3.5 text-violet-400" />
               {project.weeklyHoursRequired}h/wk
             </span>
           </div>
@@ -136,22 +146,22 @@ export function ProjectCard({
 
         {/* AI Role Compatibility Alert if user has high fit */}
         {!isCreator && bestRoleMatch && bestRoleMatch.fitScore >= 50 && (
-          <div className="mb-4 p-2.5 rounded-xl bg-gradient-to-r from-cyan-950/50 to-indigo-950/40 border border-cyan-500/30 text-xs flex items-center justify-between">
+          <div className="mb-4 p-2.5 rounded-xl bg-gradient-to-r from-purple-950/60 to-violet-950/40 border border-purple-500/30 text-xs flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-cyan-400 shrink-0 animate-pulse" />
+              <Sparkles className="w-4 h-4 text-purple-400 shrink-0 animate-pulse" />
               <div>
-                <span className="font-semibold text-cyan-300">
+                <span className="font-semibold text-purple-300">
                   {bestRoleMatch.fitScore}% Match for {bestRoleMatch.role.title}
                 </span>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-[11px] text-gray-400">
                   You bring {bestRoleMatch.matched.join(", ")}
                 </p>
               </div>
             </div>
             <Button
               size="sm"
-              variant="default"
-              className="text-[11px] h-7 px-2.5 shrink-0"
+              variant="purple"
+              className="text-[11px] h-7 px-3 rounded-full shrink-0"
               onClick={() => onApplyRole(project, bestRoleMatch.role.id)}
             >
               Apply
@@ -161,9 +171,9 @@ export function ProjectCard({
 
         {/* Open Roles Needed */}
         <div className="space-y-2 mb-4">
-          <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+          <div className="flex items-center justify-between text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
             <span className="flex items-center gap-1">
-              <Briefcase className="w-3 h-3 text-cyan-400" /> Open Positions (
+              <Briefcase className="w-3 h-3 text-purple-400" /> Open Positions (
               {project.openRoles.filter((r) => !r.isFilled).length})
             </span>
           </div>
@@ -171,17 +181,17 @@ export function ProjectCard({
             {project.openRoles.map((role) => (
               <div
                 key={role.id}
-                className="flex items-center justify-between p-2 rounded-lg bg-navy-950/50 border border-slate-800/80 text-xs"
+                className="flex items-center justify-between p-2.5 rounded-xl bg-gray-950 border border-gray-800 text-xs"
               >
                 <div>
-                  <span className="font-medium text-slate-200 block">
+                  <span className="font-medium text-gray-200 block">
                     {role.title}
                   </span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {role.requiredSkills.map((sk, i) => (
                       <span
                         key={i}
-                        className="text-[10px] text-slate-400 bg-navy-900 px-1.5 py-0.5 rounded border border-slate-800"
+                        className="text-[10px] text-purple-300 bg-purple-600/15 px-2 py-0.5 rounded-md border border-purple-500/25"
                       >
                         {sk}
                       </span>
@@ -192,13 +202,13 @@ export function ProjectCard({
                 {!isCreator && !role.isFilled && (project.status === "recruiting" || !project.status) && (
                   <button
                     onClick={() => onApplyRole(project, role.id)}
-                    className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 ml-2 px-2 py-1 rounded hover:bg-cyan-950/40 transition-colors shrink-0"
+                    className="text-xs font-semibold text-purple-400 hover:text-purple-300 ml-2 px-2.5 py-1 rounded-full hover:bg-purple-950/40 transition-colors shrink-0"
                   >
                     Apply
                   </button>
                 )}
                 {role.isFilled && (
-                  <span className="text-[10px] text-emerald-400 font-semibold ml-2 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 shrink-0">
+                  <span className="text-[10px] text-emerald-400 font-semibold ml-2 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 shrink-0">
                     Filled
                   </span>
                 )}
@@ -209,21 +219,21 @@ export function ProjectCard({
       </div>
 
       {/* Card Action Footer */}
-      <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
+      <div className="pt-3 border-t border-gray-800 flex items-center justify-between gap-2">
         <Button
-          variant="outline"
+          variant="secondary"
           size="sm"
-          className="text-xs flex-1"
+          className="text-xs flex-1 rounded-full bg-gray-800 hover:bg-gray-700 border-gray-700"
           onClick={() => onOpenGapAnalyzer(project)}
         >
-          <Sparkles className="w-3.5 h-3.5 text-cyan-400 mr-1" />
+          <Sparkles className="w-3.5 h-3.5 text-purple-400 mr-1" />
           AI Gap Analysis
         </Button>
 
         <Button
-          variant="secondary"
+          variant="outline"
           size="sm"
-          className="text-xs flex-1"
+          className="text-xs flex-1 rounded-full border-gray-800 hover:bg-gray-800 text-gray-200"
           onClick={() => onSelectProject(project)}
         >
           Details
@@ -233,3 +243,5 @@ export function ProjectCard({
     </div>
   );
 }
+
+export default ProjectCard;

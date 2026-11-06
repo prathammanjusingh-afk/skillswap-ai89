@@ -174,26 +174,26 @@ export function SkillProfileEditor({
   ];
 
   return (
-    <div className="rounded-3xl border border-slate-800/80 bg-navy-900/80 p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+    <div className="rounded-3xl border border-gray-800 bg-gray-900/80 p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-800">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-semibold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-600/15 border border-purple-500/30 text-purple-300 text-xs font-semibold mb-2">
             <Sliders className="w-3.5 h-3.5" />
             Skill Identity &amp; Match Parameters
           </div>
           <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
             Edit Your Profile
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm mt-0.5">
+          <p className="text-gray-400 text-xs sm:text-sm mt-0.5">
             Changes automatically recalibrate AI match scores across the entire student roster.
           </p>
         </div>
 
         <Button
-          variant={savedSuccess ? "secondary" : "glow"}
+          variant={savedSuccess ? "secondary" : "purple"}
           size="sm"
           onClick={handleSave}
-          className="self-start sm:self-auto shrink-0"
+          className="self-start sm:self-auto shrink-0 rounded-full shadow-lg shadow-purple-600/30"
         >
           {savedSuccess ? (
             <>
@@ -210,15 +210,15 @@ export function SkillProfileEditor({
       </div>
 
       {/* Section tabs */}
-      <div className="flex gap-1 mt-6 mb-6 p-1 bg-navy-950 rounded-xl border border-slate-800">
+      <div className="flex gap-1 mt-6 mb-6 p-1 bg-gray-950 rounded-full border border-gray-800">
         {sectionTabs.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             onClick={() => setActiveSection(id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-full text-xs font-semibold transition-all ${
               activeSection === id
-                ? "bg-cyan-500 text-white shadow-md shadow-cyan-500/25"
-                : "text-slate-400 hover:text-white"
+                ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+                : "text-gray-400 hover:text-white"
             }`}
           >
             <Icon className="w-3.5 h-3.5 hidden sm:block" />
@@ -231,18 +231,18 @@ export function SkillProfileEditor({
       {activeSection === "identity" && (
         <div className="space-y-4">
           {/* Avatar Upload Banner */}
-          <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-navy-950/70 border border-slate-800">
+          <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-gray-950/70 border border-gray-800">
             <div className="relative group shrink-0">
-              <Image src={profile.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"} alt={profile.fullName} width={64} height={64} className="w-16 h-16 rounded-full object-cover border-2 border-cyan-500/50 shadow-md" />
+              <Image src={profile.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"} alt={profile.fullName} width={64} height={64} className="w-16 h-16 rounded-full object-cover border-2 border-purple-500/50 shadow-md" />
               {avatarUploading && (
-                <div className="absolute inset-0 bg-navy-950/80 rounded-full flex items-center justify-center">
-                  <Loader2 className="w-5 h-5 text-cyan-400 animate-spin" />
+                <div className="absolute inset-0 bg-gray-950/80 rounded-full flex items-center justify-center">
+                  <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
                 </div>
               )}
             </div>
             <div className="flex-1 space-y-1 text-center sm:text-left min-w-0">
               <h4 className="text-xs font-bold text-white">Profile Avatar</h4>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-gray-400">
                 Upload JPEG, PNG, WebP or GIF (max 2 MB) saved to Supabase Storage.
               </p>
               {avatarError && (
@@ -272,7 +272,7 @@ export function SkillProfileEditor({
                 variant="outline"
                 disabled={avatarUploading}
                 onClick={() => avatarFileInputRef.current?.click()}
-                className="text-xs border-slate-700 hover:border-cyan-500/50"
+                className="text-xs border-gray-700 hover:border-purple-500/50"
               >
                 <Upload className="w-3.5 h-3.5 mr-1.5" />
                 {avatarUploading ? "Uploading..." : "Upload New Avatar"}
@@ -281,7 +281,7 @@ export function SkillProfileEditor({
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1.5">Full Name</label>
+              <label className="text-xs font-semibold text-gray-300 block mb-1.5">Full Name</label>
               <Input
                 value={profile.fullName}
                 onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
@@ -290,7 +290,7 @@ export function SkillProfileEditor({
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1.5">Headline</label>
+              <label className="text-xs font-semibold text-gray-300 block mb-1.5">Headline</label>
               <Input
                 value={profile.headline}
                 onChange={(e) => setProfile({ ...profile, headline: e.target.value })}
@@ -302,7 +302,7 @@ export function SkillProfileEditor({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1.5">University</label>
+              <label className="text-xs font-semibold text-gray-300 block mb-1.5">University</label>
               <Input
                 value={profile.university}
                 onChange={(e) => setProfile({ ...profile, university: e.target.value })}
@@ -311,7 +311,7 @@ export function SkillProfileEditor({
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1.5">Major</label>
+              <label className="text-xs font-semibold text-gray-300 block mb-1.5">Major</label>
               <Input
                 value={profile.major}
                 onChange={(e) => setProfile({ ...profile, major: e.target.value })}
@@ -323,7 +323,7 @@ export function SkillProfileEditor({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1.5">Graduation Year</label>
+              <label className="text-xs font-semibold text-gray-300 block mb-1.5">Graduation Year</label>
               <Input
                 type="number"
                 value={profile.graduationYear}
@@ -333,7 +333,7 @@ export function SkillProfileEditor({
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-300 block mb-1.5">Timezone</label>
+              <label className="text-xs font-semibold text-gray-300 block mb-1.5">Timezone</label>
               <Input
                 value={profile.timezone}
                 onChange={(e) => setProfile({ ...profile, timezone: e.target.value })}
@@ -344,19 +344,19 @@ export function SkillProfileEditor({
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-300 block mb-1.5">Bio</label>
+            <label className="text-xs font-semibold text-gray-300 block mb-1.5">Bio</label>
             <textarea
               value={profile.bio}
               onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
               placeholder="Tell other students about yourself, your interests, and what kind of projects you want to work on..."
               rows={4}
-              className="w-full rounded-lg border border-slate-700 bg-navy-950 px-3 py-2 text-slate-100 text-sm placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 resize-none"
+              className="w-full rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-slate-100 text-sm placeholder:text-gray-500 focus:outline-none focus:border-purple-500 resize-none"
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-2xl bg-navy-950/70 border border-slate-800">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-2xl bg-gray-950/70 border border-gray-800">
             <div>
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 mb-1.5">
+              <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5 mb-1.5">
                 <Github className="w-3.5 h-3.5" />
                 GitHub URL
               </label>
@@ -368,7 +368,7 @@ export function SkillProfileEditor({
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 mb-1.5">
+              <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5 mb-1.5">
                 <Linkedin className="w-3.5 h-3.5 text-blue-400" />
                 LinkedIn URL
               </label>
@@ -380,7 +380,7 @@ export function SkillProfileEditor({
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5 mb-1.5">
+              <label className="text-xs font-semibold text-gray-300 flex items-center gap-1.5 mb-1.5">
                 <Globe className="w-3.5 h-3.5 text-emerald-400" />
                 Portfolio URL
               </label>
@@ -394,7 +394,7 @@ export function SkillProfileEditor({
           </div>
 
           {/* Privacy & Discovery Settings */}
-          <div className="p-4 rounded-2xl bg-navy-950/70 border border-slate-800">
+          <div className="p-4 rounded-2xl bg-gray-950/70 border border-gray-800">
             <ProfilePrivacyToggle
               isPublic={profile.isPublic ?? isPublic}
               onToggle={togglePrivacy}
@@ -411,8 +411,8 @@ export function SkillProfileEditor({
       {activeSection === "skills" && (
         <div className="space-y-6">
           {/* Add Skill Quick Form */}
-          <div className="p-4 rounded-2xl bg-navy-950/70 border border-slate-800 space-y-3">
-            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
+          <div className="p-4 rounded-2xl bg-gray-950/70 border border-gray-800 space-y-3">
+            <span className="text-xs font-bold text-gray-300 uppercase tracking-wider block">
               Add New Skill Tag
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
@@ -429,7 +429,7 @@ export function SkillProfileEditor({
                 <select
                   value={newSkillCategory}
                   onChange={(e) => setNewSkillCategory(e.target.value as SkillCategory)}
-                  className="w-full h-9 rounded-lg border border-slate-700 bg-navy-950 px-2 text-slate-200 text-xs focus:outline-none focus:border-cyan-500"
+                  className="w-full h-9 rounded-lg border border-gray-700 bg-gray-950 px-2 text-gray-200 text-xs focus:outline-none focus:border-purple-500"
                 >
                   {CATEGORIES.map(({ value, label }) => (
                     <option key={value} value={value}>{label}</option>
@@ -442,7 +442,7 @@ export function SkillProfileEditor({
                   onChange={(e) =>
                     setNewSkillTargetType(e.target.value as "offered" | "seeking")
                   }
-                  className="w-full h-9 rounded-lg border border-slate-700 bg-navy-950 px-2 text-slate-200 text-xs focus:outline-none focus:border-cyan-500"
+                  className="w-full h-9 rounded-lg border border-gray-700 bg-gray-950 px-2 text-gray-200 text-xs focus:outline-none focus:border-purple-500"
                 >
                   <option value="offered">Skill I Offer</option>
                   <option value="seeking">Skill I Seek</option>
@@ -452,7 +452,7 @@ export function SkillProfileEditor({
                 <select
                   value={newSkillProficiency}
                   onChange={(e) => setNewSkillProficiency(e.target.value as SkillProficiency)}
-                  className="w-full h-9 rounded-lg border border-slate-700 bg-navy-950 px-2 text-slate-200 text-xs focus:outline-none focus:border-cyan-500"
+                  className="w-full h-9 rounded-lg border border-gray-700 bg-gray-950 px-2 text-gray-200 text-xs focus:outline-none focus:border-purple-500"
                 >
                   <option value="beginner">Beginner</option>
                   <option value="intermediate">Intermediate</option>
@@ -475,14 +475,14 @@ export function SkillProfileEditor({
           {/* Skills Matrix */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Offered */}
-            <div className="rounded-2xl border border-cyan-500/25 bg-navy-950/50 p-4">
+            <div className="rounded-2xl border border-cyan-500/25 bg-gray-950/50 p-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" /> Skills You Offer ({profile.skillsOffered.length})
                 </span>
               </div>
               {profile.skillsOffered.length === 0 ? (
-                <p className="text-xs text-slate-500 italic py-4 text-center">
+                <p className="text-xs text-gray-500 italic py-4 text-center">
                   No skills added yet. Add skills above to improve your match score.
                 </p>
               ) : (
@@ -490,17 +490,17 @@ export function SkillProfileEditor({
                   {profile.skillsOffered.map((sk) => (
                     <div
                       key={sk.name}
-                      className="flex items-center justify-between p-2 rounded-lg bg-navy-900/80 border border-slate-800 text-xs"
+                      className="flex items-center justify-between p-2 rounded-lg bg-gray-900/80 border border-gray-800 text-xs"
                     >
                       <div className="flex items-center gap-2">
                         <span className={`font-medium px-2 py-0.5 rounded border ${getCategoryBadgeColor(sk.category)}`}>
                           {sk.name}
                         </span>
-                        <span className="text-[10px] text-slate-400 capitalize">{sk.proficiency}</span>
+                        <span className="text-[10px] text-gray-400 capitalize">{sk.proficiency}</span>
                       </div>
                       <button
                         onClick={() => handleRemoveSkill(sk.name, "offered")}
-                        className="text-slate-500 hover:text-rose-400 p-1 transition-colors"
+                        className="text-gray-500 hover:text-rose-400 p-1 transition-colors"
                         title="Remove skill"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -512,14 +512,14 @@ export function SkillProfileEditor({
             </div>
 
             {/* Seeking */}
-            <div className="rounded-2xl border border-purple-500/25 bg-navy-950/50 p-4">
+            <div className="rounded-2xl border border-purple-500/25 bg-gray-950/50 p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" /> Skills You Need ({profile.skillsSeeking.length})
                 </span>
               </div>
               {profile.skillsSeeking.length === 0 ? (
-                <p className="text-xs text-slate-500 italic py-4 text-center">
+                <p className="text-xs text-gray-500 italic py-4 text-center">
                   No sought skills yet. Add skills you&apos;re looking for in teammates.
                 </p>
               ) : (
@@ -527,17 +527,17 @@ export function SkillProfileEditor({
                   {profile.skillsSeeking.map((sk) => (
                     <div
                       key={sk.name}
-                      className="flex items-center justify-between p-2 rounded-lg bg-navy-900/80 border border-slate-800 text-xs"
+                      className="flex items-center justify-between p-2 rounded-lg bg-gray-900/80 border border-gray-800 text-xs"
                     >
                       <div className="flex items-center gap-2">
                         <span className="font-medium px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30">
                           {sk.name}
                         </span>
-                        <span className="text-[10px] text-slate-400 capitalize">{sk.proficiency} desired</span>
+                        <span className="text-[10px] text-gray-400 capitalize">{sk.proficiency} desired</span>
                       </div>
                       <button
                         onClick={() => handleRemoveSkill(sk.name, "seeking")}
-                        className="text-slate-500 hover:text-rose-400 p-1 transition-colors"
+                        className="text-gray-500 hover:text-rose-400 p-1 transition-colors"
                         title="Remove skill"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -553,14 +553,14 @@ export function SkillProfileEditor({
 
       {/* Section: Availability */}
       {activeSection === "availability" && (
-        <div className="space-y-6 p-4 rounded-2xl bg-navy-950/70 border border-slate-800">
+        <div className="space-y-6 p-4 rounded-2xl bg-gray-950/70 border border-gray-800">
           <div>
             <div className="flex justify-between items-center text-xs mb-2">
-              <span className="font-semibold text-slate-300 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="font-semibold text-gray-300 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-purple-400" />
                 Weekly Availability:
               </span>
-              <span className="font-bold text-cyan-300 text-sm">
+              <span className="font-bold text-purple-300 text-sm">
                 {profile.availabilityHoursPerWeek} hrs/week
               </span>
             </div>
@@ -576,20 +576,20 @@ export function SkillProfileEditor({
                   availabilityHoursPerWeek: Number(e.target.value),
                 })
               }
-              className="w-full accent-cyan-400"
+              className="w-full accent-purple-500"
             />
-            <div className="flex justify-between text-[11px] text-slate-500 mt-1">
+            <div className="flex justify-between text-[11px] text-gray-500 mt-1">
               <span>5h (light)</span>
               <span>20h (standard)</span>
               <span>40h (full-time)</span>
             </div>
-            <p className="text-[11px] text-slate-400 mt-2">
+            <p className="text-[11px] text-gray-400 mt-2">
               Matched with peers looking for similar weekly commitment windows.
             </p>
           </div>
 
           <div>
-            <span className="font-semibold text-slate-300 text-xs flex items-center gap-1.5 mb-3">
+            <span className="font-semibold text-gray-300 text-xs flex items-center gap-1.5 mb-3">
               <GitBranch className="w-3.5 h-3.5 text-indigo-400" />
               Preferred Collaboration Style:
             </span>
@@ -603,8 +603,8 @@ export function SkillProfileEditor({
                   }
                   className={`py-3 px-3 rounded-xl text-xs font-semibold capitalize border transition-all ${
                     profile.preferredWorkStyle === style
-                      ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/60 shadow-md"
-                      : "bg-navy-900 text-slate-400 border-slate-800 hover:text-white hover:border-slate-600"
+                      ? "bg-purple-600/20 text-purple-300 border-cyan-500/60 shadow-md"
+                      : "bg-gray-900 text-gray-400 border-gray-800 hover:text-white hover:border-slate-600"
                   }`}
                 >
                   <span className="block text-base mb-1">
@@ -614,17 +614,17 @@ export function SkillProfileEditor({
                 </button>
               ))}
             </div>
-            <div className="mt-3 text-[11px] text-slate-400 p-3 bg-navy-900/60 rounded-lg border border-slate-800">
-              <strong className="text-slate-300">Async</strong> — Work independently, communicate via messages/PRs<br />
-              <strong className="text-slate-300">Hybrid</strong> — Mix of async and regular sync calls<br />
-              <strong className="text-slate-300">Sync-intensive</strong> — Daily standups, real-time pair programming
+            <div className="mt-3 text-[11px] text-gray-400 p-3 bg-gray-900/60 rounded-lg border border-gray-800">
+              <strong className="text-gray-300">Async</strong> — Work independently, communicate via messages/PRs<br />
+              <strong className="text-gray-300">Hybrid</strong> — Mix of async and regular sync calls<br />
+              <strong className="text-gray-300">Sync-intensive</strong> — Daily standups, real-time pair programming
             </div>
           </div>
         </div>
       )}
 
       {/* Save button (bottom) */}
-      <div className="mt-6 pt-6 border-t border-slate-800 flex justify-end">
+      <div className="mt-6 pt-6 border-t border-gray-800 flex justify-end">
         <Button
           variant={savedSuccess ? "secondary" : "glow"}
           size="sm"

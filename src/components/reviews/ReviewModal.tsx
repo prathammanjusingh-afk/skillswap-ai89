@@ -121,8 +121,8 @@ export function ReviewModal({
     >
       <form onSubmit={handleSubmit} className="space-y-4 pt-2">
         {checkingEligibility && (
-          <div className="p-3 rounded-lg bg-navy-950/60 border border-slate-800 text-slate-400 text-xs flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
+          <div className="p-3 rounded-lg bg-gray-950/60 border border-gray-800 text-gray-400 text-xs flex items-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
             <span>Verifying collaboration eligibility...</span>
           </div>
         )}
@@ -155,10 +155,10 @@ export function ReviewModal({
 
         {/* Interactive Star Rating */}
         <div>
-          <label className="text-xs font-semibold text-slate-300 block mb-2">
+          <label className="text-xs font-semibold text-gray-300 block mb-2">
             Overall Rating
           </label>
-          <div className="flex items-center gap-1.5 p-3 rounded-xl bg-navy-950/80 border border-slate-800 w-fit">
+          <div className="flex items-center gap-1.5 p-3 rounded-xl bg-gray-950/80 border border-gray-800 w-fit">
             {[1, 2, 3, 4, 5].map((star) => {
               const active = hoverRating ? star <= hoverRating : star <= rating;
               return (
@@ -175,7 +175,7 @@ export function ReviewModal({
                     className={`w-6 h-6 ${
                       active
                         ? "fill-amber-400 text-amber-400"
-                        : "text-slate-600 hover:text-slate-500"
+                        : "text-slate-600 hover:text-gray-500"
                     }`}
                   />
                 </button>
@@ -189,7 +189,7 @@ export function ReviewModal({
 
         {/* Written Review */}
         <div>
-          <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+          <label className="text-xs font-semibold text-gray-300 block mb-1.5">
             Feedback &amp; Collaboration Comments
           </label>
           <textarea
@@ -198,18 +198,18 @@ export function ReviewModal({
             disabled={!eligibility.eligible}
             rows={4}
             placeholder={`Highlight what went well, how clearly ${targetName} communicated, and their technical contributions...`}
-            className="w-full rounded-xl border border-slate-700 bg-navy-950 p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 disabled:opacity-50 resize-none"
+            className="w-full rounded-xl border border-gray-700 bg-gray-950 p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 disabled:opacity-50 resize-none"
           />
         </div>
 
         {/* Buttons */}
-        <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
+        <div className="flex justify-end gap-2 pt-2 border-t border-gray-800">
           <Button variant="outline" size="sm" type="button" onClick={onClose}>
             Cancel
           </Button>
           <Button
             type="submit"
-            variant="glow"
+            variant="purple"
             size="sm"
             disabled={loading || !comment.trim() || !eligibility.eligible}
           >

@@ -99,14 +99,14 @@ export function AdminDashboard({
   // Enforce access control: Ordinary users cannot access admin operations
   if (!isAuthorized) {
     return (
-      <div className="p-12 text-center rounded-3xl border border-rose-500/30 bg-navy-900/80 backdrop-blur-xl shadow-2xl space-y-4">
+      <div className="p-12 text-center rounded-3xl border border-rose-500/30 bg-gray-900/80 backdrop-blur-xl shadow-2xl space-y-4">
         <div className="w-12 h-12 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center mx-auto">
           <ShieldAlert className="w-6 h-6" />
         </div>
         <h2 className="text-xl font-bold text-white tracking-tight">
           Admin Access Required
         </h2>
-        <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+        <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
           You do not have administrative permissions. Platform governance, user role modification,
           and moderation queues are strictly restricted to verified administrators in the{" "}
           <code className="text-rose-300 font-mono">admin_roles</code> database table.
@@ -170,22 +170,22 @@ export function AdminDashboard({
   return (
     <div className="space-y-6">
       {/* Admin Header */}
-      <div className="p-6 rounded-3xl border border-cyan-500/30 bg-navy-900/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="p-6 rounded-3xl border border-purple-500/30 bg-gray-900/80 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 text-xs font-semibold mb-2">
-            <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-600/15 border border-purple-500/30 text-purple-300 text-xs font-semibold mb-2">
+            <ShieldCheck className="w-3.5 h-3.5 text-purple-400" />
             Verified Admin Portal
           </div>
           <h2 className="text-2xl font-black text-white tracking-tight">
             Platform Operations & Moderation
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm mt-0.5">
+          <p className="text-gray-400 text-xs sm:text-sm mt-0.5">
             Role validation, telemetry, category curation, and community trust.
           </p>
         </div>
 
         <Badge variant="indigo" className="text-xs px-3 py-1 self-start sm:self-auto flex items-center gap-1">
-          <Lock className="w-3 h-3 text-cyan-300" />
+          <Lock className="w-3 h-3 text-purple-300" />
           Verified: {currentUser.role?.toUpperCase()}
         </Badge>
       </div>
@@ -210,69 +210,69 @@ export function AdminDashboard({
 
       {/* Honest Real-Time Platform Telemetry */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl border border-slate-800 bg-navy-900/70">
-          <div className="flex items-center gap-2 mb-1 text-slate-400 text-xs font-semibold uppercase">
-            <Users className="w-4 h-4 text-cyan-400" /> Total Students
+        <div className="p-4 rounded-2xl border border-gray-800 bg-gray-900/70">
+          <div className="flex items-center gap-2 mb-1 text-gray-400 text-xs font-semibold uppercase">
+            <Users className="w-4 h-4 text-purple-400" /> Total Students
           </div>
           <span className="text-3xl font-black text-white">{students.length}</span>
-          <p className="text-[11px] text-slate-500 mt-1">Collegiate members</p>
+          <p className="text-[11px] text-gray-500 mt-1">Collegiate members</p>
         </div>
 
-        <div className="p-4 rounded-2xl border border-slate-800 bg-navy-900/70">
-          <div className="flex items-center gap-2 mb-1 text-slate-400 text-xs font-semibold uppercase">
+        <div className="p-4 rounded-2xl border border-gray-800 bg-gray-900/70">
+          <div className="flex items-center gap-2 mb-1 text-gray-400 text-xs font-semibold uppercase">
             <Rocket className="w-4 h-4 text-indigo-400" /> Active Projects
           </div>
           <span className="text-3xl font-black text-white">{projects.length}</span>
-          <p className="text-[11px] text-slate-500 mt-1">Collaborations posted</p>
+          <p className="text-[11px] text-gray-500 mt-1">Collaborations posted</p>
         </div>
 
-        <div className="p-4 rounded-2xl border border-slate-800 bg-navy-900/70">
-          <div className="flex items-center gap-2 mb-1 text-slate-400 text-xs font-semibold uppercase">
+        <div className="p-4 rounded-2xl border border-gray-800 bg-gray-900/70">
+          <div className="flex items-center gap-2 mb-1 text-gray-400 text-xs font-semibold uppercase">
             <Calendar className="w-4 h-4 text-emerald-400" /> Exchange Sessions
           </div>
           <span className="text-3xl font-black text-white">{sessions.length}</span>
-          <p className="text-[11px] text-slate-500 mt-1">1-on-1 swaps scheduled</p>
+          <p className="text-[11px] text-gray-500 mt-1">1-on-1 swaps scheduled</p>
         </div>
 
-        <div className="p-4 rounded-2xl border border-slate-800 bg-navy-900/70">
-          <div className="flex items-center gap-2 mb-1 text-slate-400 text-xs font-semibold uppercase">
+        <div className="p-4 rounded-2xl border border-gray-800 bg-gray-900/70">
+          <div className="flex items-center gap-2 mb-1 text-gray-400 text-xs font-semibold uppercase">
             <AlertTriangle className="w-4 h-4 text-amber-400" /> Pending Reports
           </div>
           <span className="text-3xl font-black text-white">
             {reports.filter((r) => r.status === "pending").length}
           </span>
-          <p className="text-[11px] text-slate-500 mt-1">Awaiting moderation</p>
+          <p className="text-[11px] text-gray-500 mt-1">Awaiting moderation</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-slate-800 pb-3">
+      <div className="flex gap-2 border-b border-gray-800 pb-3 flex-wrap">
         <button
           onClick={() => setActiveSubTab("users")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
             activeSubTab === "users"
-              ? "bg-cyan-500 text-white shadow-md shadow-cyan-500/25"
-              : "text-slate-400 hover:text-white"
+              ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+              : "text-gray-400 hover:text-white"
           }`}
         >
           Student User Registry ({students.length})
         </button>
         <button
           onClick={() => setActiveSubTab("projects")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
             activeSubTab === "projects"
-              ? "bg-cyan-500 text-white shadow-md shadow-cyan-500/25"
-              : "text-slate-400 hover:text-white"
+              ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+              : "text-gray-400 hover:text-white"
           }`}
         >
-          Skill Categories & Tags ({categories.length})
+          Skill Categories &amp; Tags ({categories.length})
         </button>
         <button
           onClick={() => setActiveSubTab("moderation")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
             activeSubTab === "moderation"
-              ? "bg-cyan-500 text-white shadow-md shadow-cyan-500/25"
-              : "text-slate-400 hover:text-white"
+              ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+              : "text-gray-400 hover:text-white"
           }`}
         >
           Community Moderation Queue ({reports.filter((r) => r.status === "pending").length})
@@ -281,7 +281,7 @@ export function AdminDashboard({
 
       {/* Tab 1: User Registry */}
       {activeSubTab === "users" && (
-        <div className="rounded-2xl border border-slate-800 bg-navy-900/70 p-5 space-y-4">
+        <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-5 space-y-4">
           <div className="flex items-center justify-between gap-3">
             <Input
               placeholder="Search users by name or university..."
@@ -289,14 +289,14 @@ export function AdminDashboard({
               onChange={(e) => setUserSearch(e.target.value)}
               className="max-w-xs h-9 text-xs"
             />
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-gray-400">
               Showing {filteredStudents.length} of {students.length} students
             </span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="border-b border-slate-800 text-slate-400 uppercase text-[10px]">
+              <thead className="border-b border-gray-800 text-gray-400 uppercase text-[10px]">
                 <tr>
                   <th className="py-2.5 px-3">Student Name</th>
                   <th className="py-2.5 px-3">University</th>
@@ -308,12 +308,12 @@ export function AdminDashboard({
               </thead>
               <tbody className="divide-y divide-slate-800/60">
                 {filteredStudents.map((st) => (
-                  <tr key={st.id} className="hover:bg-navy-850/50 transition-colors">
+                  <tr key={st.id} className="hover:bg-gray-850/50 transition-colors">
                     <td className="py-3 px-3 font-semibold text-white flex items-center gap-2">
-                      <Image src={st.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={st.fullName} width={24} height={24} className="w-6 h-6 rounded-full object-cover border border-slate-700" />
+                      <Image src={st.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={st.fullName} width={24} height={24} className="w-6 h-6 rounded-full object-cover border border-gray-700" />
                       <span>{st.fullName}</span>
                     </td>
-                    <td className="py-3 px-3 text-slate-300">{st.university}</td>
+                    <td className="py-3 px-3 text-gray-300">{st.university}</td>
                     <td className="py-3 px-3">
                       <Badge
                         variant={st.isPublic ? "success" : "outline"}
@@ -322,7 +322,7 @@ export function AdminDashboard({
                         {st.isPublic ? "Public" : "Private"}
                       </Badge>
                     </td>
-                    <td className="py-3 px-3 text-cyan-300">
+                    <td className="py-3 px-3 text-purple-300">
                       {st.skillsOffered.length} skills
                     </td>
                     <td className="py-3 px-3">
@@ -338,7 +338,7 @@ export function AdminDashboard({
                         <button
                           disabled={roleUpdatingId === st.id}
                           onClick={() => handleRoleToggle(st.id, st.role)}
-                          className="text-[11px] text-cyan-400 hover:underline disabled:opacity-50"
+                          className="text-[11px] text-purple-400 hover:underline disabled:opacity-50"
                         >
                           {roleUpdatingId === st.id ? (
                             <Loader2 className="w-3 h-3 animate-spin inline mr-1" />
@@ -347,7 +347,7 @@ export function AdminDashboard({
                         </button>
                       )}
                       {st.id === currentUser.id && (
-                        <span className="text-[11px] text-slate-500 italic">Current Session</span>
+                        <span className="text-[11px] text-gray-500 italic">Current Session</span>
                       )}
                     </td>
                   </tr>
@@ -360,11 +360,11 @@ export function AdminDashboard({
 
       {/* Tab 2: Category Management */}
       {activeSubTab === "projects" && (
-        <div className="rounded-2xl border border-slate-800 bg-navy-900/70 p-5 space-y-4">
+        <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-5 space-y-4">
           <h3 className="font-bold text-white text-sm">
             Curated Skill Disciplines & Categories
           </h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-gray-400">
             Official skill disciplines that categorize peer exchange workshops and filter algorithms.
           </p>
 
@@ -384,12 +384,12 @@ export function AdminDashboard({
             {categories.map((cat) => (
               <span
                 key={cat}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-navy-950 border border-slate-700 text-xs text-slate-200"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-950 border border-gray-700 text-xs text-gray-200"
               >
                 <span>{cat}</span>
                 <button
                   onClick={() => handleRemoveCategory(cat)}
-                  className="text-slate-500 hover:text-rose-400"
+                  className="text-gray-500 hover:text-rose-400"
                 >
                   <Trash2 className="w-3 h-3" />
                 </button>
@@ -401,18 +401,18 @@ export function AdminDashboard({
 
       {/* Tab 3: Moderation Queue */}
       {activeSubTab === "moderation" && (
-        <div className="rounded-2xl border border-slate-800 bg-navy-900/70 p-5 space-y-4">
+        <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-5 space-y-4">
           <h3 className="font-bold text-white text-sm">
             Community Safety & Moderation Reports
           </h3>
 
           {loadingReports ? (
-            <div className="py-8 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
+            <div className="py-8 text-center text-xs text-gray-400 flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
               Loading moderation reports...
             </div>
           ) : reports.length === 0 ? (
-            <div className="p-8 text-center rounded-xl border border-slate-800 bg-navy-950/60 text-xs text-slate-500">
+            <div className="p-8 text-center rounded-xl border border-gray-800 bg-gray-950/60 text-xs text-gray-500">
               No pending reports in the moderation queue. Community is healthy!
             </div>
           ) : (
@@ -420,7 +420,7 @@ export function AdminDashboard({
               {reports.map((rep) => (
                 <div
                   key={rep.id}
-                  className="p-4 rounded-xl border border-slate-800 bg-navy-950/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                  className="p-4 rounded-xl border border-gray-800 bg-gray-950/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                 >
                   <div>
                     <div className="flex items-center gap-2 mb-1">
@@ -429,11 +429,11 @@ export function AdminDashboard({
                         {rep.status}
                       </Badge>
                     </div>
-                    <p className="text-slate-300">{rep.reason}</p>
+                    <p className="text-gray-300">{rep.reason}</p>
                     {rep.details && (
-                      <p className="text-[11px] text-slate-400 mt-1 italic">&ldquo;{rep.details}&rdquo;</p>
+                      <p className="text-[11px] text-gray-400 mt-1 italic">&ldquo;{rep.details}&rdquo;</p>
                     )}
-                    <p className="text-[10px] text-slate-500 mt-1">
+                    <p className="text-[10px] text-gray-500 mt-1">
                       Submitted on {new Date(rep.createdAt).toLocaleDateString()}
                     </p>
                   </div>

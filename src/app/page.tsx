@@ -872,20 +872,20 @@ export default function HomePage() {
   // Show loading skeleton while hydrating from storage
   if (!hydrated) {
     return (
-      <div className="min-h-screen bg-navy-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 animate-pulse" />
-          <p className="text-slate-400 text-sm">Loading SkillSwap AI...</p>
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-violet-600 to-pink-500 animate-pulse shadow-lg shadow-purple-600/30" />
+          <p className="text-gray-400 text-sm font-medium">Loading SkillSwap AI...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-navy-950 text-slate-100 flex flex-col bg-grid-pattern relative">
-      {/* Ambient background glows */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-cyan-600/10 rounded-full blur-[140px] pointer-events-none -z-10" />
-      <div className="fixed top-96 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none -z-10" />
+    <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col bg-grid-pattern relative">
+      {/* Ambient background glows - Mailgo purple/violet */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-purple-600/10 rounded-full blur-[160px] pointer-events-none -z-10" />
+      <div className="fixed top-96 right-0 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-[160px] pointer-events-none -z-10" />
 
       {/* Global Navigation */}
       <Navbar
@@ -924,12 +924,13 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* TAB 0: DASHBOARD */}
+        {/* TAB 0: HOME */}
         {activeTab === "home" && (
           <HomeSection
             students={students}
             currentUser={currentUser}
             onOpenSession={setSessionSchedulerPartner}
+            onNavigateTab={setActiveTab}
           />
         )}
         {activeTab === "dashboard" && (
@@ -948,11 +949,11 @@ export default function HomePage() {
 
         {/* Search & Filter Toolbar (for Students and Projects tabs) */}
         {(activeTab === "students" || activeTab === "projects") && (
-          <div className="mb-8 p-4 rounded-2xl bg-navy-900/70 border border-slate-800 backdrop-blur-md shadow-lg space-y-3">
+          <div className="mb-8 p-4 rounded-2xl bg-gray-900/80 border border-gray-800 backdrop-blur-md shadow-xl space-y-3">
             <div className="flex flex-col md:flex-row items-center gap-3">
               {/* Search input */}
               <div className="relative flex-1 w-full">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   placeholder={
                     activeTab === "students"
@@ -961,7 +962,7 @@ export default function HomePage() {
                   }
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 text-xs sm:text-sm bg-navy-950/80"
+                  className="pl-10 text-xs sm:text-sm bg-gray-950/80 border-gray-800 text-gray-200 placeholder-gray-500 focus:border-purple-500 rounded-xl"
                 />
               </div>
 
@@ -971,7 +972,7 @@ export default function HomePage() {
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="h-10 rounded-lg border border-slate-700 bg-navy-950 px-3 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 w-full md:w-auto"
+                    className="h-10 rounded-xl border border-gray-800 bg-gray-950 px-3 text-xs text-gray-200 focus:outline-none focus:border-purple-500 w-full md:w-auto"
                   >
                     <option value="all">All Disciplines</option>
                     <option value="frontend">Frontend Engineering</option>
@@ -992,7 +993,7 @@ export default function HomePage() {
                   <select
                     value={selectedUniversity}
                     onChange={(e) => setSelectedUniversity(e.target.value)}
-                    className="h-10 rounded-lg border border-slate-700 bg-navy-950 px-3 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 w-full md:w-auto"
+                    className="h-10 rounded-xl border border-gray-800 bg-gray-950 px-3 text-xs text-gray-200 focus:outline-none focus:border-purple-500 w-full md:w-auto"
                   >
                     <option value="all">All Campuses</option>
                     <option value="Stanford">Stanford</option>
@@ -1008,13 +1009,13 @@ export default function HomePage() {
 
             {/* Match Threshold Slider (For Students tab) */}
             {activeTab === "students" && (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-800/80 text-xs">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-gray-800 text-xs">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-cyan-400" />
-                  <span className="font-semibold text-slate-300">
+                  <Sparkles className="w-4 h-4 text-purple-400" />
+                  <span className="font-semibold text-gray-300">
                     Min AI Match Threshold:
                   </span>
-                  <span className="font-bold text-cyan-300">
+                  <span className="font-bold text-purple-400">
                     {minSynergyFilter}%+
                   </span>
                 </div>
@@ -1026,9 +1027,9 @@ export default function HomePage() {
                     step={5}
                     value={minSynergyFilter}
                     onChange={(e) => setMinSynergyFilter(Number(e.target.value))}
-                    className="w-full accent-cyan-400"
+                    className="w-full accent-purple-500 cursor-pointer"
                   />
-                  <span className="text-[11px] text-slate-400 shrink-0">
+                  <span className="text-[11px] text-gray-400 shrink-0">
                     {filteredStudents.length} matches
                   </span>
                 </div>
@@ -1040,9 +1041,9 @@ export default function HomePage() {
         {/* TAB 1: DISCOVER TEAMMATES */}
         {activeTab === "students" && (
           isLoadingInitialData ? (
-            <div className="py-24 flex flex-col items-center justify-center text-slate-400 space-y-3">
-              <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
-              <p className="text-sm font-medium text-slate-300">Loading discoverable profiles from Supabase...</p>
+            <div className="py-24 flex flex-col items-center justify-center text-gray-400 space-y-3">
+              <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+              <p className="text-sm font-medium text-gray-300">Loading discoverable profiles from Supabase...</p>
             </div>
           ) : (
             <MarketplaceSection
@@ -1057,26 +1058,27 @@ export default function HomePage() {
         {/* TAB 2: EXPLORE PROJECTS */}
         {activeTab === "projects" && (
           isLoadingInitialData ? (
-            <div className="py-24 flex flex-col items-center justify-center text-slate-400 space-y-3">
-              <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
-              <p className="text-sm font-medium text-slate-300">Loading active projects from Supabase...</p>
+            <div className="py-24 flex flex-col items-center justify-center text-gray-400 space-y-3">
+              <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+              <p className="text-sm font-medium text-gray-300">Loading active projects from Supabase...</p>
             </div>
           ) : (
             <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-                  <Rocket className="w-5 h-5 text-cyan-400" />
+                  <Rocket className="w-5 h-5 text-purple-400" />
                   Active Student Projects Recruiting Teammates
                 </h2>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-gray-400 mt-0.5">
                   Join an ambitious hackathon, startup MVP, or open source initiative needing your exact skills.
                 </p>
               </div>
 
               <Button
-                variant="glow"
+                variant="purple"
                 size="sm"
+                className="rounded-full shadow-lg shadow-purple-600/30"
                 onClick={() => setIsCreateProjectModalOpen(true)}
               >
                 <Rocket className="w-4 h-4 mr-1.5" />
@@ -1098,14 +1100,14 @@ export default function HomePage() {
             </div>
 
             {filteredProjects.length === 0 && (
-              <div className="p-12 text-center rounded-2xl border border-slate-800 bg-navy-900/40 text-slate-400">
-                <p className="text-base font-semibold text-slate-300 mb-1">
+              <div className="p-12 text-center rounded-2xl border border-gray-800 bg-gray-900/40 text-gray-400">
+                <p className="text-base font-semibold text-gray-300 mb-1">
                   No projects match your search
                 </p>
                 <p className="text-xs mb-4">
                   Clear the search query or post your own project.
                 </p>
-                <Button variant="glow" size="sm" onClick={() => setIsCreateProjectModalOpen(true)}>
+                <Button variant="purple" size="sm" className="rounded-full" onClick={() => setIsCreateProjectModalOpen(true)}>
                   <Rocket className="w-4 h-4 mr-1.5" />
                   Post a Project
                 </Button>

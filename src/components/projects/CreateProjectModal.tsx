@@ -101,47 +101,49 @@ export function CreateProjectModal({
       onClose={onClose}
       maxWidth="3xl"
       title={
-        <div className="flex items-center gap-2">
-          <Rocket className="w-5 h-5 text-cyan-400" />
-          <span>Launch a New Project & Build Your Team</span>
+        <div className="flex items-center gap-2.5">
+          <Rocket className="w-5 h-5 text-purple-400" />
+          <span>Launch a New Project &amp; Build Your Team</span>
         </div>
       }
       description="Define your vision, target milestones, and the complementary roles your project needs."
     >
       <form onSubmit={handleSubmit} className="space-y-4 text-xs">
         <div>
-          <label className="font-semibold text-slate-300 block mb-1">
+          <label className="font-semibold text-gray-300 block mb-1">
             Project Title *
           </label>
           <Input
             placeholder="e.g. NeuroScribe AI, Vigil Code Auditor, CampusPulse"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            className="h-10 bg-gray-950 border-gray-800 text-gray-200 focus:border-purple-500 rounded-xl"
             required
           />
         </div>
 
         <div>
-          <label className="font-semibold text-slate-300 block mb-1">
+          <label className="font-semibold text-gray-300 block mb-1">
             Elevator Pitch / Tagline *
           </label>
           <Input
             placeholder="One-line hook summarizing what you are building"
             value={tagline}
             onChange={(e) => setTagline(e.target.value)}
+            className="h-10 bg-gray-950 border-gray-800 text-gray-200 focus:border-purple-500 rounded-xl"
             required
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="font-semibold text-slate-300 block mb-1">
+            <label className="font-semibold text-gray-300 block mb-1">
               Category
             </label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full h-10 rounded-lg border border-slate-700 bg-navy-950 px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-cyan-500"
+              className="w-full h-10 rounded-xl border border-gray-800 bg-gray-950 px-3 py-2 text-gray-100 text-xs focus:outline-none focus:border-purple-500"
             >
               <option value="Artificial Intelligence">Artificial Intelligence</option>
               <option value="Developer Tools">Developer Tools</option>
@@ -153,13 +155,13 @@ export function CreateProjectModal({
           </div>
 
           <div>
-            <label className="font-semibold text-slate-300 block mb-1">
+            <label className="font-semibold text-gray-300 block mb-1">
               Project Type
             </label>
             <select
               value={projectType}
               onChange={(e) => setProjectType(e.target.value as ProjectType)}
-              className="w-full h-10 rounded-lg border border-slate-700 bg-navy-950 px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-cyan-500"
+              className="w-full h-10 rounded-xl border border-gray-800 bg-gray-950 px-3 py-2 text-gray-100 text-xs focus:outline-none focus:border-purple-500"
             >
               <option value="hackathon">Hackathon</option>
               <option value="startup_mvp">Startup MVP</option>
@@ -170,33 +172,35 @@ export function CreateProjectModal({
           </div>
 
           <div>
-            <label className="font-semibold text-slate-300 block mb-1">
+            <label className="font-semibold text-gray-300 block mb-1">
               Target Milestone / Event
             </label>
             <Input
               placeholder="e.g. PennApps 2026, YC W27"
               value={targetEvent}
               onChange={(e) => setTargetEvent(e.target.value)}
+              className="h-10 bg-gray-950 border-gray-800 text-gray-200 focus:border-purple-500 rounded-xl"
             />
           </div>
         </div>
 
         <div>
-          <label className="font-semibold text-slate-300 block mb-1">
-            Detailed Project Vision & Architecture *
+          <label className="font-semibold text-gray-300 block mb-1">
+            Detailed Project Vision &amp; Architecture *
           </label>
           <Textarea
             placeholder="Explain what problem this solves, current progress, and what you need collaborators to build..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
+            className="bg-gray-950 border-gray-800 text-gray-200 focus:border-purple-500 rounded-xl"
             required
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="font-semibold text-slate-300 block mb-1">
+            <label className="font-semibold text-gray-300 block mb-1">
               Weekly Hours Commitment ({weeklyHours} hrs/wk)
             </label>
             <input
@@ -206,36 +210,37 @@ export function CreateProjectModal({
               step={1}
               value={weeklyHours}
               onChange={(e) => setWeeklyHours(Number(e.target.value))}
-              className="w-full accent-cyan-400 mt-2"
+              className="w-full accent-purple-500 mt-2 cursor-pointer"
             />
           </div>
 
           <div>
-            <label className="font-semibold text-slate-300 block mb-1">
+            <label className="font-semibold text-gray-300 block mb-1">
               Tags / Keywords (comma separated)
             </label>
             <Input
               placeholder="Next.js, PyTorch, Supabase, Tailwind"
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
+              className="h-10 bg-gray-950 border-gray-800 text-gray-200 focus:border-purple-500 rounded-xl"
             />
           </div>
         </div>
 
         {/* Roles needed */}
-        <div className="pt-2 border-t border-slate-800">
+        <div className="pt-2 border-t border-gray-800">
           <div className="flex items-center justify-between mb-2">
-            <span className="font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" /> Needed Roles & Skills
+            <span className="font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-purple-400" /> Needed Roles &amp; Skills
             </span>
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={handleAddRole}
-              className="h-7 text-xs"
+              className="h-7 text-xs rounded-full border-gray-800"
             >
-              <Plus className="w-3.5 h-3.5 mr-1" /> Add Role
+              <Plus className="w-3.5 h-3.5 mr-1 text-purple-400" /> Add Role
             </Button>
           </div>
 
@@ -243,14 +248,14 @@ export function CreateProjectModal({
             {roles.map((role, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-2 p-2.5 rounded-xl bg-navy-950/70 border border-slate-800"
+                className="flex items-center gap-2 p-2.5 rounded-xl bg-gray-950 border border-gray-800"
               >
                 <div className="flex-1">
                   <Input
                     placeholder="Role Title (e.g. Lead ML Engineer)"
                     value={role.title}
                     onChange={(e) => handleUpdateRole(idx, "title", e.target.value)}
-                    className="h-8 text-xs"
+                    className="h-9 text-xs bg-gray-900 border-gray-800 rounded-lg"
                     required
                   />
                 </div>
@@ -259,7 +264,7 @@ export function CreateProjectModal({
                     placeholder="Required Skills (e.g. PyTorch, Python)"
                     value={role.requiredSkills}
                     onChange={(e) => handleUpdateRole(idx, "requiredSkills", e.target.value)}
-                    className="h-8 text-xs"
+                    className="h-9 text-xs bg-gray-900 border-gray-800 rounded-lg"
                     required
                   />
                 </div>
@@ -267,7 +272,7 @@ export function CreateProjectModal({
                   <button
                     type="button"
                     onClick={() => handleRemoveRole(idx)}
-                    className="p-1.5 text-slate-500 hover:text-rose-400 transition-colors"
+                    className="p-1.5 text-gray-500 hover:text-rose-400 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -277,16 +282,18 @@ export function CreateProjectModal({
           </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-800 flex justify-end gap-2">
-          <Button type="button" variant="outline" size="sm" onClick={onClose}>
+        <div className="pt-4 border-t border-gray-800 flex justify-end gap-2">
+          <Button type="button" variant="outline" size="sm" className="rounded-full" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" variant="glow" size="sm">
+          <Button type="submit" variant="purple" size="sm" className="rounded-full shadow-lg shadow-purple-600/30">
             <Rocket className="w-3.5 h-3.5 mr-1.5" />
-            Publish Project & Find Teammates
+            Publish Project &amp; Find Teammates
           </Button>
         </div>
       </form>
     </Modal>
   );
 }
+
+export default CreateProjectModal;

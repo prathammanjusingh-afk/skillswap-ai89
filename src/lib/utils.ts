@@ -7,26 +7,26 @@ export { cn } from "cn";
 export function getSynergyColor(score: number) {
   if (score >= 80) {
     return {
-      bg: "bg-emerald-900",
-      text: "text-emerald-300",
-      border: "border-emerald-500",
-      glow: "shadow-emerald-500/50",
+      bg: "bg-purple-950/60",
+      text: "text-purple-300",
+      border: "border-purple-500/40",
+      glow: "shadow-purple-600/20",
     };
   }
   if (score >= 60) {
     return {
-      bg: "bg-cyan-900",
-      text: "text-cyan-300",
-      border: "border-cyan-500",
-      glow: "shadow-cyan-500/50",
+      bg: "bg-violet-950/50",
+      text: "text-violet-300",
+      border: "border-violet-500/40",
+      glow: "shadow-violet-600/20",
     };
   }
-  // low score
+  // lower score
   return {
-    bg: "bg-rose-900",
-    text: "text-rose-300",
-    border: "border-rose-500",
-    glow: "shadow-rose-500/50",
+    bg: "bg-gray-900/80",
+    text: "text-gray-300",
+    border: "border-gray-800",
+    glow: "shadow-gray-800/20",
   };
 }
 

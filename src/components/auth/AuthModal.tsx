@@ -19,7 +19,6 @@ import {
   EyeOff,
   LogOut,
   ShieldCheck,
-  AlertTriangle,
 } from "lucide-react";
 
 interface AuthModalProps {
@@ -62,8 +61,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     e.preventDefault();
     setErrorMessage(null);
     setSuccessMessage(null);
-
-    // isConfigured check bypassed: Supabase is production configured
 
     setLoading(true);
 
@@ -159,19 +156,21 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       onClose={onClose}
       maxWidth="md"
       title={
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 text-white">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-400">
             <Lock className="w-4 h-4" />
           </div>
-          <span className="text-lg font-bold text-white">
-            {currentUser
-              ? "Account Settings & Session"
-              : mode === "login"
-              ? "Sign In to SkillSwap AI"
-              : mode === "signup"
-              ? "Create Student Account"
-              : "Reset Your Password"}
-          </span>
+          <div>
+            <span className="text-xl font-bold text-white block">
+              {currentUser
+                ? "Account Settings & Session"
+                : mode === "login"
+                ? "Sign In to SkillSwap AI"
+                : mode === "signup"
+                ? "Create Student Account"
+                : "Reset Your Password"}
+            </span>
+          </div>
         </div>
       }
       description={
@@ -187,37 +186,44 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       {/* If already signed in, show profile overview and Logout button */}
       {currentUser ? (
         <div className="space-y-4 pt-2">
-          <div className="p-4 rounded-xl bg-navy-950/80 border border-slate-800 flex items-center gap-3">
-            <Image src={currentUser.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={currentUser.fullName} width={48} height={48} className="w-12 h-12 rounded-full object-cover border-2 border-cyan-400" />
+          <div className="p-4 rounded-2xl bg-gray-950 border border-gray-800 flex items-center gap-3">
+            <Image
+              src={currentUser.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"}
+              alt={currentUser.fullName}
+              width={48}
+              height={48}
+              className="w-12 h-12 rounded-full object-cover border-2 border-purple-500/50"
+            />
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-bold text-white text-sm">{currentUser.fullName}</span>
-                <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-300">
+                <Badge variant="outline" className="text-[10px] border-emerald-500/40 text-emerald-300 rounded-full">
                   Active Session
                 </Badge>
               </div>
-              <p className="text-xs text-slate-400">{currentUser.headline}</p>
-              <p className="text-[11px] text-cyan-400 mt-0.5">{currentUser.university}</p>
+              <p className="text-xs text-gray-400">{currentUser.headline}</p>
+              <p className="text-[11px] text-purple-400 mt-0.5">{currentUser.university}</p>
               {currentUser.email && (
-                <p className="text-[10px] text-slate-500 mt-0.5">{currentUser.email}</p>
+                <p className="text-[10px] text-gray-500 mt-0.5">{currentUser.email}</p>
               )}
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+          <div className="flex items-center justify-between text-xs text-gray-400 px-1">
             <span>Auth Provider:</span>
-            <span className="font-semibold text-slate-200">
-              {isConfigured ? "Supabase Auth (PostgreSQL & RLS)" : "Supabase Not Configured"}
+            <span className="font-semibold text-gray-200">
+              Supabase Auth (PostgreSQL &amp; RLS)
             </span>
           </div>
 
-          <div className="pt-2 flex justify-end gap-2 border-t border-slate-800">
-            <Button variant="outline" size="sm" onClick={onClose}>
+          <div className="pt-2 flex justify-end gap-2 border-t border-gray-800">
+            <Button variant="outline" size="sm" className="rounded-full" onClick={onClose}>
               Close
             </Button>
             <Button
               variant="destructive"
               size="sm"
+              className="rounded-full"
               onClick={async () => {
                 await logout();
                 onClose();
@@ -232,14 +238,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         <form onSubmit={handleSubmit} className="space-y-4 text-xs pt-1">
           {/* Status Banners */}
           {errorMessage && (
-            <div className="p-3 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-300 flex items-start gap-2">
+            <div className="p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {successMessage && (
-            <div className="p-3 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-start gap-2">
+            <div className="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-start gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{successMessage}</span>
             </div>
@@ -247,17 +253,17 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
           {/* Mode Tabs */}
           {mode !== "forgot" && (
-            <div className="grid grid-cols-2 gap-1 p-1 bg-navy-950 rounded-xl border border-slate-800">
+            <div className="grid grid-cols-2 gap-1 p-1 bg-gray-950 rounded-full border border-gray-800">
               <button
                 type="button"
                 onClick={() => {
                   setMode("login");
                   resetForm();
                 }}
-                className={`py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`py-2 rounded-full text-xs font-semibold transition-all ${
                   mode === "login"
-                    ? "bg-cyan-500 text-white shadow-md shadow-cyan-500/25"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+                    : "text-gray-400 hover:text-white"
                 }`}
               >
                 Sign In
@@ -268,10 +274,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   setMode("signup");
                   resetForm();
                 }}
-                className={`py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`py-2 rounded-full text-xs font-semibold transition-all ${
                   mode === "signup"
-                    ? "bg-cyan-500 text-white shadow-md shadow-cyan-500/25"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+                    : "text-gray-400 hover:text-white"
                 }`}
               >
                 Register
@@ -283,46 +289,46 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           {mode === "signup" && (
             <>
               <div>
-                <label className="font-semibold text-slate-300 block mb-1">
+                <label className="font-semibold text-gray-300 block mb-1">
                   Full Name *
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <Input
                     placeholder="e.g. Jordan Hayes"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="pl-9 h-9 text-xs"
+                    className="pl-9 h-10 text-xs bg-gray-950 border-gray-800 text-gray-200 focus:border-purple-500 rounded-xl"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="font-semibold text-slate-300 block mb-1">
+                <label className="font-semibold text-gray-300 block mb-1">
                   College or University *
                 </label>
                 <div className="relative">
-                  <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                   <Input
                     placeholder="e.g. UC Berkeley, Stanford, Georgia Tech"
                     value={university}
                     onChange={(e) => setUniversity(e.target.value)}
-                    className="pl-9 h-9 text-xs"
+                    className="pl-9 h-10 text-xs bg-gray-950 border-gray-800 text-gray-200 focus:border-purple-500 rounded-xl"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="font-semibold text-slate-300 block mb-1">
+                <label className="font-semibold text-gray-300 block mb-1">
                   Primary Skill You Offer (Optional)
                 </label>
                 <Input
                   placeholder="e.g. Python, UI/UX Design, React, PyTorch"
                   value={primarySkill}
                   onChange={(e) => setPrimarySkill(e.target.value)}
-                  className="h-9 text-xs"
+                  className="h-10 text-xs bg-gray-950 border-gray-800 text-gray-200 focus:border-purple-500 rounded-xl"
                 />
               </div>
             </>
@@ -330,17 +336,17 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
           {/* Email field */}
           <div>
-            <label className="font-semibold text-slate-300 block mb-1">
+            <label className="font-semibold text-gray-300 block mb-1">
               Student Email Address *
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <Input
                 type="email"
                 placeholder="student@university.edu"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-9 h-9 text-xs"
+                className="pl-9 h-10 text-xs bg-gray-950 border-gray-800 text-gray-200 focus:border-purple-500 rounded-xl"
                 required
               />
             </div>
@@ -350,7 +356,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           {mode !== "forgot" && (
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="font-semibold text-slate-300">
+                <label className="font-semibold text-gray-300">
                   Password *
                 </label>
                 {mode === "login" && (
@@ -361,26 +367,26 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       setErrorMessage(null);
                       setSuccessMessage(null);
                     }}
-                    className="text-[11px] text-cyan-400 hover:underline"
+                    className="text-[11px] text-purple-400 hover:underline"
                   >
                     Forgot password?
                   </button>
                 )}
               </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <Input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-9 pr-9 h-9 text-xs"
+                  className="pl-9 pr-9 h-10 text-xs bg-gray-950 border-gray-800 text-gray-200 focus:border-purple-500 rounded-xl"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
                 >
                   {showPassword ? (
                     <EyeOff className="w-3.5 h-3.5" />
@@ -396,9 +402,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <div className="pt-2">
             <Button
               type="submit"
-              variant="glow"
+              variant="purple"
               size="sm"
-              className="w-full h-9 text-xs"
+              className="w-full h-10 text-xs rounded-full shadow-lg shadow-purple-600/30"
               disabled={loading}
             >
               {loading ? (
@@ -431,13 +437,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   setMode("login");
                   resetForm();
                 }}
-                className="text-xs text-cyan-400 hover:underline inline-flex items-center gap-1"
+                className="text-xs text-purple-400 hover:underline inline-flex items-center gap-1 font-medium"
               >
                 ← Back to Sign In
               </button>
             </div>
           ) : (
-            <p className="text-[11px] text-slate-500 text-center pt-1">
+            <p className="text-[11px] text-gray-500 text-center pt-1">
               Credentials are securely authenticated directly via Supabase Auth with encrypted sessions.
             </p>
           )}
@@ -446,3 +452,5 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     </Modal>
   );
 }
+
+export default AuthModal;

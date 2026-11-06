@@ -77,26 +77,26 @@ export function DirectMessagingHub({
   );
 
   return (
-    <div className="rounded-3xl border border-slate-800/80 bg-navy-900/80 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-[620px]">
+    <div className="rounded-3xl border border-gray-800 bg-gray-900/80 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-[620px]">
       {/* Left Sidebar: Conversations / Peers */}
-      <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col bg-navy-950/60 shrink-0">
-        <div className="p-4 border-b border-slate-800">
+      <div className="w-full md:w-80 border-b md:border-b-0 md:border-r border-gray-800 flex flex-col bg-gray-950/60 shrink-0">
+        <div className="p-4 border-b border-gray-800">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-bold text-white text-sm flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-cyan-400" />
+              <MessageSquare className="w-4 h-4 text-purple-400" />
               Direct Messages
             </h3>
-            <span className="text-[10px] text-slate-400 bg-navy-900 px-2 py-0.5 rounded-full border border-slate-800">
+            <span className="text-[10px] text-gray-400 bg-gray-900 px-2 py-0.5 rounded-full border border-gray-800">
               {peerPartners.length} Peers
             </span>
           </div>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
             <Input
               placeholder="Filter conversations..."
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
-              className="pl-8 h-8 text-xs bg-navy-950"
+              className="pl-8 h-8 text-xs bg-gray-950"
             />
           </div>
         </div>
@@ -124,12 +124,12 @@ export function DirectMessagingHub({
                 onClick={() => setActivePartnerId(partner.id)}
                 className={`w-full p-3.5 text-left flex items-start gap-3 transition-colors ${
                   isSelected
-                    ? "bg-navy-850 border-l-2 border-cyan-400"
-                    : "hover:bg-navy-900/50"
+                    ? "bg-gray-850 border-l-2 border-cyan-400"
+                    : "hover:bg-gray-900/50"
                 }`}
               >
                 <div className="relative shrink-0">
-                  <Image src={partner.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={partner.fullName} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-slate-700" />
+                  <Image src={partner.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={partner.fullName} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-gray-700" />
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-navy-950" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -139,18 +139,18 @@ export function DirectMessagingHub({
                     </span>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {lastMsg && (
-                        <span className="text-[10px] text-slate-500">
+                        <span className="text-[10px] text-gray-500">
                           {lastMsg.timestamp}
                         </span>
                       )}
                       {unreadCount > 0 && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-cyan-500 text-white">
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-purple-600 text-white">
                           {unreadCount}
                         </span>
                       )}
                     </div>
                   </div>
-                  <p className="text-[11px] text-slate-400 truncate">
+                  <p className="text-[11px] text-gray-400 truncate">
                     {lastMsg ? lastMsg.content : `${partner.university} · ${partner.skillsOffered[0]?.name}`}
                   </p>
                 </div>
@@ -161,18 +161,18 @@ export function DirectMessagingHub({
       </div>
 
       {/* Right Chat Pane */}
-      <div className="flex-1 flex flex-col bg-navy-900/40">
+      <div className="flex-1 flex flex-col bg-gray-900/40">
         {activePartner ? (
           <>
             {/* Header */}
-            <div className="p-3.5 sm:px-5 border-b border-slate-800 flex items-center justify-between gap-3 bg-navy-950/40">
+            <div className="p-3.5 sm:px-5 border-b border-gray-800 flex items-center justify-between gap-3 bg-gray-950/40">
               <div className="flex items-center gap-3">
-                <Image src={activePartner.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={activePartner.fullName} width={36} height={36} className="w-9 h-9 rounded-full object-cover border border-cyan-500/50" />
+                <Image src={activePartner.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={activePartner.fullName} width={36} height={36} className="w-9 h-9 rounded-full object-cover border border-purple-500/50" />
                 <div>
                   <h4 className="font-bold text-white text-sm leading-tight">
                     {activePartner.fullName}
                   </h4>
-                  <p className="text-[11px] text-slate-400">
+                  <p className="text-[11px] text-gray-400">
                     {activePartner.university} · Can teach: {activePartner.skillsOffered.slice(0, 2).map((s) => s.name).join(", ")}
                   </p>
                 </div>
@@ -181,10 +181,10 @@ export function DirectMessagingHub({
               <Button
                 variant="outline"
                 size="sm"
-                className="text-xs h-8"
+                className="text-xs h-8 rounded-full border-gray-800 hover:bg-gray-800"
                 onClick={() => onOpenScheduleModal(activePartner)}
               >
-                <Calendar className="w-3.5 h-3.5 mr-1 text-cyan-400" />
+                <Calendar className="w-3.5 h-3.5 mr-1 text-purple-400" />
                 Schedule Session
               </Button>
             </div>
@@ -192,8 +192,8 @@ export function DirectMessagingHub({
             {/* Messages Feed */}
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {conversationMessages.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 space-y-2">
-                  <MessageSquare className="w-8 h-8 text-slate-600 mb-1" />
+                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-gray-400 space-y-2">
+                  <MessageSquare className="w-8 h-8 text-gray-600 mb-1" />
                   <p className="font-semibold text-white text-xs">
                     Start a conversation with {activePartner.fullName}
                   </p>
@@ -212,29 +212,29 @@ export function DirectMessagingHub({
                       }`}
                     >
                       {!isSelf && (
-                        <Image src={activePartner.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={activePartner.fullName} width={36} height={36} className="w-6 h-6 rounded-full object-cover border border-slate-700 shrink-0 mb-1" />
+                        <Image src={activePartner.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={activePartner.fullName} width={36} height={36} className="w-6 h-6 rounded-full object-cover border border-gray-700 shrink-0 mb-1" />
                       )}
                       <div
                         className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 shadow-sm leading-relaxed ${
                           isSelf
-                            ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-br-none"
-                            : "bg-navy-950 border border-slate-800 text-slate-200 rounded-bl-none"
+                            ? "bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-br-none shadow-md shadow-purple-600/20"
+                            : "bg-gray-950 border border-gray-800 text-gray-200 rounded-bl-none"
                         }`}
                       >
                         <p>{msg.content}</p>
                         <div
                           className={`flex items-center justify-end gap-1 mt-1 text-[10px] ${
-                            isSelf ? "text-cyan-200" : "text-slate-500"
+                            isSelf ? "text-purple-200" : "text-gray-500"
                           }`}
                         >
                           <span>{msg.timestamp}</span>
                           {isSelf && (
                             msg.read ? (
-                              <span title="Read" className="flex items-center text-cyan-200">
+                              <span title="Read" className="flex items-center text-purple-200">
                                 <CheckCheck className="w-3.5 h-3.5" />
                               </span>
                             ) : (
-                              <span title="Sent" className="flex items-center text-cyan-300/70">
+                              <span title="Sent" className="flex items-center text-purple-300/70">
                                 <Check className="w-3 h-3" />
                               </span>
                             )
@@ -248,20 +248,20 @@ export function DirectMessagingHub({
             </div>
 
             {/* Input Form */}
-            <form onSubmit={handleSend} className="p-3 border-t border-slate-800 flex gap-2 bg-navy-950/60">
+            <form onSubmit={handleSend} className="p-3 border-t border-gray-800 flex gap-2 bg-gray-950/60">
               <Input
                 placeholder={`Message ${activePartner.fullName}...`}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 className="text-xs h-9"
               />
-              <Button type="submit" variant="glow" size="sm" className="h-9 px-4 shrink-0">
+              <Button type="submit" variant="purple" size="sm" className="h-9 px-4 shrink-0">
                 <Send className="w-3.5 h-3.5" />
               </Button>
             </form>
           </>
         ) : (
-          <div className="h-full flex items-center justify-center p-6 text-slate-500 text-xs">
+          <div className="h-full flex items-center justify-center p-6 text-gray-500 text-xs">
             Select a conversation to begin messaging
           </div>
         )}

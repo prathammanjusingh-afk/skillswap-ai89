@@ -223,7 +223,7 @@ export function ProjectDetailModal({
   const getStatusBadge = (status: Project["status"]) => {
     switch (status) {
       case "recruiting":
-        return <Badge variant="default" className="text-xs bg-cyan-500/20 text-cyan-300 border-cyan-500/40">Recruiting</Badge>;
+        return <Badge variant="default" className="text-xs bg-purple-600/20 text-purple-300 border-purple-500/40">Recruiting</Badge>;
       case "in_progress":
         return <Badge variant="outline" className="text-xs bg-amber-500/20 text-amber-300 border-amber-500/40">In Progress</Badge>;
       case "completed":
@@ -253,7 +253,7 @@ export function ProjectDetailModal({
                 </Badge>
               )}
             </div>
-            <p className="text-xs text-slate-400">{project.tagline}</p>
+            <p className="text-xs text-gray-400">{project.tagline}</p>
           </div>
 
           {isCreator && !isEditing && (
@@ -261,7 +261,7 @@ export function ProjectDetailModal({
               <Button
                 variant="outline"
                 size="sm"
-                className="text-xs h-8 border-slate-700 hover:border-cyan-400 hover:text-cyan-300"
+                className="text-xs h-8 border-gray-700 hover:border-purple-400 hover:text-purple-300"
                 onClick={() => setIsEditing(true)}
               >
                 <Edit3 className="w-3.5 h-3.5 mr-1" />
@@ -285,12 +285,12 @@ export function ProjectDetailModal({
             </div>
 
             <div className="flex items-center gap-2">
-              <label className="text-slate-400 text-[11px]">Lifecycle Status:</label>
+              <label className="text-gray-400 text-[11px]">Lifecycle Status:</label>
               <select
                 value={project.status || "recruiting"}
                 onChange={(e) => handleQuickStatusChange(e.target.value as Project["status"])}
                 disabled={isSaving}
-                className="bg-navy-950 border border-slate-700 text-white rounded-md px-2.5 py-1 text-xs focus:outline-none focus:border-cyan-400"
+                className="bg-gray-950 border border-gray-700 text-white rounded-md px-2.5 py-1 text-xs focus:outline-none focus:border-purple-500"
               >
                 <option value="recruiting">Recruiting Teammates</option>
                 <option value="in_progress">In Progress</option>
@@ -347,9 +347,9 @@ export function ProjectDetailModal({
         {/* EDIT MODE FORM                                                  */}
         {/* ============================================================== */}
         {isEditing ? (
-          <div className="space-y-4 p-4 rounded-xl bg-navy-950/60 border border-slate-800 text-xs">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-              <h4 className="font-bold text-sm text-cyan-300 flex items-center gap-2">
+          <div className="space-y-4 p-4 rounded-xl bg-gray-950/60 border border-gray-800 text-xs">
+            <div className="flex items-center justify-between pb-2 border-b border-gray-800">
+              <h4 className="font-bold text-sm text-purple-300 flex items-center gap-2">
                 <Edit3 className="w-4 h-4" />
                 Edit Project Specifications
               </h4>
@@ -366,44 +366,44 @@ export function ProjectDetailModal({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="text-slate-400 font-semibold mb-1 block">Project Title *</label>
+                <label className="text-gray-400 font-semibold mb-1 block">Project Title *</label>
                 <Input
                   value={editForm.title}
                   onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                   placeholder="e.g. NeuroScribe AI"
-                  className="h-8 text-xs bg-navy-900"
+                  className="h-8 text-xs bg-gray-900"
                 />
               </div>
 
               <div>
-                <label className="text-slate-400 font-semibold mb-1 block">One-Line Tagline *</label>
+                <label className="text-gray-400 font-semibold mb-1 block">One-Line Tagline *</label>
                 <Input
                   value={editForm.tagline}
                   onChange={(e) => setEditForm({ ...editForm, tagline: e.target.value })}
                   placeholder="Brief catchy summary"
-                  className="h-8 text-xs bg-navy-900"
+                  className="h-8 text-xs bg-gray-900"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-slate-400 font-semibold mb-1 block">Full Description *</label>
+              <label className="text-gray-400 font-semibold mb-1 block">Full Description *</label>
               <Textarea
                 value={editForm.description}
                 onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                 rows={3}
                 placeholder="Detailed architecture, goals, and tech stack overview"
-                className="text-xs bg-navy-900"
+                className="text-xs bg-gray-900"
               />
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <label className="text-slate-400 font-semibold mb-1 block">Project Stage</label>
+                <label className="text-gray-400 font-semibold mb-1 block">Project Stage</label>
                 <select
                   value={editForm.stage}
                   onChange={(e) => setEditForm({ ...editForm, stage: e.target.value as ProjectStage })}
-                  className="w-full bg-navy-900 border border-slate-700 text-white rounded-md px-2.5 h-8 text-xs"
+                  className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-2.5 h-8 text-xs"
                 >
                   <option value="ideation">Ideation</option>
                   <option value="prototype">Prototype</option>
@@ -413,11 +413,11 @@ export function ProjectDetailModal({
               </div>
 
               <div>
-                <label className="text-slate-400 font-semibold mb-1 block">Status</label>
+                <label className="text-gray-400 font-semibold mb-1 block">Status</label>
                 <select
                   value={editForm.status}
                   onChange={(e) => setEditForm({ ...editForm, status: e.target.value as Project["status"] })}
-                  className="w-full bg-navy-900 border border-slate-700 text-white rounded-md px-2.5 h-8 text-xs"
+                  className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-2.5 h-8 text-xs"
                 >
                   <option value="recruiting">Recruiting</option>
                   <option value="in_progress">In Progress</option>
@@ -426,81 +426,81 @@ export function ProjectDetailModal({
               </div>
 
               <div>
-                <label className="text-slate-400 font-semibold mb-1 block">Weekly Hours</label>
+                <label className="text-gray-400 font-semibold mb-1 block">Weekly Hours</label>
                 <Input
                   type="number"
                   min={1}
                   max={60}
                   value={editForm.weeklyHoursRequired}
                   onChange={(e) => setEditForm({ ...editForm, weeklyHoursRequired: Number(e.target.value) })}
-                  className="h-8 text-xs bg-navy-900"
+                  className="h-8 text-xs bg-gray-900"
                 />
               </div>
 
               <div>
-                <label className="text-slate-400 font-semibold mb-1 block">Milestone / Event</label>
+                <label className="text-gray-400 font-semibold mb-1 block">Milestone / Event</label>
                 <Input
                   value={editForm.targetEvent}
                   onChange={(e) => setEditForm({ ...editForm, targetEvent: e.target.value })}
                   placeholder="e.g. TreeHacks 2026"
-                  className="h-8 text-xs bg-navy-900"
+                  className="h-8 text-xs bg-gray-900"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="text-slate-400 font-semibold mb-1 block">GitHub Repository URL</label>
+                <label className="text-gray-400 font-semibold mb-1 block">GitHub Repository URL</label>
                 <Input
                   value={editForm.repoUrl}
                   onChange={(e) => setEditForm({ ...editForm, repoUrl: e.target.value })}
                   placeholder="https://github.com/..."
-                  className="h-8 text-xs bg-navy-900"
+                  className="h-8 text-xs bg-gray-900"
                 />
               </div>
               <div>
-                <label className="text-slate-400 font-semibold mb-1 block">Live Demo / Pitch URL</label>
+                <label className="text-gray-400 font-semibold mb-1 block">Live Demo / Pitch URL</label>
                 <Input
                   value={editForm.demoUrl}
                   onChange={(e) => setEditForm({ ...editForm, demoUrl: e.target.value })}
                   placeholder="https://..."
-                  className="h-8 text-xs bg-navy-900"
+                  className="h-8 text-xs bg-gray-900"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-slate-400 font-semibold mb-1 block">Tags (comma-separated)</label>
+              <label className="text-gray-400 font-semibold mb-1 block">Tags (comma-separated)</label>
               <Input
                 value={editForm.tags}
                 onChange={(e) => setEditForm({ ...editForm, tags: e.target.value })}
                 placeholder="PyTorch, Next.js, PostgreSQL"
-                className="h-8 text-xs bg-navy-900"
+                className="h-8 text-xs bg-gray-900"
               />
             </div>
 
             {/* Role Management in Edit Form */}
-            <div className="pt-2 border-t border-slate-800 space-y-3">
-              <label className="text-slate-300 font-bold uppercase tracking-wider text-[11px] block">
+            <div className="pt-2 border-t border-gray-800 space-y-3">
+              <label className="text-gray-300 font-bold uppercase tracking-wider text-[11px] block">
                 Manage Project Roles ({editForm.roles.length})
               </label>
 
               <div className="space-y-2">
                 {editForm.roles.map((r) => (
-                  <div key={r.id} className="p-2.5 rounded-lg bg-navy-900 border border-slate-800 flex items-center justify-between gap-3">
+                  <div key={r.id} className="p-2.5 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-white">{r.title}</span>
                         {r.isFilled ? (
                           <Badge variant="outline" className="text-[10px] bg-emerald-500/20 text-emerald-300 border-emerald-500/30">Filled</Badge>
                         ) : (
-                          <Badge variant="outline" className="text-[10px] bg-cyan-500/20 text-cyan-300 border-cyan-500/30">Open</Badge>
+                          <Badge variant="outline" className="text-[10px] bg-purple-600/20 text-purple-300 border-purple-500/30">Open</Badge>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-0.5">{r.description || "No description provided."}</p>
+                      <p className="text-[11px] text-gray-400 mt-0.5">{r.description || "No description provided."}</p>
                       <div className="flex flex-wrap gap-1 mt-1">
                         {r.requiredSkills.map((sk, i) => (
-                          <span key={i} className="text-[10px] px-1.5 py-0.2 bg-navy-950 text-slate-300 rounded border border-slate-800">
+                          <span key={i} className="text-[10px] px-1.5 py-0.2 bg-gray-950 text-gray-300 rounded border border-gray-800">
                             {sk}
                           </span>
                         ))}
@@ -539,33 +539,33 @@ export function ProjectDetailModal({
               </div>
 
               {/* Add New Role inline */}
-              <div className="p-3 rounded-lg bg-navy-900/60 border border-dashed border-slate-700 space-y-2">
-                <span className="font-semibold text-slate-300 text-[11px] block">+ Add New Open Position</span>
+              <div className="p-3 rounded-lg bg-gray-900/60 border border-dashed border-gray-700 space-y-2">
+                <span className="font-semibold text-gray-300 text-[11px] block">+ Add New Open Position</span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <Input
                     placeholder="Role Title (e.g. AI Engineer)"
                     value={newRoleTitle}
                     onChange={(e) => setNewRoleTitle(e.target.value)}
-                    className="h-7 text-xs bg-navy-950"
+                    className="h-7 text-xs bg-gray-950"
                   />
                   <Input
                     placeholder="Required skills (e.g. PyTorch, CUDA)"
                     value={newRoleSkills}
                     onChange={(e) => setNewRoleSkills(e.target.value)}
-                    className="h-7 text-xs bg-navy-950"
+                    className="h-7 text-xs bg-gray-950"
                   />
                   <Input
                     placeholder="Role description"
                     value={newRoleDesc}
                     onChange={(e) => setNewRoleDesc(e.target.value)}
-                    className="h-7 text-xs bg-navy-950"
+                    className="h-7 text-xs bg-gray-950"
                   />
                 </div>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-7 text-xs border-cyan-500/40 text-cyan-300"
+                  className="h-7 text-xs border-purple-500/40 text-purple-300"
                   onClick={handleAddRoleInEdit}
                   disabled={!newRoleTitle.trim()}
                 >
@@ -575,7 +575,7 @@ export function ProjectDetailModal({
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+            <div className="flex justify-end gap-2 pt-3 border-t border-gray-800">
               <Button
                 variant="outline"
                 size="sm"
@@ -585,7 +585,7 @@ export function ProjectDetailModal({
                 Cancel
               </Button>
               <Button
-                variant="glow"
+                variant="purple"
                 size="sm"
                 onClick={handleSaveEdit}
                 disabled={isSaving || !editForm.title.trim()}
@@ -601,27 +601,27 @@ export function ProjectDetailModal({
           /* ============================================================== */
           <>
             {/* Project Meta Bar */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-xl bg-navy-950/80 border border-slate-800 text-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-xl bg-gray-950/80 border border-gray-800 text-xs">
               <div>
-                <span className="text-slate-400 block mb-0.5">Creator</span>
+                <span className="text-gray-400 block mb-0.5">Creator</span>
                 <span className="font-semibold text-white">
                   {project.creatorName} ({project.creatorUniversity})
                 </span>
               </div>
               <div>
-                <span className="text-slate-400 block mb-0.5">Target Milestone</span>
-                <span className="font-semibold text-cyan-300">
+                <span className="text-gray-400 block mb-0.5">Target Milestone</span>
+                <span className="font-semibold text-purple-300">
                   {project.targetEvent || "Startup MVP Launch"}
                 </span>
               </div>
               <div>
-                <span className="text-slate-400 block mb-0.5">Team Commitment</span>
+                <span className="text-gray-400 block mb-0.5">Team Commitment</span>
                 <span className="font-semibold text-white">
                   {project.weeklyHoursRequired} hrs/week
                 </span>
               </div>
               <div>
-                <span className="text-slate-400 block mb-0.5">Team Capacity</span>
+                <span className="text-gray-400 block mb-0.5">Team Capacity</span>
                 <span className="font-semibold text-indigo-300">
                   {project.openRoles.filter((r) => r.isFilled).length + 1} / {project.openRoles.length + 1} members
                 </span>
@@ -630,13 +630,13 @@ export function ProjectDetailModal({
 
             {/* Links Bar if repo or demo present */}
             {(project.repoUrl || project.demoUrl) && (
-              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-navy-950/50 border border-slate-800 text-xs">
+              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-gray-950/50 border border-gray-800 text-xs">
                 {project.repoUrl && (
                   <a
                     href={project.repoUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 transition-colors"
+                    className="inline-flex items-center gap-1.5 text-purple-400 hover:text-purple-300 transition-colors"
                   >
                     <Github className="w-3.5 h-3.5" />
                     Source Repository
@@ -659,10 +659,10 @@ export function ProjectDetailModal({
 
             {/* Full Description */}
             <div>
-              <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
                 Project Overview & Architecture
               </h4>
-              <p className="text-sm text-slate-200 leading-relaxed bg-navy-950/40 p-4 rounded-xl border border-slate-800/80">
+              <p className="text-sm text-gray-200 leading-relaxed bg-gray-950/40 p-4 rounded-xl border border-gray-800">
                 {project.description}
               </p>
             </div>
@@ -670,14 +670,14 @@ export function ProjectDetailModal({
             {/* Tags */}
             {project.tags.length > 0 && (
               <div>
-                <span className="text-xs text-slate-400 uppercase tracking-wider block mb-2 font-semibold">
+                <span className="text-xs text-gray-400 uppercase tracking-wider block mb-2 font-semibold">
                   Tech Stack & Focus Areas
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {project.tags.map((tag, i) => (
                     <span
                       key={i}
-                      className="px-2.5 py-1 rounded-md text-xs font-medium bg-navy-950 border border-slate-700 text-slate-300"
+                      className="px-2.5 py-1 rounded-md text-xs font-medium bg-gray-950 border border-gray-700 text-gray-300"
                     >
                       #{tag}
                     </span>
@@ -689,7 +689,7 @@ export function ProjectDetailModal({
             {/* Open Roles */}
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
                   Project Positions ({project.openRoles.length})
                 </h4>
                 {project.status === "completed" && (
@@ -705,13 +705,13 @@ export function ProjectDetailModal({
                     key={role.id}
                     className={`p-3.5 rounded-xl border transition-all ${
                       selectedRole === role.title
-                        ? "bg-navy-850 border-cyan-500/50 shadow-md shadow-cyan-950/30"
-                        : "bg-navy-950/60 border-slate-800"
+                        ? "bg-gray-850 border-purple-500/50 shadow-md shadow-cyan-950/30"
+                        : "bg-gray-950/60 border-gray-800"
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Briefcase className="w-4 h-4 text-cyan-400" />
+                        <Briefcase className="w-4 h-4 text-purple-400" />
                         <span className="font-bold text-white text-sm">
                           {role.title}
                         </span>
@@ -720,7 +720,7 @@ export function ProjectDetailModal({
                             Filled
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="text-[10px] bg-cyan-500/20 text-cyan-300 border-cyan-500/30">
+                          <Badge variant="outline" className="text-[10px] bg-purple-600/20 text-purple-300 border-purple-500/30">
                             Open Position
                           </Badge>
                         )}
@@ -734,7 +734,7 @@ export function ProjectDetailModal({
                           disabled={isSaving}
                           className={`text-xs px-2.5 py-1 rounded-md font-medium border transition-colors ${
                             role.isFilled
-                              ? "bg-navy-900 text-slate-300 border-slate-700 hover:border-slate-500"
+                              ? "bg-gray-900 text-gray-300 border-gray-700 hover:border-slate-500"
                               : "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30"
                           }`}
                         >
@@ -747,7 +747,7 @@ export function ProjectDetailModal({
                             className={`text-xs px-2.5 py-1 rounded-md font-medium border transition-colors ${
                               selectedRole === role.title
                                 ? "bg-cyan-500 text-white border-cyan-400"
-                                : "bg-navy-900 text-slate-300 border-slate-700 hover:border-slate-500"
+                                : "bg-gray-900 text-gray-300 border-gray-700 hover:border-slate-500"
                             }`}
                           >
                             {selectedRole === role.title ? "Selected" : "Select Role"}
@@ -756,18 +756,18 @@ export function ProjectDetailModal({
                       )}
                     </div>
 
-                    <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                    <p className="text-xs text-gray-300 mt-1.5 leading-relaxed">
                       {role.description}
                     </p>
 
                     <div className="flex flex-wrap gap-1.5 mt-2.5">
-                      <span className="text-[11px] text-slate-400 mr-1 self-center">
+                      <span className="text-[11px] text-gray-400 mr-1 self-center">
                         Required Skills:
                       </span>
                       {role.requiredSkills.map((sk, i) => (
                         <span
                           key={i}
-                          className="text-[11px] font-medium px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20"
+                          className="text-[11px] font-medium px-2 py-0.5 rounded bg-purple-600/10 text-purple-300 border border-cyan-500/20"
                         >
                           {sk}
                         </span>
@@ -780,7 +780,7 @@ export function ProjectDetailModal({
 
             {/* Application Form for Non-Creators */}
             {!isCreator && project.status === "recruiting" && (
-              <div className="pt-4 border-t border-slate-800">
+              <div className="pt-4 border-t border-gray-800">
                 {isSubmitted ? (
                   <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 flex items-center gap-2">
                     <CheckCircle2 className="w-5 h-5" />
@@ -790,7 +790,7 @@ export function ProjectDetailModal({
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide block">
+                    <label className="text-xs font-semibold text-gray-300 uppercase tracking-wide block">
                       Pitch Yourself for {selectedRole || "this Role"}
                     </label>
                     <Textarea

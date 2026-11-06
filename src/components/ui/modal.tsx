@@ -59,7 +59,7 @@ export function Modal({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 bg-navy-950/80 backdrop-blur-md"
+            className="fixed inset-0 bg-[#0B0F19]/80 backdrop-blur-md"
           />
 
           {/* Modal Container */}
@@ -69,15 +69,19 @@ export function Modal({
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ type: "spring", duration: 0.35, bounce: 0.15 }}
             className={cn(
-              "relative w-full z-10 rounded-2xl border border-slate-700/80 bg-navy-900/95 p-6 shadow-2xl shadow-cyan-950/50 backdrop-blur-xl max-h-[90vh] overflow-y-auto",
+              "relative w-full z-10 rounded-3xl border border-gray-800 bg-gray-900/95 p-6 sm:p-8 shadow-2xl shadow-purple-950/20 backdrop-blur-xl max-h-[90vh] overflow-y-auto",
               maxWidthClasses[maxWidth],
               className
             )}
+            style={{
+              background:
+                "radial-gradient(130.39% 130.39% at 51.31% -0.71%, #1F2937 0%, rgba(17, 24, 39, 0.98) 100%)",
+            }}
           >
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-navy-800 hover:text-white transition-colors"
+              className="absolute right-4 top-4 rounded-full p-2 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
@@ -85,21 +89,21 @@ export function Modal({
 
             {/* Header */}
             {(title || description) && (
-              <div className="mb-5 pr-8">
+              <div className="mb-6 pr-8">
                 {title && (
                   <h3 className="text-xl font-bold text-white tracking-tight">
                     {title}
                   </h3>
                 )}
                 {description && (
-                  <p className="mt-1 text-sm text-slate-400 leading-relaxed">
+                  <p className="mt-1 text-sm text-gray-400 leading-relaxed">
                     {description}
                   </p>
                 )}
               </div>
             )}
 
-            {/* Content */}
+            {/* Body */}
             <div>{children}</div>
           </motion.div>
         </div>
@@ -107,3 +111,5 @@ export function Modal({
     </AnimatePresence>
   );
 }
+
+export default Modal;

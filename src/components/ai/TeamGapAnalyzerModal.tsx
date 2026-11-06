@@ -72,25 +72,25 @@ export function TeamGapAnalyzerModal({
       onClose={onClose}
       maxWidth="3xl"
       title={
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-cyan-400" />
-          <span>AI Team Gap Analyzer & Matchmaker</span>
+        <div className="flex items-center gap-2.5">
+          <Sparkles className="w-5 h-5 text-purple-400" />
+          <span>AI Team Gap Analyzer &amp; Matchmaker</span>
         </div>
       }
       description={`Analyzing skill distribution and gap filling for "${project.title}"`}
     >
       <div className="space-y-6">
         {/* Status Banner */}
-        <div className="p-4 rounded-xl bg-navy-950/80 border border-slate-800 flex items-center justify-between text-xs">
+        <div className="p-4 rounded-2xl bg-gray-950 border border-gray-800 flex items-center justify-between text-xs">
           <div>
             <span className="font-semibold text-white block text-sm">
               Current Roster: {project.currentTeamSize} of {project.maxTeamSize} filled
             </span>
-            <p className="text-slate-400 mt-0.5">
+            <p className="text-gray-400 mt-0.5">
               {unfilledRoles.length} complementary positions currently recruiting.
             </p>
           </div>
-          <Badge variant="indigo" className="text-xs px-3 py-1">
+          <Badge variant="indigo" className="text-xs px-3 py-1 rounded-full bg-purple-600/20 text-purple-300 border border-purple-500/30">
             Active Recruitment
           </Badge>
         </div>
@@ -100,18 +100,18 @@ export function TeamGapAnalyzerModal({
           {roleRecommendations.map(({ role, candidates }) => (
             <div
               key={role.id}
-              className="rounded-xl border border-slate-800/80 bg-navy-950/50 p-4"
+              className="rounded-2xl border border-gray-800 bg-gray-950 p-4"
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse" />
                   <h4 className="font-bold text-white text-sm">{role.title}</h4>
                 </div>
-                <div className="flex gap-1.5">
+                <div className="flex gap-1.5 flex-wrap">
                   {role.requiredSkills.map((sk, i) => (
                     <span
                       key={i}
-                      className="text-[10px] bg-navy-900 border border-slate-700 text-slate-300 px-2 py-0.5 rounded"
+                      className="text-[10px] bg-purple-600/15 border border-purple-500/25 text-purple-300 px-2 py-0.5 rounded-md"
                     >
                       {sk}
                     </span>
@@ -119,11 +119,11 @@ export function TeamGapAnalyzerModal({
                 </div>
               </div>
 
-              <p className="text-xs text-slate-400 mb-3">{role.description}</p>
+              <p className="text-xs text-gray-400 mb-3">{role.description}</p>
 
               {/* Recommended Candidates */}
               <div className="space-y-2.5">
-                <span className="text-[11px] font-semibold text-cyan-300 uppercase tracking-wider block">
+                <span className="text-[11px] font-semibold text-purple-300 uppercase tracking-wider block">
                   Top Recommended Candidates for this Role:
                 </span>
                 {candidates.map(({ student, score, matchedRoleSkills, justification }) => {
@@ -132,23 +132,29 @@ export function TeamGapAnalyzerModal({
                   return (
                     <div
                       key={student.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-navy-900/80 border border-slate-800 hover:border-cyan-500/30 transition-all text-xs"
+                      className="flex items-center justify-between p-3 rounded-xl bg-gray-900 border border-gray-800 hover:border-purple-500/40 transition-all text-xs"
                     >
                       <div className="flex items-center gap-3">
-                        <Image src={student.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"} alt={student.fullName} width={32} height={32} className="w-9 h-9 rounded-full object-cover border border-slate-700" />
+                        <Image
+                          src={student.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80"}
+                          alt={student.fullName}
+                          width={32}
+                          height={32}
+                          className="w-9 h-9 rounded-full object-cover border border-purple-500/40"
+                        />
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-white">
                               {student.fullName}
                             </span>
-                            <span className="text-slate-400 text-[11px]">
+                            <span className="text-gray-400 text-[11px]">
                               &bull; {student.university}
                             </span>
-                            <span className="px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 text-[10px] font-semibold border border-cyan-500/30">
+                            <span className="px-2 py-0.5 rounded-full bg-purple-600/20 text-purple-300 text-[10px] font-semibold border border-purple-500/30">
                               {score}% Fit
                             </span>
                           </div>
-                          <p className="text-slate-300 text-[11px] mt-0.5">
+                          <p className="text-gray-300 text-[11px] mt-0.5">
                             {justification}
                           </p>
                         </div>
@@ -162,8 +168,8 @@ export function TeamGapAnalyzerModal({
                         ) : (
                           <Button
                             size="sm"
-                            variant="glow"
-                            className="text-xs h-7 px-3"
+                            variant="purple"
+                            className="text-xs h-7 px-3 rounded-full"
                             onClick={() => handleInvite(student.id, role.title)}
                           >
                             <Send className="w-3 h-3 mr-1" />
@@ -180,7 +186,7 @@ export function TeamGapAnalyzerModal({
         </div>
 
         <div className="pt-2 flex justify-end">
-          <Button variant="outline" size="sm" onClick={onClose}>
+          <Button variant="outline" size="sm" className="rounded-full" onClick={onClose}>
             Done
           </Button>
         </div>
@@ -188,3 +194,5 @@ export function TeamGapAnalyzerModal({
     </Modal>
   );
 }
+
+export default TeamGapAnalyzerModal;

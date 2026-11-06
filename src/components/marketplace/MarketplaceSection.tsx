@@ -2,6 +2,7 @@
   MarketplaceSection – Teammate and Skill Discovery Feed.
   Connected to real Supabase profiles, with strict profile privacy enforcement,
   skill tags, and AI synergy ranking.
+  Restyled with Mailgo dark & purple design system.
 */
 
 "use client";
@@ -30,7 +31,6 @@ export function MarketplaceSection({
 }: MarketplaceSectionProps) {
   // Ensure private profiles NEVER appear for anyone other than the user viewing their own preview
   const displayedStudents = filterPublicProfiles(students, currentUser.id);
-
   const isCurrentUserPrivate = !currentUser.isPublic;
 
   return (
@@ -39,16 +39,16 @@ export function MarketplaceSection({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-            <Users className="w-5 h-5 text-cyan-400" />
-            Discover Teammates & Skill Swaps
+            <Users className="w-5 h-5 text-purple-400" />
+            Discover Teammates &amp; Skill Swaps
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Real-time reciprocal skill matching based on complementary capabilities and availability.
+          <p className="text-xs text-gray-400 mt-0.5">
+            Reciprocal skill matching based on complementary technical capabilities and availability.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <span className="font-semibold text-slate-300">
+        <div className="flex items-center gap-2 text-xs text-gray-400">
+          <span className="font-semibold text-gray-200">
             {displayedStudents.length}
           </span>
           <span>discoverable {displayedStudents.length === 1 ? "profile" : "profiles"}</span>
@@ -57,7 +57,7 @@ export function MarketplaceSection({
 
       {/* Profile Privacy Status Banner for the viewing user */}
       {isCurrentUserPrivate && (
-        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-start gap-2.5">
             <Lock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
             <div>
@@ -76,7 +76,7 @@ export function MarketplaceSection({
               variant="outline"
               size="sm"
               onClick={onNavigateToProfile}
-              className="text-xs shrink-0 border-amber-500/30 text-amber-200 hover:bg-amber-500/20 self-start sm:self-auto"
+              className="text-xs shrink-0 rounded-full border-amber-500/30 text-amber-200 hover:bg-amber-500/20 self-start sm:self-auto"
             >
               <Eye className="w-3.5 h-3.5 mr-1 text-amber-300" />
               Adjust Visibility
@@ -99,21 +99,21 @@ export function MarketplaceSection({
           ))}
         </div>
       ) : (
-        <div className="p-12 text-center rounded-2xl border border-slate-800 bg-navy-900/40 text-slate-400 space-y-3">
-          <AlertCircle className="w-10 h-10 mx-auto text-slate-500 opacity-60" />
-          <h3 className="text-base font-semibold text-slate-200">
+        <div className="p-12 text-center rounded-2xl border border-gray-800 bg-gray-900/40 text-gray-400 space-y-3">
+          <AlertCircle className="w-10 h-10 mx-auto text-gray-500 opacity-60" />
+          <h3 className="text-base font-semibold text-gray-200">
             No public student profiles found
           </h3>
-          <p className="text-xs text-slate-400 max-w-md mx-auto">
+          <p className="text-xs text-gray-400 max-w-md mx-auto">
             No students currently match your search criteria, or all existing profiles are set to private.
             Try adjusting your search query, or publish your profile to lead the community!
           </p>
           {onNavigateToProfile && isCurrentUserPrivate && (
             <Button
-              variant="glow"
+              variant="purple"
               size="sm"
               onClick={onNavigateToProfile}
-              className="mt-2 text-xs"
+              className="mt-2 text-xs rounded-full"
             >
               <Sparkles className="w-3.5 h-3.5 mr-1.5" />
               Make Your Profile Public
@@ -124,3 +124,5 @@ export function MarketplaceSection({
     </div>
   );
 }
+
+export default MarketplaceSection;

@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { AuthProvider } from "@/lib/supabase/AuthContext";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "SkillSwap AI — Find Your Perfect Team",
@@ -27,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn("dark", "font-sans", inter.variable)}>
-      <body className="min-h-screen bg-navy-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-navy-950">
+      <body className="min-h-screen bg-[#0B0F19] text-slate-100 antialiased selection:bg-purple-600 selection:text-white">
         <AuthProvider>
           {children}
         </AuthProvider>
