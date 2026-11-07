@@ -1192,8 +1192,8 @@ export default function HomePage() {
 
         {/* Admin access denied for ordinary users */}
         {activeTab === "admin" && currentUser.role !== "admin" && currentUser.role !== "moderator" && (
-          <div className="p-12 text-center rounded-2xl border border-slate-800 bg-navy-900/40 text-slate-400">
-            <p className="text-base font-semibold text-slate-300 mb-1">
+          <div className="p-12 text-center rounded-2xl border border-gray-800 bg-gray-900/60 text-gray-400">
+            <p className="text-base font-semibold text-gray-300 mb-1">
               Admin Access Required
             </p>
             <p className="text-xs">
