@@ -905,22 +905,24 @@ export default function HomePage() {
       />
 
       {/* Main Page Body */}
-      <main className="flex-1 container mx-auto px-4 sm:px-6 pt-8 pb-16">
+      <main className="flex-1 w-full">
         {/* Global Connection / Data Error Banner */}
         {dataLoadError && (
-          <div className="mb-6 p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-              <span>{dataLoadError}</span>
+          <div className="custom-screen pt-4">
+            <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                <span>{dataLoadError}</span>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs border-rose-500/40 hover:bg-rose-500/20 shrink-0"
+                onClick={() => window.location.reload()}
+              >
+                Retry
+              </Button>
             </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 text-xs border-rose-500/40 hover:bg-rose-500/20 shrink-0"
-              onClick={() => window.location.reload()}
-            >
-              Retry
-            </Button>
           </div>
         )}
 
@@ -933,19 +935,23 @@ export default function HomePage() {
             onNavigateTab={setActiveTab}
           />
         )}
-        {activeTab === "dashboard" && (
-          <Dashboard
-            currentUser={currentUser}
-            students={students}
-            projects={projects}
-            requests={requests}
-            onNavigate={setActiveTab}
-            onOpenStudentDetail={handleOpenStudentDetail}
-            onOpenProjectDetail={handleOpenProjectDetail}
-            onAcceptRequest={handleAcceptRequest}
-            onDeclineRequest={handleDeclineRequest}
-          />
-        )}
+
+        {/* APPLICATION VIEWS (Dashboard, Marketplace, Projects, Studio, Hubs) */}
+        {activeTab !== "home" && (
+          <div className="custom-screen py-8">
+            {activeTab === "dashboard" && (
+              <Dashboard
+                currentUser={currentUser}
+                students={students}
+                projects={projects}
+                requests={requests}
+                onNavigate={setActiveTab}
+                onOpenStudentDetail={handleOpenStudentDetail}
+                onOpenProjectDetail={handleOpenProjectDetail}
+                onAcceptRequest={handleAcceptRequest}
+                onDeclineRequest={handleDeclineRequest}
+              />
+            )}
 
         {/* Search & Filter Toolbar (for Students and Projects tabs) */}
         {(activeTab === "students" || activeTab === "projects") && (
@@ -1193,6 +1199,8 @@ export default function HomePage() {
             <p className="text-xs">
               You need verified administrator privileges in the database to access this dashboard.
             </p>
+          </div>
+        )}
           </div>
         )}
       </main>

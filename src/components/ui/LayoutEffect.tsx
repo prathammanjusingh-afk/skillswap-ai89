@@ -1,7 +1,6 @@
 "use client";
 
-import { useInView } from "framer-motion";
-import React, { cloneElement, useRef } from "react";
+import React from "react";
 
 interface LayoutEffectProps {
   children: React.ReactElement;
@@ -15,16 +14,9 @@ interface LayoutEffectProps {
 export const LayoutEffect: React.FC<LayoutEffectProps> = ({
   children,
   className = "",
-  isInviewState = { trueState: "", falseState: "" },
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true });
-
-  return cloneElement(children, {
-    ref,
-    className: `${children.props.className || ""} ${className} ${
-      isInView ? isInviewState.trueState : isInviewState.falseState
-    }`,
+  return React.cloneElement(children, {
+    className: `${children.props.className || ""} ${className} opacity-100 translate-y-0 transition-all duration-700`,
   });
 };
 
