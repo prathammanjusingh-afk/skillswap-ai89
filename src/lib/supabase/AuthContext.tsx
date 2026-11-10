@@ -95,6 +95,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
+        if (error.message.toLowerCase().includes("email not confirmed")) {
+          return {
+            success: false,
+            error:
+              "Your account was created, but your email has not been verified yet. Please check your inbox for the confirmation link.",
+          };
+        }
         return { success: false, error: error.message };
       }
 
