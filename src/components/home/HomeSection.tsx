@@ -9,6 +9,7 @@ import { LayoutEffect } from "@/components/ui/LayoutEffect";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AvatarImage } from "@/components/ui/avatar-image";
+import { CarouselSlider } from "@/components/ui/CarouselSlider";
 import {
   Sparkles,
   ArrowRight,
@@ -353,6 +354,43 @@ export function HomeSection({
                 </div>
               </li>
             </ul>
+          </div>
+        </div>
+      </SectionWrapper>
+
+      {/* =========================================================
+          INTERACTIVE SPOTLIGHT SHOWCASE (CarouselSlider)
+          ========================================================= */}
+      <SectionWrapper>
+        <div className="custom-screen text-gray-300">
+          <div className="rounded-3xl border border-gray-800 bg-gradient-to-b from-gray-900/60 to-gray-950/90 p-8 sm:p-12 backdrop-blur-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-[128px] pointer-events-none" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              <div className="space-y-4 text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-600/10 text-purple-300 text-xs font-semibold">
+                  <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                  <span>Interactive Builder Spotlight</span>
+                </div>
+                <h3 className="text-white text-2xl sm:text-3xl font-bold tracking-tight">
+                  Swipe through active student innovators &amp; projects
+                </h3>
+                <p className="text-gray-400 text-sm leading-relaxed max-w-lg">
+                  Drag and swipe through featured campus creators, hackathon winners, and upcoming collaborative builds. Save your favorites with one tap.
+                </p>
+                <div className="pt-2">
+                  <button
+                    onClick={() => onNavigateTab && onNavigateTab("students")}
+                    className="inline-flex items-center gap-2 text-white bg-purple-600 hover:bg-purple-500 px-5 py-2.5 rounded-full text-xs font-semibold shadow-lg shadow-purple-600/30 transition-all duration-150"
+                  >
+                    <span>Browse All Innovators</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center justify-center py-4">
+                <CarouselSlider />
+              </div>
+            </div>
           </div>
         </div>
       </SectionWrapper>
