@@ -131,8 +131,15 @@ export async function getOrCreateProfile(authUser: {
     // 2. Profile not found or trigger hasn't fired yet; create it safely
     const fullName =
       authUser.user_metadata?.full_name ||
+      authUser.user_metadata?.name ||
       authUser.email?.split("@")[0] ||
       "Student Innovator";
+    const avatarUrl =
+      authUser.user_metadata?.avatar_url ||
+      authUser.user_metadata?.picture ||
+      `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
+        fullName
+      )}`;
     const university =
       authUser.user_metadata?.university || "Campus University";
     const primarySkill = authUser.user_metadata?.primary_skill;
@@ -140,9 +147,7 @@ export async function getOrCreateProfile(authUser: {
     const newProfileInsert = {
       id: authUser.id,
       full_name: fullName,
-      avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
-        fullName
-      )}`,
+      avatar_url: avatarUrl,
       headline: `Student Innovator @ ${university}`,
       university: university,
       major: "Computer Science",
@@ -189,9 +194,7 @@ export async function getOrCreateProfile(authUser: {
       id: authUser.id,
       email: authUser.email,
       fullName,
-      avatarUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
-        fullName
-      )}`,
+      avatarUrl: avatarUrl,
       headline: `Student Innovator @ ${university}`,
       university,
       major: "Computer Science",

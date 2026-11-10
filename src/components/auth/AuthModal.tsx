@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/supabase/AuthContext";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 import {
   Sparkles,
   Lock,
@@ -282,6 +283,21 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               >
                 Register
               </button>
+            </div>
+          )}
+
+          {/* Continue with Google */}
+          {mode !== "forgot" && (
+            <div className="space-y-3 pt-1">
+              <GoogleSignInButton
+                onError={(err) => setErrorMessage(err)}
+              />
+              <div className="relative flex items-center justify-center">
+                <div className="border-t border-gray-800/80 w-full" />
+                <span className="bg-gray-900 px-3 text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
+                  or continue with email
+                </span>
+              </div>
             </div>
           )}
 

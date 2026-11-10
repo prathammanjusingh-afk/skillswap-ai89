@@ -20,6 +20,7 @@ interface AuthContextType {
   }) => Promise<{ success: boolean; requiresEmailVerification?: boolean; error?: string }>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
+  signInWithGoogle: (redirectTo?: string) => Promise<{ success: boolean; error?: string }>;
   refreshProfile: () => Promise<void>;
   setCurrentUser: React.Dispatch<React.SetStateAction<StudentProfile | null>>;
 }
@@ -201,6 +202,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signInWithGoogle = async (redirectTo?: string) => {
+    if (!isSupabaseConfigured || !supabase) {
+      return {
+        success: false,
+        error:
+          "Supabase authentication is not configured. Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      };
+    }
+
+    try {
+      const targetUrl =
+        redirectTo ||
+        (typeof window !== "undefined"
+          ? `${window.location.origin}/auth/callback`
+          : undefined);
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: targetUrl,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (err: any) {
+      return {
+        success: false,
+        error:
+          err.message || "An unexpected error occurred while initiating Google sign-in.",
+      };
+    }
+  };
+
   const refreshProfile = async () => {
     if (!isSupabaseConfigured || !supabase) return;
     const { data: { user } } = await supabase.auth.getUser();
@@ -221,6 +263,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signup,
         logout,
         resetPassword,
+        signInWithGoogle,
         refreshProfile,
         setCurrentUser,
       }}
