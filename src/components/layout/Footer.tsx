@@ -1,15 +1,41 @@
-import React from "react";
-import { Sparkles, Shield, Heart } from "lucide-react";
+"use client";
 
-export function Footer() {
+import React from "react";
+import { Sparkles, Shield, Heart, ArrowRight } from "lucide-react";
+
+interface FooterProps {
+  onNavigateTab?: (tab: string) => void;
+}
+
+export function Footer({ onNavigateTab }: FooterProps) {
+  const handleFeatureClick = (tab: string) => {
+    if (onNavigateTab) {
+      onNavigateTab(tab);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handleScrollToFeatures = () => {
+    if (onNavigateTab) {
+      onNavigateTab("home");
+      setTimeout(() => {
+        const el = document.getElementById("features");
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  };
+
   return (
     <footer className="mt-24 border-t border-gray-800 bg-[#0B0F19]/80 py-12 text-xs text-gray-400">
       <div className="custom-screen">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           {/* Brand info */}
           <div className="md:col-span-2 space-y-3">
-            <div className="flex items-center gap-2.5">
-              <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-violet-500 text-white shadow-md shadow-purple-600/30">
+            <div
+              className="flex items-center gap-2.5 cursor-pointer group"
+              onClick={() => handleFeatureClick("home")}
+            >
+              <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-violet-500 text-white shadow-md shadow-purple-600/30 group-hover:shadow-purple-600/50 transition-all duration-150">
                 <Sparkles className="w-4 h-4" />
               </div>
               <span className="font-bold text-white text-base">SkillSwap AI</span>
@@ -39,11 +65,56 @@ export function Footer() {
               Platform Features
             </h4>
             <ul className="space-y-2 text-gray-400 text-xs">
-              <li className="hover:text-purple-300 transition-colors cursor-pointer">AI Bilateral Skill Matrix</li>
-              <li className="hover:text-purple-300 transition-colors cursor-pointer">Project Recruitment Showcase</li>
-              <li className="hover:text-purple-300 transition-colors cursor-pointer">Dream Team Generator Studio</li>
-              <li className="hover:text-purple-300 transition-colors cursor-pointer">1-on-1 Mentorship Sessions</li>
-              <li className="hover:text-purple-300 transition-colors cursor-pointer">Supabase Row-Level Security</li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => handleFeatureClick("students")}
+                  className="hover:text-purple-300 transition-colors text-left flex items-center gap-1.5"
+                >
+                  <ArrowRight className="w-3 h-3 text-purple-400" />
+                  <span>AI Bilateral Skill Matrix</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => handleFeatureClick("projects")}
+                  className="hover:text-purple-300 transition-colors text-left flex items-center gap-1.5"
+                >
+                  <ArrowRight className="w-3 h-3 text-purple-400" />
+                  <span>Project Recruitment Showcase</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => handleFeatureClick("ai-studio")}
+                  className="hover:text-purple-300 transition-colors text-left flex items-center gap-1.5"
+                >
+                  <ArrowRight className="w-3 h-3 text-purple-400" />
+                  <span>Dream Team Generator Studio</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => handleFeatureClick("sessions")}
+                  className="hover:text-purple-300 transition-colors text-left flex items-center gap-1.5"
+                >
+                  <ArrowRight className="w-3 h-3 text-purple-400" />
+                  <span>1-on-1 Mentorship Sessions</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={handleScrollToFeatures}
+                  className="hover:text-purple-300 transition-colors text-left flex items-center gap-1.5"
+                >
+                  <ArrowRight className="w-3 h-3 text-purple-400" />
+                  <span>Supabase Row-Level Security</span>
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -74,4 +145,5 @@ export function Footer() {
     </footer>
   );
 }
+
 export default Footer;

@@ -102,7 +102,7 @@ export function DirectMessagingHub({
         </div>
 
         {/* Partners List */}
-        <div className="flex-1 overflow-y-auto divide-y divide-slate-850">
+        <div className="flex-1 overflow-y-auto divide-y divide-gray-800">
           {filteredPartners.map((partner) => {
             const isSelected = partner.id === activePartnerId;
             // Find last message
@@ -124,7 +124,7 @@ export function DirectMessagingHub({
                 onClick={() => setActivePartnerId(partner.id)}
                 className={`w-full p-3.5 text-left flex items-start gap-3 transition-colors ${
                   isSelected
-                    ? "bg-gray-850 border-l-2 border-cyan-400"
+                    ? "bg-purple-900/20 border-l-2 border-purple-500"
                     : "hover:bg-gray-900/50"
                 }`}
               >

@@ -27,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn("dark", "font-sans", inter.variable)}>
-      <body className="min-h-screen bg-[#0B0F19] text-slate-100 antialiased selection:bg-purple-600 selection:text-white">
+      <body className="min-h-screen bg-[#0B0F19] text-slate-100 antialiased selection:bg-purple-600 selection:text-white overflow-x-hidden w-full max-w-full">
         <AuthProvider>
           {children}
         </AuthProvider>

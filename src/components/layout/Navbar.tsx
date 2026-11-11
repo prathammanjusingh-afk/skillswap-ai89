@@ -173,228 +173,229 @@ export function Navbar({
           </nav>
         </div>
 
-        {/* Right Side: Actions / Auth / Profile */}
-        <div className="flex items-center gap-3">
-          {/* Notifications Dropdown (when logged in or browsing) */}
-          <NotificationDropdown
-            notifications={notifications}
-            onMarkAsRead={onMarkNotificationRead}
-            onMarkAllAsRead={onMarkAllNotificationsRead}
-            onNavigateTab={setActiveTab}
-          />
+          {/* Right Side: Actions / Auth / Profile */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Notifications Dropdown (when logged in or browsing) */}
+            <NotificationDropdown
+              notifications={notifications}
+              onMarkAsRead={onMarkNotificationRead}
+              onMarkAllAsRead={onMarkAllNotificationsRead}
+              onNavigateTab={setActiveTab}
+            />
 
-          {/* Messages shortcut with unread badge */}
-          <button
-            onClick={() => setActiveTab("messages")}
-            title="Peer Messages"
-            className={`relative p-2 rounded-full border transition-all ${
-              activeTab === "messages"
-                ? "border-purple-500/50 bg-purple-600/20 text-white"
-                : "border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800/60"
-            }`}
-          >
-            <MessageSquare className="w-4 h-4" />
-            {unreadMessageCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-purple-600 text-[10px] font-bold text-white flex items-center justify-center animate-pulse">
-                {unreadMessageCount}
-              </span>
-            )}
-          </button>
+            {/* Messages shortcut with unread badge */}
+            <button
+              onClick={() => setActiveTab("messages")}
+              title="Peer Messages"
+              className={`relative p-2 rounded-full border transition-all ${
+                activeTab === "messages"
+                  ? "border-purple-500/50 bg-purple-600/20 text-white"
+                  : "border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800/60"
+              }`}
+            >
+              <MessageSquare className="w-4 h-4" />
+              {unreadMessageCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-purple-600 text-[10px] font-bold text-white flex items-center justify-center animate-pulse">
+                  {unreadMessageCount}
+                </span>
+              )}
+            </button>
 
-          {/* If Authenticated: Dashboard pill & Persona Menu */}
-          {isAuthenticated ? (
-            <>
-              <button
-                onClick={() => setActiveTab("dashboard")}
-                className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                  activeTab === "dashboard"
-                    ? "border-purple-500 bg-purple-600 text-white"
-                    : "border-gray-700 bg-gray-900/80 text-gray-200 hover:border-gray-500 hover:text-white"
-                }`}
-              >
-                <LayoutGrid className="w-3.5 h-3.5" />
-                <span>Dashboard</span>
-              </button>
-
-              {/* Persona Profile Menu */}
-              <div className="relative" ref={personaRef}>
+            {/* If Authenticated: Dashboard pill & Persona Menu */}
+            {isAuthenticated ? (
+              <>
                 <button
-                  onClick={() => setIsPersonaOpen(!isPersonaOpen)}
-                  className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-full bg-gray-900/90 border border-gray-800 hover:border-gray-700 hover:bg-gray-800/80 transition-all text-xs"
+                  onClick={() => setActiveTab("dashboard")}
+                  className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                    activeTab === "dashboard"
+                      ? "border-purple-500 bg-purple-600 text-white"
+                      : "border-gray-700 bg-gray-900/80 text-gray-200 hover:border-gray-500 hover:text-white"
+                  }`}
                 >
-                  <AvatarImage
-                    src={currentUser.avatarUrl}
-                    alt={currentUser.fullName}
-                    size={26}
-                    className="border border-purple-500/50"
-                  />
-                  <span className="hidden sm:inline font-semibold text-white text-xs max-w-[90px] truncate">
-                    {currentUser.fullName}
-                  </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                  <span>Dashboard</span>
                 </button>
 
-                {isPersonaOpen && (
-                  <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-gray-900 border border-gray-800 p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95">
-                    <div className="p-2 border-b border-gray-800">
-                      <p className="font-semibold text-white text-xs truncate">
-                        {currentUser.fullName}
-                      </p>
-                      <p className="text-[10px] text-gray-400 truncate">
-                        {currentUser.headline}
-                      </p>
-                    </div>
+                {/* Persona Profile Menu */}
+                <div className="relative" ref={personaRef}>
+                  <button
+                    onClick={() => setIsPersonaOpen(!isPersonaOpen)}
+                    className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-full bg-gray-900/90 border border-gray-800 hover:border-gray-700 hover:bg-gray-800/80 transition-all text-xs"
+                  >
+                    <AvatarImage
+                      src={currentUser.avatarUrl}
+                      alt={currentUser.fullName}
+                      size={26}
+                      className="border border-purple-500/50"
+                    />
+                    <span className="hidden sm:inline font-semibold text-white text-xs max-w-[90px] truncate">
+                      {currentUser.fullName}
+                    </span>
+                    <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                  </button>
 
-                    <div className="py-1 space-y-0.5">
-                      <button
-                        onClick={() => {
-                          setActiveTab("dashboard");
-                          setIsPersonaOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-gray-300 hover:text-white hover:bg-gray-800"
-                      >
-                        <LayoutGrid className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Mission Control Dashboard</span>
-                      </button>
+                  {isPersonaOpen && (
+                    <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-gray-900 border border-gray-800 p-2 shadow-2xl z-50 animate-in fade-in zoom-in-95">
+                      <div className="p-2 border-b border-gray-800">
+                        <p className="font-semibold text-white text-xs truncate">
+                          {currentUser.fullName}
+                        </p>
+                        <p className="text-[10px] text-gray-400 truncate">
+                          {currentUser.headline}
+                        </p>
+                      </div>
 
-                      <button
-                        onClick={() => {
-                          setActiveTab("profile");
-                          setIsPersonaOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-gray-300 hover:text-white hover:bg-gray-800"
-                      >
-                        <Sliders className="w-3.5 h-3.5 text-purple-400" />
-                        <span>Edit Skill Profile & Radar</span>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setActiveTab("collab");
-                          setIsPersonaOpen(false);
-                        }}
-                        className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-gray-300 hover:text-white hover:bg-gray-800"
-                      >
-                        <div className="flex items-center gap-2">
-                          <MessageSquare className="w-3.5 h-3.5 text-purple-400" />
-                          <span>Swap Requests & Team Room</span>
-                        </div>
-                        {pendingRequestsCount > 0 && (
-                          <span className="bg-purple-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
-                            {pendingRequestsCount}
-                          </span>
-                        )}
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          setActiveTab("sessions");
-                          setIsPersonaOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-gray-300 hover:text-white hover:bg-gray-800"
-                      >
-                        <Calendar className="w-3.5 h-3.5 text-purple-400" />
-                        <span>1-on-1 Sessions Manager</span>
-                      </button>
-
-                      {isAdmin && (
+                      <div className="py-1 space-y-0.5">
                         <button
                           onClick={() => {
-                            setActiveTab("admin");
+                            setActiveTab("dashboard");
                             setIsPersonaOpen(false);
                           }}
-                          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-purple-300 hover:text-purple-200 hover:bg-purple-900/30"
+                          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-gray-300 hover:text-white hover:bg-gray-800"
                         >
-                          <ShieldAlert className="w-3.5 h-3.5 text-purple-400" />
-                          <span>Admin Security & Audits</span>
+                          <LayoutGrid className="w-3.5 h-3.5 text-purple-400" />
+                          <span>Mission Control Dashboard</span>
                         </button>
-                      )}
-                    </div>
 
-                    {/* Persona Switcher Section */}
-                    <div className="border-t border-gray-800 pt-1 mt-1">
-                      <p className="px-2.5 py-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-                        Quick Demo Personas
-                      </p>
-                      <div className="space-y-0.5">
-                        {availablePersonas.map((persona) => {
-                          const isCurrent = persona.id === currentUser.id;
-                          return (
-                            <button
-                              key={persona.id}
-                              onClick={() => {
-                                onSwitchPersona(persona);
-                                setIsPersonaOpen(false);
-                              }}
-                              className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all ${
-                                isCurrent
-                                  ? "bg-purple-600/20 text-purple-300 font-semibold"
-                                  : "text-gray-400 hover:text-gray-200 hover:bg-gray-800/60"
-                              }`}
-                            >
-                              <AvatarImage
-                                src={persona.avatarUrl}
-                                alt={persona.fullName}
-                                size={18}
-                              />
-                              <span className="truncate">{persona.fullName}</span>
-                              <span className="text-[10px] text-gray-500 ml-auto">
-                                {persona.university.split(" ")[0]}
-                              </span>
-                            </button>
-                          );
-                        })}
+                        <button
+                          onClick={() => {
+                            setActiveTab("profile");
+                            setIsPersonaOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-gray-300 hover:text-white hover:bg-gray-800"
+                        >
+                          <Sliders className="w-3.5 h-3.5 text-purple-400" />
+                          <span>Edit Skill Profile & Radar</span>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setActiveTab("collab");
+                            setIsPersonaOpen(false);
+                          }}
+                          className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-gray-300 hover:text-white hover:bg-gray-800"
+                        >
+                          <div className="flex items-center gap-2">
+                            <MessageSquare className="w-3.5 h-3.5 text-purple-400" />
+                            <span>Swap Requests & Team Room</span>
+                          </div>
+                          {pendingRequestsCount > 0 && (
+                            <span className="bg-purple-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
+                              {pendingRequestsCount}
+                            </span>
+                          )}
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setActiveTab("sessions");
+                            setIsPersonaOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-gray-300 hover:text-white hover:bg-gray-800"
+                        >
+                          <Calendar className="w-3.5 h-3.5 text-purple-400" />
+                          <span>1-on-1 Sessions Manager</span>
+                        </button>
+
+                        {isAdmin && (
+                          <button
+                            onClick={() => {
+                              setActiveTab("admin");
+                              setIsPersonaOpen(false);
+                            }}
+                            className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-purple-300 hover:text-purple-200 hover:bg-purple-900/30"
+                          >
+                            <ShieldAlert className="w-3.5 h-3.5 text-purple-400" />
+                            <span>Admin Security & Audits</span>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Persona Switcher Section */}
+                      <div className="border-t border-gray-800 pt-1 mt-1">
+                        <p className="px-2.5 py-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                          Quick Demo Personas
+                        </p>
+                        <div className="space-y-0.5">
+                          {availablePersonas.map((persona) => {
+                            const isCurrent = persona.id === currentUser.id;
+                            return (
+                              <button
+                                key={persona.id}
+                                onClick={() => {
+                                  onSwitchPersona(persona);
+                                  setIsPersonaOpen(false);
+                                }}
+                                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all ${
+                                  isCurrent
+                                    ? "bg-purple-600/20 text-purple-300 font-semibold"
+                                    : "text-gray-400 hover:text-gray-200 hover:bg-gray-800/60"
+                                }`}
+                              >
+                                <AvatarImage
+                                  src={persona.avatarUrl}
+                                  alt={persona.fullName}
+                                  size={18}
+                                />
+                                <span className="truncate">{persona.fullName}</span>
+                                <span className="text-[10px] text-gray-500 ml-auto">
+                                  {persona.university.split(" ")[0]}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="border-t border-gray-800 pt-1 mt-1">
+                        <button
+                          onClick={() => {
+                            onLogout();
+                            setIsPersonaOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-950/30"
+                        >
+                          <LogOut className="w-3.5 h-3.5" />
+                          <span>Sign Out</span>
+                        </button>
                       </div>
                     </div>
-
-                    <div className="border-t border-gray-800 pt-1 mt-1">
-                      <button
-                        onClick={() => {
-                          onLogout();
-                          setIsPersonaOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-950/30"
-                      >
-                        <LogOut className="w-3.5 h-3.5" />
-                        <span>Sign Out</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </>
-          ) : (
-            /* Unauthenticated: Mailgo Exact Sign In + Start Now Buttons */
-            <div className="flex items-center gap-3">
-              <button
-                onClick={onOpenAuth}
-                className="text-xs sm:text-sm font-medium text-gray-300 hover:text-white transition-colors"
-              >
-                Sign In
-              </button>
-              <button
-                onClick={onOpenAuth}
-                className="flex items-center gap-1.5 text-xs sm:text-sm text-white font-medium custom-btn-bg border border-gray-600 hover:border-gray-400 px-3.5 py-1.5 rounded-full transition-all duration-150"
-              >
-                <span>Get Started</span>
-                <ArrowRight className="w-3.5 h-3.5 text-purple-400" />
-              </button>
-            </div>
-          )}
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800"
-          >
-            {isMobileMenuOpen ? (
-              <X className="w-5 h-5" />
+                  )}
+                </div>
+              </>
             ) : (
-              <Menu className="w-5 h-5" />
+              /* Unauthenticated: Hidden on mobile (available in drawer), Visible on sm+ */
+              <div className="hidden sm:flex items-center gap-3">
+                <button
+                  onClick={onOpenAuth}
+                  className="text-xs sm:text-sm font-medium text-gray-300 hover:text-white transition-colors"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={onOpenAuth}
+                  className="flex items-center gap-1.5 text-xs sm:text-sm text-white font-medium custom-btn-bg border border-gray-600 hover:border-gray-400 px-3.5 py-1.5 rounded-full transition-all duration-150"
+                >
+                  <span>Get Started</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-purple-400" />
+                </button>
+              </div>
             )}
-          </button>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800"
+              aria-label="Toggle navigation menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
+          </div>
         </div>
-      </div>
 
       {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (

@@ -25,26 +25,43 @@ interface TeamBuilderStudioProps {
   projects: Project[];
   currentUser: StudentProfile;
   onSendBatchInvites: (studentIds: string[], projectTitle: string) => void;
+  onNavigateToProjects?: () => void;
+  onCreateProject?: () => void;
 }
 
 export function TeamBuilderStudio({
   students,
-  projects,
+  projects = [],
   currentUser,
   onSendBatchInvites,
+  onNavigateToProjects,
+  onCreateProject,
 }: TeamBuilderStudioProps) {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(projects[0]?.id || "");
   const [isGenerating, setIsGenerating] = useState(false);
   const [invited, setInvited] = useState(false);
 
-  const targetProject = projects.find((p) => p.id === selectedProjectId) || projects[0];
+  // Sync selectedProjectId if project list changes
+  React.useEffect(() => {
+    if (projects.length > 0 && (!selectedProjectId || !projects.some((p) => p.id === selectedProjectId))) {
+      setSelectedProjectId(projects[0].id);
+    }
+  }, [projects, selectedProjectId]);
+
+  const targetProject = projects.find((p) => p.id === selectedProjectId) || projects[0] || null;
 
   // Candidates pool: self plus discoverable public students
   const pool = [
     currentUser,
-    ...students.filter((s) => s.id !== currentUser.id && s.isPublic === true),
+    ...(students || []).filter((s) => s.id !== currentUser.id && s.isPublic === true),
   ];
-  const dreamTeam = generateDreamTeamRecommendation(targetProject, pool);
+  const dreamTeam = targetProject
+    ? generateDreamTeamRecommendation(targetProject, pool)
+    : {
+        projectId: "",
+        suggestedCandidates: [],
+        overallTeamCoverage: { frontend: 0, backend: 0, ai_ml: 0, design: 0, devops: 0 },
+      };
 
   const handleRegenerate = () => {
     setIsGenerating(true);
@@ -55,10 +72,56 @@ export function TeamBuilderStudio({
   };
 
   const handleInviteAll = () => {
+    if (!targetProject) return;
     const studentIds = dreamTeam.suggestedCandidates.map((c) => c.student.id);
     onSendBatchInvites(studentIds, targetProject.title);
     setInvited(true);
   };
+
+  if (!targetProject || projects.length === 0) {
+    return (
+      <div
+        className="rounded-3xl border border-gray-800 bg-gray-900/80 p-8 sm:p-12 backdrop-blur-xl shadow-2xl relative overflow-hidden text-center space-y-4"
+        style={{
+          background:
+            "radial-gradient(130.39% 130.39% at 51.31% -0.71%, #1F2937 0%, rgba(17, 24, 39, 0.95) 100%)",
+        }}
+      >
+        <div className="w-14 h-14 rounded-2xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 mx-auto">
+          <Sparkles className="w-7 h-7" />
+        </div>
+        <h2 className="text-2xl font-bold text-white tracking-tight">
+          AI Dream Team Generator Studio
+        </h2>
+        <p className="text-gray-400 text-sm max-w-md mx-auto leading-relaxed">
+          No active projects are currently available for AI squad synthesis. Post a new project or create open roles to automatically match complementary peer builders!
+        </p>
+        <div className="pt-2 flex flex-wrap justify-center gap-3">
+          {onCreateProject && (
+            <Button
+              variant="purple"
+              size="sm"
+              onClick={onCreateProject}
+              className="rounded-full shadow-lg shadow-purple-600/30"
+            >
+              <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+              Post a New Project
+            </Button>
+          )}
+          {onNavigateToProjects && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNavigateToProjects}
+              className="rounded-full border-gray-800 hover:bg-gray-800"
+            >
+              Explore Projects
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

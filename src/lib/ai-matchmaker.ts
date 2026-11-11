@@ -208,24 +208,27 @@ export function calculateProjectCandidateMatch(
   matchedRoleSkills: string[];
   justification: string;
 } {
-  const candidateOfferedSkills = candidate.skillsOffered.map((s) => s.name.toLowerCase());
-  const matched = role.requiredSkills.filter((req) =>
+  const candidateOfferedSkills = (candidate?.skillsOffered || []).map((s) => s.name.toLowerCase());
+  const requiredSkills = Array.isArray(role?.requiredSkills) ? role.requiredSkills : [];
+  const matched = requiredSkills.filter((req) =>
     candidateOfferedSkills.some((offered) => offered === req.toLowerCase() || offered.includes(req.toLowerCase()))
   );
 
-  const skillMatchRatio = role.requiredSkills.length > 0 ? matched.length / role.requiredSkills.length : 0.8;
-  const hourDiff = Math.abs(candidate.availabilityHoursPerWeek - project.weeklyHoursRequired);
+  const skillMatchRatio = requiredSkills.length > 0 ? matched.length / requiredSkills.length : 0.8;
+  const weeklyHours = project?.weeklyHoursRequired ?? 10;
+  const candidateHours = candidate?.availabilityHoursPerWeek ?? 10;
+  const hourDiff = Math.abs(candidateHours - weeklyHours);
   const timeFactor = Math.max(0.6, 1.0 - hourDiff * 0.05);
 
   const score = Math.min(99, Math.round((skillMatchRatio * 75 + timeFactor * 25)));
 
   let justification = "";
-  if (matched.length === role.requiredSkills.length) {
-    justification = `Complete 100% skill coverage for ${role.title} (${matched.join(", ")}).`;
+  if (requiredSkills.length > 0 && matched.length === requiredSkills.length) {
+    justification = `Complete 100% skill coverage for ${role?.title || "role"} (${matched.join(", ")}).`;
   } else if (matched.length > 0) {
-    justification = `Strong alignment on ${matched.join(", ")} with ${candidate.availabilityHoursPerWeek}h weekly focus.`;
+    justification = `Strong alignment on ${matched.join(", ")} with ${candidateHours}h weekly focus.`;
   } else {
-    justification = `Adjacent foundation with fast onboarding potential in ${candidate.major}.`;
+    justification = `Adjacent foundation with fast onboarding potential in ${candidate?.major || "field"}.`;
   }
 
   return {
@@ -277,9 +280,31 @@ export function calculateTeamSkillCoverage(members: StudentProfile[]): {
  * Generates an optimal 3-4 person Dream Team based on project requirements
  */
 export function generateDreamTeamRecommendation(
-  targetProject: Project,
-  availableStudents: StudentProfile[]
+  targetProject?: Project | null,
+  availableStudents: StudentProfile[] = []
 ) {
+  const emptyResult = {
+    projectId: targetProject?.id || "",
+    suggestedCandidates: [] as {
+      student: StudentProfile;
+      targetRole: string;
+      synergyScore: number;
+      skillsFilled: string[];
+      justification: string;
+    }[],
+    overallTeamCoverage: {
+      frontend: 0,
+      backend: 0,
+      ai_ml: 0,
+      design: 0,
+      devops: 0,
+    },
+  };
+
+  if (!targetProject || !Array.isArray(targetProject.openRoles) || targetProject.openRoles.length === 0) {
+    return emptyResult;
+  }
+
   const teamRecommendations: {
     student: StudentProfile;
     targetRole: string;
@@ -288,10 +313,10 @@ export function generateDreamTeamRecommendation(
     justification: string;
   }[] = [];
 
-  const unassignedStudents = [...availableStudents];
+  const unassignedStudents = [...(availableStudents || [])];
 
   for (const role of targetProject.openRoles) {
-    if (role.isFilled || unassignedStudents.length === 0) continue;
+    if (!role || role.isFilled || unassignedStudents.length === 0) continue;
 
     let bestStudentIndex = -1;
     let highestScore = -1;
@@ -313,7 +338,7 @@ export function generateDreamTeamRecommendation(
       const selectedStudent = unassignedStudents[bestStudentIndex];
       teamRecommendations.push({
         student: selectedStudent,
-        targetRole: role.title,
+        targetRole: role.title || "Core Contributor",
         synergyScore: highestScore,
         skillsFilled: bestMatchDetails.matchedRoleSkills,
         justification: bestMatchDetails.justification,

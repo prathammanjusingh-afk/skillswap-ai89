@@ -57,6 +57,7 @@ export function AvatarImage({
         fill
         sizes={`${size}px`}
         priority={priority}
+        unoptimized={Boolean(src && (src.includes(".svg") || src.includes("dicebear")))}
         className="object-cover"
         onError={() => setHasError(true)}
       />

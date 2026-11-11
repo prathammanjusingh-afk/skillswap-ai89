@@ -882,10 +882,12 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col bg-grid-pattern relative">
-      {/* Ambient background glows - Mailgo purple/violet */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-purple-600/10 rounded-full blur-[160px] pointer-events-none -z-10" />
-      <div className="fixed top-96 right-0 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-[160px] pointer-events-none -z-10" />
+    <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col bg-grid-pattern relative overflow-x-hidden w-full max-w-full">
+      {/* Ambient background glows - contained strictly within viewport */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] sm:w-[1000px] h-[350px] sm:h-[500px] bg-purple-600/10 rounded-full blur-[120px] sm:blur-[160px]" />
+        <div className="absolute top-96 right-0 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] bg-violet-600/10 rounded-full blur-[120px] sm:blur-[160px]" />
+      </div>
 
       {/* Global Navigation */}
       <Navbar
@@ -1130,6 +1132,8 @@ export default function HomePage() {
             projects={projects}
             currentUser={currentUser}
             onSendBatchInvites={handleBatchInvitesFromDreamTeam}
+            onNavigateToProjects={() => setActiveTab("projects")}
+            onCreateProject={() => setIsCreateProjectModalOpen(true)}
           />
         )}
 
@@ -1264,7 +1268,7 @@ export default function HomePage() {
       />
 
       {/* Global Footer */}
-      <Footer />
+      <Footer onNavigateTab={setActiveTab} />
     </div>
   );
 }
