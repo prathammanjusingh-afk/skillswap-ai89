@@ -125,6 +125,25 @@ export default function HomePage() {
 
   // Modal control
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authNotice, setAuthNotice] = useState<string | null>(null);
+
+  // Check URL parameters for OAuth redirect errors
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const hash = window.location.hash;
+      if (
+        params.get("auth_error") === "oauth_exchange_failed" ||
+        hash.includes("error_description") ||
+        hash.includes("unexpected_failure")
+      ) {
+        setAuthNotice(
+          "Google Sign-In returned an OAuth configuration error (Google Client Secret must be configured in Supabase). Please Sign In or Register using your student email & password."
+        );
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, []);
 
   // Session scheduler modal state
   const [sessionSchedulerPartner, setSessionSchedulerPartner] = useState<StudentProfile | null>(null);
@@ -924,6 +943,36 @@ export default function HomePage() {
               >
                 Retry
               </Button>
+            </div>
+          </div>
+        )}
+
+        {/* OAuth Configuration / Fallback Notice Banner */}
+        {authNotice && (
+          <div className="custom-screen pt-4">
+            <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>{authNotice}</span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  size="sm"
+                  variant="purple"
+                  className="h-7 text-xs rounded-lg"
+                  onClick={() => setIsAuthModalOpen(true)}
+                >
+                  Sign In with Email
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs border-amber-500/40 text-amber-300 hover:bg-amber-900/30 rounded-lg"
+                  onClick={() => setAuthNotice(null)}
+                >
+                  Dismiss
+                </Button>
+              </div>
             </div>
           </div>
         )}
