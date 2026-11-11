@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import {
   motion,
   AnimatePresence,
@@ -142,9 +143,13 @@ export const CarouselSlider: React.FC<CarouselSliderProps> = ({
             className="absolute w-full h-full bg-[#FDFDFD] dark:bg-zinc-900 rounded-[40px] p-2 shadow-2xl border-[1.2px] border-[#E6E6EA] dark:border-zinc-800 overflow-hidden cursor-grab active:cursor-grabbing"
           >
             <div className="w-full h-full rounded-[32px] overflow-hidden bg-zinc-100 dark:bg-zinc-800 relative">
-              <img
+              <Image
                 src={slides[index].img}
                 alt={`Slide ${index + 1}`}
+                fill
+                unoptimized
+                priority={index === 0}
+                sizes="(max-width: 768px) 100vw, 400px"
                 className="object-cover w-full h-full pointer-events-none"
               />
 
