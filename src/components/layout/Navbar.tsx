@@ -220,15 +220,19 @@ export function Navbar({
                 <div className="relative" ref={personaRef}>
                   <button
                     onClick={() => setIsPersonaOpen(!isPersonaOpen)}
-                    className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-full bg-gray-900/90 border border-gray-800 hover:border-gray-700 hover:bg-gray-800/80 transition-all text-xs"
+                    className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-full bg-gray-900/90 border border-purple-500/30 hover:border-purple-500/60 hover:bg-gray-800/80 transition-all text-xs"
+                    title="Account & Session Menu"
                   >
-                    <AvatarImage
-                      src={currentUser.avatarUrl}
-                      alt={currentUser.fullName}
-                      size={26}
-                      className="border border-purple-500/50"
-                    />
-                    <span className="hidden sm:inline font-semibold text-white text-xs max-w-[90px] truncate">
+                    <div className="relative">
+                      <AvatarImage
+                        src={currentUser.avatarUrl}
+                        alt={currentUser.fullName}
+                        size={26}
+                        className="border border-purple-500/50"
+                      />
+                      <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 border border-gray-900 ring-1 ring-emerald-400/50" />
+                    </div>
+                    <span className="hidden sm:inline font-semibold text-white text-xs max-w-[100px] truncate">
                       {currentUser.fullName}
                     </span>
                     <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
@@ -507,7 +511,45 @@ export function Navbar({
             </button>
           </div>
 
-          {!isAuthenticated && (
+          {isAuthenticated ? (
+            <div className="pt-3 border-t border-gray-800 space-y-2">
+              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-gray-900/90 border border-purple-500/30">
+                <div className="relative">
+                  <AvatarImage
+                    src={currentUser.avatarUrl}
+                    alt={currentUser.fullName}
+                    size={36}
+                    className="border border-purple-500/50"
+                  />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-gray-900" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-semibold text-white text-xs truncate">
+                      {currentUser.fullName}
+                    </span>
+                    <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.2 rounded-full border border-purple-500/30">
+                      Signed In
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-gray-400 truncate">
+                    {currentUser.university}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                className="w-full text-rose-400 border-rose-900/40 hover:bg-rose-950/30 hover:text-rose-300"
+                onClick={() => {
+                  onLogout();
+                  setIsMobileMenuOpen(false);
+                }}
+              >
+                <LogOut className="w-3.5 h-3.5 mr-1.5" />
+                Sign Out
+              </Button>
+            </div>
+          ) : (
             <div className="pt-2 border-t border-gray-800">
               <Button
                 variant="purple"

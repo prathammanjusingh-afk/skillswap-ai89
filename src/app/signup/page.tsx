@@ -89,6 +89,7 @@ export default function SignupPage() {
         setSuccessMessage("Account created successfully! Welcome to SkillSwap AI.");
         setTimeout(() => {
           router.push("/");
+          router.refresh();
         }, 800);
       }
     } catch (err: unknown) {
