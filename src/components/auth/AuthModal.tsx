@@ -25,9 +25,10 @@ import {
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const {
     currentUser,
     login,
@@ -119,6 +120,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           setTimeout(() => {
             onClose();
             resetForm();
+            onSuccess?.();
           }, 800);
         }
         return;
@@ -140,6 +142,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           setTimeout(() => {
             onClose();
             resetForm();
+            onSuccess?.();
           }, 600);
         }
       }

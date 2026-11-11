@@ -38,7 +38,7 @@ export default function SignupPage() {
   // If already authenticated, redirect to home/dashboard
   useEffect(() => {
     if (isAuthenticated || currentUser) {
-      router.push("/");
+      router.push("/?tab=dashboard");
     }
   }, [isAuthenticated, currentUser, router]);
 
@@ -88,7 +88,7 @@ export default function SignupPage() {
       } else {
         setSuccessMessage("Account created successfully! Welcome to SkillSwap AI.");
         setTimeout(() => {
-          router.push("/");
+          router.push("/?tab=dashboard");
           router.refresh();
         }, 800);
       }

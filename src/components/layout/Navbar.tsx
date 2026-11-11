@@ -206,14 +206,15 @@ export function Navbar({
               <>
                 <button
                   onClick={() => setActiveTab("dashboard")}
-                  className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                  className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
                     activeTab === "dashboard"
                       ? "border-purple-500 bg-purple-600 text-white"
                       : "border-gray-700 bg-gray-900/80 text-gray-200 hover:border-gray-500 hover:text-white"
                   }`}
+                  title="Mission Control Dashboard"
                 >
                   <LayoutGrid className="w-3.5 h-3.5" />
-                  <span>Dashboard</span>
+                  <span className="hidden xs:inline sm:inline">Dashboard</span>
                 </button>
 
                 {/* Persona Profile Menu */}

@@ -103,13 +103,20 @@ export default function HomePage() {
   // Active Persona State — initialized with authUser if present, otherwise default
   const [currentUser, setCurrentUser] = useState<StudentProfile>(MOCK_CURRENT_USER);
   const [activeTab, setActiveTab] = useState<string>("home");
+  const prevAuthUserIdRef = React.useRef<string | null>(null);
 
   // Keep currentUser synced with authUser when user signs in or out
+  // Automatically navigate user directly to Dashboard upon successful login
   useEffect(() => {
     if (authUser) {
       setCurrentUser(authUser);
+      if (!prevAuthUserIdRef.current && prevAuthUserIdRef.current !== authUser.id) {
+        setActiveTab("dashboard");
+      }
+      prevAuthUserIdRef.current = authUser.id;
     } else {
       setCurrentUser(MOCK_CURRENT_USER);
+      prevAuthUserIdRef.current = null;
     }
   }, [authUser]);
 
@@ -127,10 +134,18 @@ export default function HomePage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authNotice, setAuthNotice] = useState<string | null>(null);
 
-  // Check URL parameters for OAuth redirect errors
+  // Support direct tab parameter (?tab=dashboard) and handle OAuth URL errors
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get("tab");
+      if (
+        tabParam &&
+        ["dashboard", "students", "projects", "ai-studio", "sessions", "collab", "profile", "admin"].includes(tabParam)
+      ) {
+        setActiveTab(tabParam);
+      }
+
       const hash = window.location.hash;
       if (
         params.get("auth_error") === "oauth_exchange_failed" ||
@@ -1266,6 +1281,7 @@ export default function HomePage() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={() => setActiveTab("dashboard")}
       />
 
       {/* Student Detail Modal */}

@@ -31,7 +31,7 @@ export default function LoginPage() {
   // If already authenticated, redirect to home/dashboard
   useEffect(() => {
     if (isAuthenticated || currentUser) {
-      router.push("/");
+      router.push("/?tab=dashboard");
     }
   }, [isAuthenticated, currentUser, router]);
 
@@ -54,7 +54,7 @@ export default function LoginPage() {
         );
         setLoading(false);
       } else {
-        router.push("/");
+        router.push("/?tab=dashboard");
         router.refresh();
       }
     } catch (err: unknown) {

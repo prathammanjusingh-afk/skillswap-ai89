@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") || "/";
+  const next = requestUrl.searchParams.get("next") || "/?tab=dashboard";
 
   if (code) {
     const cookieStore = cookies();
@@ -15,6 +15,16 @@ export async function GET(request: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_URL || "https://dylunnfzciikfsgdtobi.supabase.co";
     const supabaseAnonKey =
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "sb_publishable_gulb45Kp4KL9PEae27PWig_SeyCXCsf";
+
+    // Build the target destination URL
+    const forwardedHost = request.headers.get("x-forwarded-host");
+    const isLocalEnv = process.env.NODE_ENV === "development";
+    let targetUrl = `${requestUrl.origin}${next}`;
+    if (!isLocalEnv && forwardedHost) {
+      targetUrl = `https://${forwardedHost}${next}`;
+    }
+
+    const response = NextResponse.redirect(targetUrl);
 
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
@@ -24,6 +34,7 @@ export async function GET(request: Request) {
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options });
+            response.cookies.set({ name, value, ...options });
           } catch {
             // Handled safely in Server Component / route handler
           }
@@ -31,6 +42,7 @@ export async function GET(request: Request) {
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: "", ...options });
+            response.cookies.set({ name, value: "", ...options });
           } catch {
             // Handled safely in Server Component / route handler
           }
@@ -40,17 +52,12 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      const forwardedHost = request.headers.get("x-forwarded-host");
-      const isLocalEnv = process.env.NODE_ENV === "development";
-      if (isLocalEnv) {
-        return NextResponse.redirect(`${requestUrl.origin}${next}`);
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
-      } else {
-        return NextResponse.redirect(`${requestUrl.origin}${next}`);
-      }
+      return response;
     } else {
       console.error("[OAuth Callback] Code exchange error:", error.message);
+      return NextResponse.redirect(
+        `${requestUrl.origin}/?auth_error=${encodeURIComponent(error.message)}`
+      );
     }
   }
 
