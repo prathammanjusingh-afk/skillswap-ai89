@@ -29,8 +29,6 @@ interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   currentUser: StudentProfile;
-  availablePersonas: StudentProfile[];
-  onSwitchPersona: (persona: StudentProfile) => void;
   pendingRequestsCount: number;
   isAuthenticated: boolean;
   onOpenAuth: () => void;
@@ -45,8 +43,6 @@ export function Navbar({
   activeTab,
   setActiveTab,
   currentUser,
-  availablePersonas,
-  onSwitchPersona,
   pendingRequestsCount,
   isAuthenticated,
   onOpenAuth,
@@ -314,42 +310,6 @@ export function Navbar({
                             <span>Admin Security & Audits</span>
                           </button>
                         )}
-                      </div>
-
-                      {/* Persona Switcher Section */}
-                      <div className="border-t border-gray-800 pt-1 mt-1">
-                        <p className="px-2.5 py-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-                          Quick Demo Personas
-                        </p>
-                        <div className="space-y-0.5">
-                          {availablePersonas.map((persona) => {
-                            const isCurrent = persona.id === currentUser.id;
-                            return (
-                              <button
-                                key={persona.id}
-                                onClick={() => {
-                                  onSwitchPersona(persona);
-                                  setIsPersonaOpen(false);
-                                }}
-                                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition-all ${
-                                  isCurrent
-                                    ? "bg-purple-600/20 text-purple-300 font-semibold"
-                                    : "text-gray-400 hover:text-gray-200 hover:bg-gray-800/60"
-                                }`}
-                              >
-                                <AvatarImage
-                                  src={persona.avatarUrl}
-                                  alt={persona.fullName}
-                                  size={18}
-                                />
-                                <span className="truncate">{persona.fullName}</span>
-                                <span className="text-[10px] text-gray-500 ml-auto">
-                                  {persona.university.split(" ")[0]}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
                       </div>
 
                       <div className="border-t border-gray-800 pt-1 mt-1">

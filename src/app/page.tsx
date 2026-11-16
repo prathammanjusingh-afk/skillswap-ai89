@@ -90,6 +90,29 @@ import {
   AlertCircle,
 } from "lucide-react";
 
+// Default guest profile when user is not authenticated
+const GUEST_PROFILE: StudentProfile = {
+  isPublic: false,
+  id: "guest-innovator",
+  fullName: "Guest Innovator",
+  avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Guest",
+  headline: "Student Innovator @ SkillSwap AI",
+  university: "Collegiate Community",
+  major: "Computer Science",
+  graduationYear: new Date().getFullYear() + 2,
+  bio: "Sign in to exchange reciprocal technical skills and collaborate on student projects.",
+  availabilityHoursPerWeek: 10,
+  preferredWorkStyle: "hybrid",
+  learningPreference: "both",
+  timezone: "EST (UTC-5)",
+  completedProjectsCount: 0,
+  completedSessionsCount: 0,
+  badges: [],
+  skillsOffered: [],
+  skillsSeeking: [],
+  role: "student",
+};
+
 export default function HomePage() {
   const {
     currentUser: authUser,
@@ -100,8 +123,8 @@ export default function HomePage() {
   // Hydration guard: use null until client-side storage is loaded
   const [hydrated, setHydrated] = useState(false);
 
-  // Active Persona State — initialized with authUser if present, otherwise default
-  const [currentUser, setCurrentUser] = useState<StudentProfile>(MOCK_CURRENT_USER);
+  // Active User Profile State — initialized with authUser or guest profile
+  const [currentUser, setCurrentUser] = useState<StudentProfile>(GUEST_PROFILE);
   const [activeTab, setActiveTab] = useState<string>("home");
   const prevAuthUserIdRef = React.useRef<string | null>(null);
 
@@ -115,15 +138,15 @@ export default function HomePage() {
       }
       prevAuthUserIdRef.current = authUser.id;
     } else {
-      setCurrentUser(MOCK_CURRENT_USER);
+      setCurrentUser(GUEST_PROFILE);
       prevAuthUserIdRef.current = null;
     }
   }, [authUser]);
 
-  // Data Collections — initialized empty in Supabase mode to prevent mock data flash
-  const [students, setStudents] = useState<StudentProfile[]>(isSupabaseConfigured ? [] : MOCK_STUDENTS);
+  // Data Collections — initialized empty to ensure only real Supabase registered students appear
+  const [students, setStudents] = useState<StudentProfile[]>([]);
   const [projects, setProjects] = useState<Project[]>(isSupabaseConfigured ? [] : MOCK_PROJECTS);
-  const [requests, setRequests] = useState<CollaborationRequest[]>(isSupabaseConfigured ? [] : MOCK_REQUESTS);
+  const [requests, setRequests] = useState<CollaborationRequest[]>([]);
   const [isLoadingInitialData, setIsLoadingInitialData] = useState(isSupabaseConfigured);
   const [dataLoadError, setDataLoadError] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ExchangeSession[]>([]);
@@ -404,24 +427,12 @@ export default function HomePage() {
   const [gapAnalyzerProject, setGapAnalyzerProject] = useState<Project | null>(null);
   const [isGapAnalyzerModalOpen, setIsGapAnalyzerModalOpen] = useState(false);
 
-  // Available personas to test reciprocal matchmaking
-  const availablePersonas = [
-    MOCK_CURRENT_USER,
-    MOCK_STUDENTS[0], // Priya Sharma (AI/ML @ Stanford)
-    MOCK_STUDENTS[1], // Marcus Chen (Backend @ MIT)
-    MOCK_STUDENTS[2], // Elena Rostova (UI/UX @ CMU)
-  ];
-
-  const handleSwitchPersona = (persona: StudentProfile) => {
-    setCurrentUser(persona);
-  };
-
   // ==========================================
   // AUTH HANDLERS
   // ==========================================
   const handleLogout = async () => {
     await authLogout();
-    setCurrentUser(MOCK_CURRENT_USER);
+    setCurrentUser(GUEST_PROFILE);
   };
 
   // ==========================================
@@ -928,8 +939,6 @@ export default function HomePage() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         currentUser={currentUser}
-        availablePersonas={availablePersonas}
-        onSwitchPersona={handleSwitchPersona}
         pendingRequestsCount={pendingRequestsCount}
         isAuthenticated={isAuthenticated}
         onOpenAuth={() => setIsAuthModalOpen(true)}
@@ -997,7 +1006,7 @@ export default function HomePage() {
           <HomeSection
             students={students}
             currentUser={currentUser}
-            onOpenSession={setSessionSchedulerPartner}
+            onOpenSession={handleOpenSessionScheduler}
             onNavigateTab={setActiveTab}
           />
         )}
@@ -1292,6 +1301,7 @@ export default function HomePage() {
         synergy={selectedStudentSynergy}
         currentUser={currentUser}
         onSubmitRequest={handleSendSwapProposal}
+        onRequestSession={handleOpenSessionScheduler}
       />
 
       {/* Project Detail Modal */}

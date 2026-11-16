@@ -23,6 +23,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Star,
+  Calendar,
 } from "lucide-react";
 import { fetchReviews, ReviewItem } from "@/lib/supabase/data-service";
 
@@ -33,6 +34,7 @@ interface StudentDetailModalProps {
   synergy: SynergyBreakdown | null;
   currentUser: StudentProfile;
   onSubmitRequest: (receiverId: string, pitchMessage: string) => void;
+  onRequestSession?: (student: StudentProfile) => void;
 }
 
 export function StudentDetailModal({
@@ -42,6 +44,7 @@ export function StudentDetailModal({
   synergy,
   currentUser,
   onSubmitRequest,
+  onRequestSession,
 }: StudentDetailModalProps) {
   const [pitch, setPitch] = useState("");
   const [sentSuccess, setSentSuccess] = useState(false);
@@ -293,20 +296,37 @@ export function StudentDetailModal({
                   onChange={(e) => setPitch(e.target.value)}
                   className="h-24 bg-gray-950 border-gray-800 text-gray-200 focus:border-purple-500 rounded-xl"
                 />
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" size="sm" className="rounded-full" onClick={onClose}>
-                    Close
-                  </Button>
-                  <Button
-                    variant="purple"
-                    size="sm"
-                    className="rounded-full shadow-lg shadow-purple-600/30"
-                    onClick={handleSend}
-                    disabled={!pitch.trim()}
-                  >
-                    <Send className="w-3.5 h-3.5 mr-1.5" />
-                    Send Collaboration Pitch
-                  </Button>
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                  {onRequestSession && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full border-purple-500/40 text-purple-300 hover:bg-purple-900/30"
+                      onClick={() => {
+                        onClose();
+                        onRequestSession(student);
+                      }}
+                    >
+                      <Calendar className="w-3.5 h-3.5 mr-1.5 text-purple-400" />
+                      Request 1-on-1 Session
+                    </Button>
+                  )}
+                  <div className="flex items-center gap-2 ml-auto">
+                    <Button variant="outline" size="sm" className="rounded-full" onClick={onClose}>
+                      Close
+                    </Button>
+                    <Button
+                      variant="purple"
+                      size="sm"
+                      className="rounded-full shadow-lg shadow-purple-600/30"
+                      onClick={handleSend}
+                      disabled={!pitch.trim()}
+                    >
+                      <Send className="w-3.5 h-3.5 mr-1.5" />
+                      Send Collaboration Pitch
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
