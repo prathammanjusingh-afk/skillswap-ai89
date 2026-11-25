@@ -260,16 +260,29 @@ export function HomeSection({
                 className="mt-14 sm:mt-24"
                 wrapperClassName="max-w-3xl h-[260px] top-12 inset-0 sm:h-[340px] lg:h-[580px]"
               >
-                <div className="p-2 sm:p-3 rounded-3xl border border-gray-800 bg-gray-900/60 shadow-2xl backdrop-blur-md">
-                  <div className="rounded-2xl overflow-hidden border border-gray-800/80">
+                <div
+                  onClick={() => onNavigateTab && onNavigateTab("students")}
+                  className="p-2 sm:p-3 rounded-3xl border border-gray-800 bg-gray-900/60 shadow-2xl backdrop-blur-md cursor-pointer group hover:border-purple-500/50 transition-all duration-300"
+                  role="button"
+                  tabIndex={0}
+                  title="Click to explore the live SkillSwap AI platform"
+                >
+                  <div className="rounded-2xl overflow-hidden border border-gray-800/80 relative">
                     <Image
                       src="/images/hero.svg"
                       width={1100}
                       height={650}
-                      className="w-full h-auto object-cover"
+                      className="w-full h-auto object-cover group-hover:scale-[1.01] transition-transform duration-300"
                       alt="SkillSwap AI Platform Preview"
                       priority
+                      unoptimized
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-950/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+                      <span className="px-4 py-1.5 rounded-full bg-purple-600/90 text-white text-xs font-semibold shadow-lg shadow-purple-600/40 backdrop-blur-sm flex items-center gap-1.5">
+                        <span>Open Live Platform</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
                   </div>
                 </div>
               </GradientWrapper>
@@ -296,14 +309,15 @@ export function HomeSection({
             <ul className="space-y-8 gap-x-6 sm:flex sm:space-y-0">
               {/* Card 1 */}
               <li
-                className="flex-1 flex flex-col justify-between border border-gray-800 rounded-3xl overflow-hidden"
+                onClick={() => onNavigateTab && onNavigateTab("students")}
+                className="flex-1 flex flex-col justify-between border border-gray-800 rounded-3xl overflow-hidden cursor-pointer hover:border-purple-500/40 transition-colors group"
                 style={{
                   background:
                     "radial-gradient(141.61% 141.61% at 29.14% -11.49%, rgba(203, 213, 225, 0.12) 0%, rgba(203, 213, 225, 0) 57.72%)",
                 }}
               >
                 <div className="p-8 sm:p-10">
-                  <div className="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-5 group-hover:scale-110 transition-transform">
                     <Brain className="w-5 h-5" />
                   </div>
                   <h3 className="text-white text-2xl font-bold">
@@ -318,22 +332,24 @@ export function HomeSection({
                     src="/images/Feature-1.svg"
                     width={600}
                     height={400}
-                    className="w-full ml-auto rounded-tl-xl border-t border-l border-gray-800/80"
+                    className="w-full ml-auto rounded-tl-xl border-t border-l border-gray-800/80 group-hover:scale-[1.01] transition-transform"
                     alt="Discover Teammates Feature"
+                    unoptimized
                   />
                 </div>
               </li>
 
               {/* Card 2 */}
               <li
-                className="flex-1 flex flex-col justify-between border border-gray-800 rounded-3xl overflow-hidden"
+                onClick={() => onNavigateTab && onNavigateTab("ai-studio")}
+                className="flex-1 flex flex-col justify-between border border-gray-800 rounded-3xl overflow-hidden cursor-pointer hover:border-purple-500/40 transition-colors group"
                 style={{
                   background:
                     "radial-gradient(141.61% 141.61% at 29.14% -11.49%, rgba(203, 213, 225, 0.12) 0%, rgba(203, 213, 225, 0) 57.72%)",
                 }}
               >
                 <div className="p-8 sm:p-10">
-                  <div className="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-5 group-hover:scale-110 transition-transform">
                     <Rocket className="w-5 h-5" />
                   </div>
                   <h3 className="text-white text-2xl font-bold">
@@ -348,8 +364,9 @@ export function HomeSection({
                     src="/images/Feature-2.svg"
                     width={600}
                     height={400}
-                    className="w-full ml-auto rounded-tl-xl border-t border-l border-gray-800/80"
+                    className="w-full ml-auto rounded-tl-xl border-t border-l border-gray-800/80 group-hover:scale-[1.01] transition-transform"
                     alt="Assemble Teams Feature"
+                    unoptimized
                   />
                 </div>
               </li>
