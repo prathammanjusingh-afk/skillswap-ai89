@@ -1,7 +1,7 @@
 import { StudentProfile, Project, CollaborationRequest } from "@/types";
 
 export const MOCK_CURRENT_USER: StudentProfile = {
-  isPublic: false,
+  isPublic: true,
   id: "user-current-alex",
   fullName: "Alex Rivera",
   avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80",
@@ -36,7 +36,7 @@ export const MOCK_CURRENT_USER: StudentProfile = {
 };
 
 export const MOCK_STUDENTS: StudentProfile[] = [
-  // Added isPublic flag for privacy (default false) for each mock student
+  // isPublic flag set to true so community student profiles are discoverable in marketplace
   {
     id: "student-priya",
     fullName: "Priya Sharma",
@@ -51,7 +51,7 @@ export const MOCK_STUDENTS: StudentProfile[] = [
     timezone: "PST (UTC-8)",
     completedProjectsCount: 6,
     badges: ["Published Researcher", "NeurIPS Workshop", "Verified Student"],
-    isPublic: false,
+    isPublic: true,
     githubUrl: "https://github.com",
     linkedinUrl: "https://linkedin.com",
     skillsOffered: [
@@ -82,7 +82,7 @@ export const MOCK_STUDENTS: StudentProfile[] = [
     timezone: "EST (UTC-5)",
     completedProjectsCount: 8,
     badges: ["HackMIT 1st Place", "Open Source Lead", "Verified Student"],
-    isPublic: false,
+    isPublic: true,
     githubUrl: "https://github.com",
     linkedinUrl: "https://linkedin.com",
     skillsOffered: [
@@ -112,7 +112,7 @@ export const MOCK_STUDENTS: StudentProfile[] = [
     timezone: "EST (UTC-5)",
     completedProjectsCount: 7,
     badges: ["Red Dot Finalist", "Verified Student", "Design Mentor"],
-    isPublic: false,
+    isPublic: true,
     githubUrl: "https://github.com",
     portfolioUrl: "https://elenarostova.co",
     skillsOffered: [
@@ -143,7 +143,7 @@ export const MOCK_STUDENTS: StudentProfile[] = [
     timezone: "EST (UTC-5)",
     completedProjectsCount: 4,
     badges: ["App Store Published", "Campus Lead", "Verified Student"],
-    isPublic: false,
+    isPublic: true,
     githubUrl: "https://github.com",
     skillsOffered: [
       { name: "React Native", category: "mobile", proficiency: "expert", type: "offered" },
@@ -171,7 +171,7 @@ export const MOCK_STUDENTS: StudentProfile[] = [
     timezone: "EST (UTC-5)",
     completedProjectsCount: 9,
     badges: ["AWS Certified", "Verified Student", "Top Mentor"],
-    isPublic: false,
+    isPublic: true,
     githubUrl: "https://github.com",
     linkedinUrl: "https://linkedin.com",
     skillsOffered: [
@@ -201,7 +201,7 @@ export const MOCK_STUDENTS: StudentProfile[] = [
     timezone: "CST (UTC-6)",
     completedProjectsCount: 5,
     badges: ["Kaggle Master", "Verified Student"],
-    isPublic: false,
+    isPublic: true,
     githubUrl: "https://github.com",
     skillsOffered: [
       { name: "PyTorch", category: "ai_ml", proficiency: "expert", type: "offered" },
@@ -229,7 +229,7 @@ export const MOCK_STUDENTS: StudentProfile[] = [
     timezone: "EST (UTC-5)",
     completedProjectsCount: 4,
     badges: ["Awwwards Nominee", "Verified Student"],
-    isPublic: false,
+    isPublic: true,
     githubUrl: "https://github.com",
     portfolioUrl: "https://mayalin.xyz",
     skillsOffered: [

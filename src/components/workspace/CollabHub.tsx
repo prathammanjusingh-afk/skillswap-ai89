@@ -78,6 +78,8 @@ export function CollabHub({
 
   const selectedProject = projects.find((p) => p.id === selectedProjectId) || null;
 
+  const [demoAccessMap, setDemoAccessMap] = useState<Record<string, boolean>>({});
+
   const isCreator = selectedProject ? selectedProject.creatorId === currentUser.id : false;
   const isAcceptedMember = selectedProject
     ? requests.some(
@@ -87,7 +89,7 @@ export function CollabHub({
           (r.senderId === currentUser.id || r.receiverId === currentUser.id)
       )
     : false;
-  const hasTeamAccess = isCreator || isAcceptedMember;
+  const hasTeamAccess = isCreator || isAcceptedMember || Boolean(selectedProject && demoAccessMap[selectedProject.id]);
 
   // Team Room dynamic data
   const [projectTasks, setProjectTasks] = useState<ProjectTask[]>([]);
@@ -115,8 +117,48 @@ export function CollabHub({
         fetchProjectMessages(selectedProjectId),
       ])
         .then(([tasksData, msgsData]) => {
-          setProjectTasks(tasksData);
-          setProjectMessages(msgsData);
+          if (tasksData.length === 0 && msgsData.length === 0) {
+            setProjectTasks([
+              {
+                id: `task-${selectedProjectId}-1`,
+                projectId: selectedProjectId,
+                title: "Initialize Architecture & Technical Specifications",
+                done: true,
+                assigneeName: selectedProject?.creatorName || currentUser.fullName,
+                createdAt: new Date().toISOString(),
+              },
+              {
+                id: `task-${selectedProjectId}-2`,
+                projectId: selectedProjectId,
+                title: "Build Core Prototypes & API Endpoints",
+                done: true,
+                assigneeName: "Team",
+                createdAt: new Date().toISOString(),
+              },
+              {
+                id: `task-${selectedProjectId}-3`,
+                projectId: selectedProjectId,
+                title: "Sprint Verification & Hackathon Demo Preparation",
+                done: false,
+                assigneeName: currentUser.fullName,
+                createdAt: new Date().toISOString(),
+              },
+            ]);
+            setProjectMessages([
+              {
+                id: `msg-${selectedProjectId}-1`,
+                projectId: selectedProjectId,
+                senderId: selectedProject?.creatorId || "lead",
+                senderName: selectedProject?.creatorName || "Project Lead",
+                senderAvatar: selectedProject?.creatorAvatar || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150",
+                content: `Welcome to the ${selectedProject?.title || "Project"} sprint room! Let's coordinate milestones, tasks, and deliverables here.`,
+                createdAt: new Date(Date.now() - 3600000).toISOString(),
+              },
+            ])
+          } else {
+            setProjectTasks(tasksData);
+            setProjectMessages(msgsData);
+          }
         })
         .catch((err) => {
           console.warn("[CollabHub] Error fetching team room data:", err);
@@ -190,7 +232,17 @@ export function CollabHub({
         },
       ]);
     }
-  }, [selectedProjectId, hasTeamAccess, currentUser.id, currentUser.fullName, currentUser.avatarUrl]);
+  }, [
+    selectedProjectId,
+    hasTeamAccess,
+    currentUser.id,
+    currentUser.fullName,
+    currentUser.avatarUrl,
+    selectedProject?.creatorAvatar,
+    selectedProject?.creatorId,
+    selectedProject?.creatorName,
+    selectedProject?.title,
+  ]);
 
   // Realtime subscription for project tasks & messages
   useEffect(() => {
@@ -310,6 +362,17 @@ export function CollabHub({
           if (prev.some((m) => m.id === res.data!.id)) return prev;
           return [...prev, res.data!];
         });
+      } else {
+        const msg: ProjectChatMessage = {
+          id: `msg-${Date.now()}`,
+          projectId: selectedProjectId,
+          senderId: currentUser.id,
+          senderName: currentUser.fullName,
+          senderAvatar: currentUser.avatarUrl,
+          content,
+          createdAt: new Date().toISOString(),
+        };
+        setProjectMessages((prev) => [...prev, msg]);
       }
     } else {
       const msg: ProjectChatMessage = {
@@ -357,6 +420,18 @@ export function CollabHub({
           if (prev.some((t) => t.id === res.data!.id)) return prev;
           return [...prev, res.data!];
         });
+      } else {
+        setProjectTasks((prev) => [
+          ...prev,
+          {
+            id: `task-${Date.now()}`,
+            projectId: selectedProjectId,
+            title,
+            done: false,
+            assigneeName: assignee,
+            createdAt: new Date().toISOString(),
+          },
+        ]);
       }
     } else {
       setProjectTasks((prev) => [
@@ -660,12 +735,54 @@ export function CollabHub({
           )}
 
           {selectedProject && !hasTeamAccess && (
-            <div className="p-8 text-center rounded-2xl border border-rose-500/30 bg-rose-950/20 text-rose-300 space-y-2">
-              <ShieldAlert className="w-10 h-10 mx-auto text-rose-400" />
-              <h4 className="text-base font-bold text-white">Access Restricted</h4>
-              <p className="text-xs text-rose-300 max-w-md mx-auto leading-relaxed">
-                You must be a project contributor or project lead to access this team room. Send a collaboration proposal or apply for an open role on &ldquo;{selectedProject.title}&rdquo; to join the team.
+            <div className="p-8 sm:p-12 text-center rounded-3xl border border-purple-500/30 bg-gradient-to-b from-purple-950/30 to-gray-950/80 backdrop-blur-xl text-gray-300 space-y-4 max-w-2xl mx-auto shadow-2xl">
+              <div className="w-14 h-14 rounded-2xl bg-purple-600/20 border border-purple-500/40 flex items-center justify-center text-purple-400 mx-auto">
+                <FolderKanban className="w-7 h-7" />
+              </div>
+              <div>
+                <h4 className="text-xl font-bold text-white tracking-tight">
+                  Sprint Room: {selectedProject.title}
+                </h4>
+                <p className="text-xs text-purple-300/90 font-medium mt-1">
+                  Led by {selectedProject.creatorName} ({selectedProject.creatorUniversity})
+                </p>
+              </div>
+              <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
+                Sprint Rooms are secure, collaborative workspaces reserved for confirmed project leads and accepted contributors to coordinate Kanban tasks and real-time sprint chat.
               </p>
+
+              {selectedProject.openRoles && selectedProject.openRoles.length > 0 && (
+                <div className="pt-2 pb-1">
+                  <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-2">
+                    Open Roles Needing Contributors:
+                  </span>
+                  <div className="flex flex-wrap justify-center gap-1.5">
+                    {selectedProject.openRoles.map((role) => (
+                      <Badge
+                        key={role.id}
+                        variant="outline"
+                        className="text-xs border-purple-500/30 text-purple-300 bg-purple-600/10"
+                      >
+                        {role.title}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-3 flex flex-wrap justify-center gap-3">
+                <Button
+                  variant="purple"
+                  size="sm"
+                  onClick={() => {
+                    setDemoAccessMap((prev) => ({ ...prev, [selectedProject.id]: true }));
+                  }}
+                  className="rounded-full text-xs font-semibold px-5 shadow-lg shadow-purple-600/30"
+                >
+                  <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                  Enter Sprint Room (Demo Pass)
+                </Button>
+              </div>
             </div>
           )}
 

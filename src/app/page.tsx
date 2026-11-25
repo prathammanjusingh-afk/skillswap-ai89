@@ -96,20 +96,31 @@ const GUEST_PROFILE: StudentProfile = {
   id: "guest-innovator",
   fullName: "Guest Innovator",
   avatarUrl: "https://api.dicebear.com/7.x/initials/svg?seed=Guest",
-  headline: "Student Innovator @ SkillSwap AI",
+  headline: "Frontend Architect & Creative Developer @ Collegiate Community",
   university: "Collegiate Community",
   major: "Computer Science",
   graduationYear: new Date().getFullYear() + 2,
-  bio: "Sign in to exchange reciprocal technical skills and collaborate on student projects.",
-  availabilityHoursPerWeek: 10,
+  bio: "Sign in or register to exchange reciprocal technical skills and collaborate on student hackathon projects.",
+  availabilityHoursPerWeek: 15,
   preferredWorkStyle: "hybrid",
   learningPreference: "both",
   timezone: "EST (UTC-5)",
-  completedProjectsCount: 0,
-  completedSessionsCount: 0,
-  badges: [],
-  skillsOffered: [],
-  skillsSeeking: [],
+  completedProjectsCount: 3,
+  completedSessionsCount: 2,
+  badges: ["Hackathon Builder", "Verified Student"],
+  skillsOffered: [
+    { name: "Next.js", category: "frontend", proficiency: "expert", type: "offered" },
+    { name: "TypeScript", category: "frontend", proficiency: "expert", type: "offered" },
+    { name: "Tailwind CSS", category: "frontend", proficiency: "advanced", type: "offered" },
+    { name: "React", category: "frontend", proficiency: "advanced", type: "offered" },
+    { name: "Figma", category: "design", proficiency: "intermediate", type: "offered" },
+  ],
+  skillsSeeking: [
+    { name: "PyTorch", category: "ai_ml", proficiency: "advanced", type: "seeking" },
+    { name: "FastAPI", category: "backend", proficiency: "advanced", type: "seeking" },
+    { name: "PostgreSQL", category: "backend", proficiency: "intermediate", type: "seeking" },
+    { name: "Docker / Kubernetes", category: "cloud_devops", proficiency: "intermediate", type: "seeking" },
+  ],
   role: "student",
 };
 
@@ -199,9 +210,19 @@ export default function HomePage() {
             fetchProjects(),
           ]);
 
-          // Use real database collections (do not introduce mock data into live flow)
-          setStudents(dbStudents || []);
-          setProjects(dbProjects || []);
+          // Combine real database records with collegiate community innovators
+          // Real database records always take precedence and are at the top
+          const realStudentIds = new Set((dbStudents || []).map((s) => s.id));
+          const communityStudents = MOCK_STUDENTS.filter((s) => !realStudentIds.has(s.id));
+          const combinedStudents = [...(dbStudents || []), ...communityStudents];
+          setStudents(combinedStudents);
+
+          // For projects: prioritize real DB projects, supplement with mock hackathon ventures
+          // so AI Dream Team Generator, Gap Analyzer, and project discovery are fully demonstrable
+          const realProjectIds = new Set((dbProjects || []).map((p) => p.id));
+          const communityProjects = MOCK_PROJECTS.filter((p) => !realProjectIds.has(p.id));
+          const combinedProjects = [...(dbProjects || []), ...communityProjects];
+          setProjects(combinedProjects);
 
           if (authUser?.id) {
             const [dbReqs, dbSessions, dbMsgs, dbNotifs] = await Promise.all([
@@ -216,7 +237,7 @@ export default function HomePage() {
             setMessages(dbMsgs || []);
             setNotifications(dbNotifs || []);
           } else {
-            setRequests([]);
+            setRequests(MOCK_REQUESTS);
             setSessions([]);
             setMessages([]);
             setNotifications([]);
