@@ -154,6 +154,33 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
     }
   };
 
+  const handleDemoLogin = async () => {
+    setEmail("builder@stanford.edu");
+    setPassword("Password123!");
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setLoading(true);
+
+    try {
+      const res = await login("builder@stanford.edu", "Password123!");
+      if (!res.success) {
+        setErrorMessage(res.error || "Failed to sign in to demo account.");
+      } else {
+        setSuccessMessage("Authenticated as Alex Rivera (Demo Student)!");
+        setTimeout(() => {
+          onClose();
+          resetForm();
+          onSuccess?.();
+        }, 500);
+      }
+    } catch (err: unknown) {
+      const errObj = err as { message?: string };
+      setErrorMessage(errObj.message || "An authentication error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -289,17 +316,38 @@ export function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
             </div>
           )}
 
-          {/* Continue with Google */}
+          {/* Continue with Google & Demo Login */}
           {mode !== "forgot" && (
             <div className="space-y-3 pt-1">
+              {mode === "login" && (
+                <Button
+                  type="button"
+                  variant="purple"
+                  onClick={handleDemoLogin}
+                  disabled={loading}
+                  className="w-full py-2.5 px-3 rounded-xl shadow-lg shadow-purple-600/30 text-xs font-semibold flex items-center justify-between group"
+                >
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-white group-hover:rotate-12 transition-transform" />
+                    <span>One-Click Demo Account (Alex Rivera)</span>
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/20 text-white font-bold">1-Click Login</span>
+                </Button>
+              )}
+
               <GoogleSignInButton
                 onError={(err) => setErrorMessage(err)}
               />
-              <div className="relative flex items-center justify-center">
-                <div className="border-t border-gray-800/80 w-full" />
-                <span className="bg-gray-900 px-3 text-[10px] text-gray-500 uppercase tracking-wider font-semibold">
-                  or continue with email
-                </span>
+
+              <div className="relative flex items-center justify-center my-3">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-800" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-gray-900 px-3 text-[10px] text-gray-500 uppercase tracking-wider font-semibold whitespace-nowrap">
+                    or continue with email
+                  </span>
+                </div>
               </div>
             </div>
           )}

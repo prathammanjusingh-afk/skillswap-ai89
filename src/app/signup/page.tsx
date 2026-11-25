@@ -88,8 +88,7 @@ export default function SignupPage() {
       } else {
         setSuccessMessage("Account created successfully! Welcome to SkillSwap AI.");
         setTimeout(() => {
-          router.push("/?tab=dashboard");
-          router.refresh();
+          window.location.href = "/?tab=dashboard";
         }, 800);
       }
     } catch (err: unknown) {
@@ -153,10 +152,14 @@ export default function SignupPage() {
           <GoogleSignInButton onError={(err) => setErrorMessage(err)} />
 
           <div className="relative flex items-center justify-center my-4">
-            <div className="border-t border-gray-800 w-full" />
-            <span className="bg-gray-900 px-3 text-[11px] text-gray-500 uppercase tracking-wider font-semibold">
-              or register with student email
-            </span>
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-800" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-gray-900 px-3 text-[11px] text-gray-500 uppercase tracking-wider font-semibold whitespace-nowrap">
+                or register with student email
+              </span>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">

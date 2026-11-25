@@ -51,6 +51,8 @@ export function GoogleSignInButton({
         <>
           <svg
             className="w-4 h-4 shrink-0 transition-transform group-hover:scale-105"
+            width={16}
+            height={16}
             viewBox="0 0 24 24"
             aria-hidden="true"
           >

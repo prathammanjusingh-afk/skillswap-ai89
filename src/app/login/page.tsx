@@ -54,8 +54,31 @@ export default function LoginPage() {
         );
         setLoading(false);
       } else {
-        router.push("/?tab=dashboard");
-        router.refresh();
+        window.location.href = "/?tab=dashboard";
+      }
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "An unexpected error occurred.";
+      setErrorMessage(message);
+      setLoading(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setEmail("builder@stanford.edu");
+    setPassword("Password123!");
+    setErrorMessage(null);
+    setLoading(true);
+
+    try {
+      const res = await login("builder@stanford.edu", "Password123!");
+      if (!res.success) {
+        setErrorMessage(
+          res.error || "Failed to sign in to demo account."
+        );
+        setLoading(false);
+      } else {
+        window.location.href = "/?tab=dashboard";
       }
     } catch (err: unknown) {
       const message =
@@ -106,15 +129,33 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Continue with Google */}
+        {/* Continue with Google & Demo Account */}
         <div className="space-y-4">
+          <Button
+            type="button"
+            variant="purple"
+            onClick={handleDemoLogin}
+            disabled={loading}
+            className="w-full py-3 px-4 rounded-xl shadow-lg shadow-purple-600/30 text-xs font-semibold flex items-center justify-between group"
+          >
+            <span className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-white group-hover:rotate-12 transition-transform" />
+              <span>Sign In with Demo Account (Alex Rivera)</span>
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/20 text-white font-bold">1-Click</span>
+          </Button>
+
           <GoogleSignInButton onError={(err) => setErrorMessage(err)} />
 
           <div className="relative flex items-center justify-center my-4">
-            <div className="border-t border-gray-800 w-full" />
-            <span className="bg-gray-900 px-3 text-[11px] text-gray-500 uppercase tracking-wider font-semibold">
-              or sign in with email
-            </span>
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-800" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-gray-900 px-3 text-[11px] text-gray-500 uppercase tracking-wider font-semibold whitespace-nowrap">
+                or sign in with email
+              </span>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
